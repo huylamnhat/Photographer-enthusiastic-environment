@@ -18,9 +18,7 @@ Thiết kế kiến trúc logic và phương án triển khai của MiniLab, gi�
 
 ## 2. Sơ đồ kiến trúc hệ thống
 
-
-https://github.com/huylamnhat/Photographer-enthusiastic-environment/blob/ec4975244318a4412c31fc686d2cecb9e77f7644/images/S%C6%A1%20%C4%91%E1%BB%93%20ki%E1%BA%BFn%20tr%C3%BAc%20h%E1%BB%87%20th%E1%BB%91ng%20ph%C3%B2ng%20lab%20phim.png
-
+https://github.com/huylamnhat/Photographer-enthusiastic-environment/blob/0a34ad2fae7a37728a9989a51e83a3a48dc20346/images/so%20do%20kien%20truc%20%26%20trien%20khai.svg
 
 *Hình 1. Kiến trúc phân tầng MiniLab (sơ đồ logic).*
 
