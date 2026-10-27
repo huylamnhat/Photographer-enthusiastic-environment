@@ -21,6 +21,7 @@ Thiết kế kiến trúc logic và phương án triển khai của MiniLab, gi�
 
 
 
+
 *Hình 1. Kiến trúc phân tầng MiniLab (sơ đồ logic).*
 
 
@@ -46,40 +47,37 @@ VNPay/MoMo: khởi tạo giao dịch, nhận và xác minh kết quả, thực h
 
 ## 3. Sơ đồ triển khai (Deployment Diagram)
 
+
 ```mermaid
 flowchart LR
-    subgraph CLIENT["CLIENT LAYER"]
-        A["Flutter Mobile App"]
-        B["Flutter Web"]
-    end
-
-    C["Internet / HTTPS"]
-
-    subgraph BACKEND["API / BACKEND LAYER"]
-        D["Node.js + Express"]
-        E["JWT Authentication"]
-        F["RBAC Authorization"]
-        D --> E --> F
-    end
-
-    subgraph DATA["DATA & STORAGE"]
-        G[("SQL Server")]
-        H[("Cloud Storage")]
-    end
-
-    subgraph EXTERNAL["EXTERNAL SERVICES"]
-        I["VNPay / MoMo"]
-        J["Ahamove / Lalamove"]
-    end
-
-    A --> C
-    B --> C
-    C --> D
-    F --> G
-    F --> H
-    F --> I
-    F --> J
+ subgraph CLIENT["Thiết bị người dùng"]
+  A["Flutter Mobile"]
+  B["Flutter Web"]
+ end
+ C["Internet / HTTPS"]
+ subgraph BACKEND["Application Server"]
+  D["Node.js + Express REST API"]
+  E["JWT + RBAC"]
+  D --> E
+ end
+ subgraph DATA["Dữ liệu và lưu trữ"]
+  F[("SQL Server")]
+  G[("Cloud Storage")]
+ end
+ subgraph PARTNERS["Dịch vụ đối tác"]
+  H["VNPay / MoMo"]
+  I["Ahamove / Lalamove"]
+ end
+ A --> C
+ B --> C
+ C --> D
+ E --> F
+ E --> G
+ E --> H
+ E --> I
 ```
+
+
 *Hình 2. Phương án triển khai đề xuất – thiết bị, server, dữ liệu và đối tác.*
 
 | Thành phần | Vị trí | Chức năng |
@@ -96,52 +94,37 @@ Luồng truy cập: Client → HTTPS → Express API → SQL Server / Cloud Stor
 
 ## 4. Luồng nghiệp vụ chi tiết
 
+Các sơ đồ Mermaid bên dưới được GitHub vẽ trực tiếp từ mã, không cần tải ảnh lên.
+
 Các sơ đồ dưới đây diễn giải nghiệp vụ từ đặc tả Week 1 để làm rõ cách các tầng kiến trúc Week 2 phối hợp. **Đây là sơ đồ minh họa bổ trợ cho Nhóm 4, không thay thế sơ đồ Sequence/Activity do nhóm khác phụ trách.**
 
 
 ### 4.1 Đặt dịch vụ và thanh toán
 
 
-
-
+```mermaid
 flowchart TD
-    A["Customer tìm kiếm Film Lab"]
-    B["Chọn Lab và gói dịch vụ"]
-    C["Chọn khổ film, số cuộn, scan, in ảnh"]
-    D["Chọn Pickup hoặc Drop-off"]
-    E["Backend kiểm tra và tính tổng tiền"]
-    F["Lưu giá tại thời điểm đặt"]
-    G{"Hình thức giao nhận?"}
-    H["Pickup / Đơn từ xa"]
-    I["Drop-off tại Lab"]
-    J["Thanh toán online bắt buộc"]
-    K["Có thể thanh toán tại quầy"]
-    L["Tạo đơn Pending Payment"]
-    M["VNPay / MoMo xử lý giao dịch"]
-    N{"Thanh toán thành công?"}
-    O["Pending Confirmation"]
-    P["Giữ Pending Payment"]
-    Q{"Quá 24 giờ?"}
-    R["Cancelled"]
-    S["Cho phép thanh toán lại"]
-    T{"Khách hủy khi đang chờ Lab xác nhận?"}
-    U["Hủy hợp lệ và hoàn 100%"]
-    V["Chuyển sang xử lý đơn"]
-
-    A --> B --> C --> D --> E --> F --> G
-    G -->|Pickup| H --> J --> L
-    G -->|Drop-off| I --> K
-    K -->|Chọn online| L
-    K -->|Thanh toán tại quầy| O
-    L --> M --> N
-    N -->|Có| O
-    N -->|Không| P --> Q
-    Q -->|Có| R
-    Q -->|Không| S --> M
-    O --> T
-    T -->|Có, trước khi nhận film| U
-    T -->|Không| V
-
+ A["Customer tìm và chọn Film Lab"] --> B["Chọn gói tráng/scan, số cuộn, phụ phí, in ảnh"]
+ B --> C["Chọn Pickup hoặc Drop-off"]
+ C --> D["Backend tính tổng tiền và lưu price snapshot"]
+ D --> E{"Hình thức giao nhận?"}
+ E -->|"Pickup / từ xa"| F["Bắt buộc thanh toán online"]
+ E -->|"Drop-off tại Lab"| G{"Chọn cách thanh toán?"}
+ G -->|"Tại quầy"| H["Thanh toán COD tại quầy"]
+ G -->|"Online"| F
+ F --> I["Tạo đơn Pending Payment"]
+ I --> J["VNPay / MoMo xử lý thanh toán"]
+ J --> K{"Backend xác minh thành công?"}
+ K -->|"Không"| L["Giữ Pending Payment, cho thanh toán lại"]
+ L --> M{"Quá 24 giờ chưa trả?"}
+ M -->|"Có"| N["Cancelled - tự hủy"]
+ M -->|"Không"| J
+ K -->|"Có"| O["Pending Confirmation"]
+ H --> O
+ O --> P{"Khách yêu cầu hủy trước khi film được nhận/lấy?"}
+ P -->|"Có"| Q["Hủy hợp lệ, hoàn 100%"]
+ P -->|"Không"| R["Chuyển sang nhận và xử lý film"]
+```
 
 
 *Hình 3. Luồng đặt đơn và thanh toán trực tuyến, bao gồm nhánh thất bại.*
@@ -152,50 +135,31 @@ Giá đơn = giá gói cơ bản × số cuộn + phụ phí scan/Push × số c
 ### 4.2 Lab xử lý, upload scan và trả kết quả
 
 
-
+```mermaid
 flowchart TD
-    A["Film Lab tiếp nhận film"]
-    B["Kiểm tra mã đơn, số cuộn, tình trạng film"]
-    C{"Film hợp lệ và đã thanh toán?"}
-    D["Ghi nhận bất thường, báo khách xác nhận"]
-    E{"Có phụ phí phát sinh?"}
-    F["Lab gửi đề xuất phụ phí"]
-    G{"Khách đồng ý và thanh toán?"}
-    H["Chưa xử lý, chờ xác nhận"]
-    I["Processing: Tráng film"]
-    J["Rửa và sấy"]
-    K["Scan film"]
-    L["Kiểm tra chất lượng QC"]
-    M{"QC đạt chuẩn?"}
-    N["Khắc phục và kiểm tra lại"]
-    O["Upload file lên Cloud Storage"]
-    P{"Upload thành công?"}
-    Q["Resumable Upload: tải tiếp"]
-    R{"Upload nhầm file?"}
-    S["Revoke & Replace trong 24 giờ"]
-    T["Ghi Audit Log, thông báo đính chính"]
-    U["Lưu metadata vào SQL Server"]
-    V["Liên kết Digital Film Archive"]
-    W["Cập nhật Completed"]
-    X["Push Notification và Email"]
-    Y["Customer xem / tải file gốc"]
-
-    A --> B --> C
-    C -->|Không| D
-    C -->|Có| E
-    E -->|Có| F --> G
-    G -->|Không| H
-    G -->|Có| I
-    E -->|Không| I
-    I --> J --> K --> L --> M
-    M -->|Không| N --> L
-    M -->|Có| O --> P
-    P -->|Không| Q --> O
-    P -->|Có| R
-    R -->|Có| S --> T --> U
-    R -->|Không| U
-    U --> V --> W --> X --> Y
-
+ A["Film Lab nhận film, ghi tình trạng và số cuộn"] --> B{"Film hợp lệ và thanh toán đủ?"}
+ B -->|"Không"| C["Báo sai lệch, chờ khách xác nhận"]
+ B -->|"Có"| D{"Có phụ phí phát sinh?"}
+ D -->|"Có"| E["Xin khách đồng ý và thanh toán thêm"]
+ E --> F{"Khách đồng ý?"}
+ F -->|"Không"| G["Tạm dừng xử lý"]
+ F -->|"Có"| H["Processing: tráng - rửa - sấy - scan"]
+ D -->|"Không"| H
+ H --> I["Kiểm tra chất lượng QC"]
+ I --> J{"QC đạt?"}
+ J -->|"Không"| K["Khắc phục lỗi và QC lại"]
+ K --> I
+ J -->|"Có"| L["Upload scan lên Cloud Storage"]
+ L --> M{"Upload thành công?"}
+ M -->|"Không"| N["Resumable upload, tiếp tục tải"]
+ N --> L
+ M -->|"Có"| O{"Upload nhầm file?"}
+ O -->|"Có"| P["Revoke & Replace trong 24h, Audit Log"]
+ P --> Q["Lưu metadata SQL Server và liên kết Archive"]
+ O -->|"Không"| Q
+ Q --> R["Completed, thông báo Customer"]
+ R --> S["Khách xem/tải file, kiểm tra quyền sở hữu"]
+```
 
 
 *Hình 4. Luồng xử lý film → kiểm tra QC → Archive → thông báo.*
@@ -206,45 +170,28 @@ Upload thực hiện sau QC. Hỗ trợ tải tiếp nếu mất mạng. Khi upl
 ### 4.3 Điều phối vận chuyển
 
 
-
+```mermaid
 flowchart TD
-    A["Customer tạo đơn dịch vụ"]
-    B{"Chọn Pickup?"}
-    C["Customer tự mang film đến Lab"]
-    D["Backend tạo yêu cầu vận chuyển"]
-    E["Ahamove / Lalamove hoặc shipper Lab"]
-    F["Shipper đến lấy film"]
-    G{"Lấy film thành công?"}
-    H["Hẹn lấy lại, tối đa 2 lần"]
-    I{"Đã hết số lần thử?"}
-    J["Hủy yêu cầu Pickup"]
-    K["Chuyển sang Drop-off"]
-    L["Film Lab nhận film"]
-    M["Cập nhật Received at Lab"]
-    N["Lab tráng, scan, QC"]
-    O["Upload file vào Archive"]
-    P{"Khách muốn nhận film / ảnh in vật lý?"}
-    Q["Không phát sinh giao trả vật lý"]
-    R["Lab đóng gói và tạo yêu cầu giao trả"]
-    S["Shipper giao hàng"]
-    T{"Giao trả thành công?"}
-    U["Delivered / Đóng đơn"]
-    V["Chuyển hoàn về Film Lab"]
-    W["Khách nhận tại Lab hoặc trả phí giao lại"]
-
-    A --> B
-    B -->|Không| C --> L
-    B -->|Có| D --> E --> F --> G
-    G -->|Có| L
-    G -->|Không| H --> I
-    I -->|Chưa| F
-    I -->|Rồi| J --> K --> C
-    L --> M --> N --> O --> P
-    P -->|Không| Q
-    P -->|Có| R --> S --> T
-    T -->|Có| U
-    T -->|Không| V --> W
-
+ A["Customer chọn phương thức giao film"] --> B{"Pickup?"}
+ B -->|"Không"| C["Drop-off: khách mang film đến Lab"]
+ B -->|"Có"| D["Backend tạo yêu cầu Ahamove/Lalamove"]
+ D --> E["Shipper đến lấy film"]
+ E --> F{"Lấy film thành công?"}
+ F -->|"Không"| G{"Đã thử lại tối đa 2 lần?"}
+ G -->|"Chưa"| E
+ G -->|"Rồi"| H["Chuyển sang Drop-off"]
+ H --> C
+ F -->|"Có"| I["Film Lab nhận film - Received at Lab"]
+ C --> I
+ I --> J["Lab tráng/scan/QC, trả file vào Archive"]
+ J --> K{"Khách yêu cầu giao trả vật lý?"}
+ K -->|"Không"| L["Hoàn tất phần kết quả số"]
+ K -->|"Có"| M["Đóng gói, tạo đơn giao trả"]
+ M --> N{"Giao thành công?"}
+ N -->|"Có"| O["Delivered / đóng đơn"]
+ N -->|"Không"| P["Chuyển hoàn về Lab"]
+ P --> Q["Khách nhận tại Lab hoặc trả phí giao lại"]
+```
 
 
 *Hình 5. Luồng lấy film và giao trả vật lý khi khách yêu cầu.*
@@ -254,36 +201,24 @@ Lấy film thất bại được thử lại tối đa 2 lần; sau đó chuyể
 
 ### 4.4 Khiếu nại và hoàn tiền
 
-
+```mermaid
 flowchart TD
-    A["Customer gửi khiếu nại"]
-    B["Hệ thống ghi nhận và thông báo Film Lab"]
-    C["Customer và Lab tự thương lượng"]
-    D{"Hai bên thống nhất?"}
-    E["Ghi nhận kết quả và đóng khiếu nại"]
-    F["Chuyển Admin phân xử"]
-    G["Admin kiểm tra chứng cứ hợp lệ"]
-    H{"Phê duyệt hoàn tiền?"}
-    I["Refund_Rejected"]
-    J["Refund_Requested"]
-    K["Refund_Approved"]
-    L["Refund_Processing"]
-    M["Payment API hoàn về ví / tài khoản ban đầu"]
-    N{"Hoàn tiền thành công?"}
-    O["Refund_Success"]
-    P["Refund_Failed"]
-    Q["Thông báo kết quả cho Customer"]
-    R["Ghi Audit Log"]
-
-    A --> B --> C --> D
-    D -->|Có| E
-    D -->|Không| F --> G --> H
-    H -->|Không| I --> Q
-    H -->|Có| J --> K --> L --> M --> N
-    N -->|Có| O --> Q
-    N -->|Không| P --> Q
-    Q --> R
-
+ A["Customer gửi khiếu nại"] --> B["Ghi nhận và thông báo Film Lab"]
+ B --> C["Hai bên tự thương lượng"]
+ C --> D{"Thống nhất?"}
+ D -->|"Có"| E["Ghi nhận thỏa thuận, đóng khiếu nại"]
+ D -->|"Không"| F["Admin phân xử, kiểm tra chứng cứ được phép"]
+ F --> G{"Chấp thuận hoàn tiền?"}
+ G -->|"Không"| H["Refund_Rejected, nêu lý do"]
+ G -->|"Có"| I["Refund_Requested / Refund_Approved"]
+ I --> J["Refund_Processing qua Payment API"]
+ J --> K{"Hoàn tiền thành công?"}
+ K -->|"Có"| L["Refund_Success, dự kiến 3-5 ngày làm việc"]
+ K -->|"Không"| M["Refund_Failed, xử lý lỗi"]
+ H --> N["Thông báo kết quả, ghi Audit Log"]
+ L --> N
+ M --> N
+```
 
 *Hình 6. Khách khiếu nại → tự thương lượng với Lab → Admin phân xử khi cần → hoàn tiền qua cổng thanh toán.*
 
