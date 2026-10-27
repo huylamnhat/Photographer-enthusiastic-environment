@@ -32,6 +32,38 @@ Ngoài ra, hệ thống có các thực thể hỗ trợ như `Roles`, `User_Rol
 
 ### 1.2. Sơ đồ ERD quan niệm tổng thể
 
+### 2.2.1. Phân hệ người dùng và Film Lab
+
+Phân hệ này quản lý tài khoản người dùng, vai trò, hồ sơ Film Lab, chuyên gia, đối tác giao hàng và các định dạng phim mà Lab hỗ trợ.
+
+```mermaid
+erDiagram
+    Roles ||--o{ User_Roles : "assigned"
+    Users ||--o{ User_Roles : "has"
+    Users ||--o{ Lab_Profile : "owns"
+    Users ||--o| Expert_Profile : "has"
+    Users ||--o| Delivery_Partner_Profile : "has"
+
+    Lab_Profile ||--o{ Service_Package : "offers"
+    Lab_Profile ||--o{ Lab_Film_Format : "supports"
+    Film_Format ||--o{ Lab_Film_Format : "supported by"
+```
+
+**Các bảng trong phân hệ:**
+
+| Bảng | Khóa chính | Khóa ngoại chính |
+|---|---|---|
+| `Users` | `user_id` | — |
+| `Roles` | `role_id` | — |
+| `User_Roles` | `user_id`, `role_id` | `Users.user_id`, `Roles.role_id` |
+| `Lab_Profile` | `lab_id` | `Users.user_id` qua `owner_id` |
+| `Expert_Profile` | Theo thiết kế bảng | `Users.user_id` |
+| `Delivery_Partner_Profile` | Theo thiết kế bảng | `Users.user_id` |
+| `Service_Package` | `package_id` | `Lab_Profile.lab_id` |
+| `Film_Format` | `format_id` | — |
+| `Lab_Film_Format` | `lab_id`, `format_id` | `Lab_Profile.lab_id`, `Film_Format.format_id` |
+
+**Lưu ý:** Tài liệu xác định các bảng `Expert_Profile` và `Delivery_Partner_Profile` nhưng chưa cung cấp đặc tả đầy đủ về các cột và khóa của hai bảng này.
 
 ### 1.3. Các mối quan hệ chính
 
