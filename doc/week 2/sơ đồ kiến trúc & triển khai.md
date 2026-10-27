@@ -46,8 +46,7 @@ VNPay/MoMo: khởi tạo giao dịch, nhận và xác minh kết quả, thực h
 
 ## 3. Sơ đồ triển khai (Deployment Diagram)
 
-
-
+```mermaid
 flowchart LR
     subgraph CLIENT["CLIENT LAYER"]
         A["Flutter Mobile App"]
@@ -60,33 +59,27 @@ flowchart LR
         D["Node.js + Express"]
         E["JWT Authentication"]
         F["RBAC Authorization"]
-        G["Order / Payment / Delivery"]
-        H["Archive / Community / Admin"]
         D --> E --> F
-        F --> G
-        F --> H
     end
 
     subgraph DATA["DATA & STORAGE"]
-        I[("SQL Server")]
-        J[("Cloud Storage")]
+        G[("SQL Server")]
+        H[("Cloud Storage")]
     end
 
     subgraph EXTERNAL["EXTERNAL SERVICES"]
-        K["VNPay / MoMo"]
-        L["Ahamove / Lalamove"]
+        I["VNPay / MoMo"]
+        J["Ahamove / Lalamove"]
     end
 
     A --> C
     B --> C
     C --> D
-    G --> I
-    H --> J
-    G --> K
-    G --> L
-  
-
-
+    F --> G
+    F --> H
+    F --> I
+    F --> J
+```
 *Hình 2. Phương án triển khai đề xuất – thiết bị, server, dữ liệu và đối tác.*
 
 | Thành phần | Vị trí | Chức năng |
