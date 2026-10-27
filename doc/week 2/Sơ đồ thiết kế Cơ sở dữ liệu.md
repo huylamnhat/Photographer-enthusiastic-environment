@@ -32,38 +32,98 @@ Ngoài ra, hệ thống có các thực thể hỗ trợ như `Roles`, `User_Rol
 
 ### 1.2. Sơ đồ ERD quan niệm tổng thể
 
-### 2.2.1. Phân hệ người dùng và Film Lab
-
-Phân hệ này quản lý tài khoản người dùng, vai trò, hồ sơ Film Lab, chuyên gia, đối tác giao hàng và các định dạng phim mà Lab hỗ trợ.
-
-```mermaid
 erDiagram
-    Roles ||--o{ User_Roles : "assigned"
     Users ||--o{ User_Roles : "has"
+    Roles ||--o{ User_Roles : "assigned"
+
     Users ||--o{ Lab_Profile : "owns"
-    Users ||--o| Expert_Profile : "has"
-    Users ||--o| Delivery_Partner_Profile : "has"
+    Users ||--o| Expert_Profile : "has profile"
+    Users ||--o| Delivery_Partner_Profile : "has profile"
 
     Lab_Profile ||--o{ Service_Package : "offers"
     Lab_Profile ||--o{ Lab_Film_Format : "supports"
     Film_Format ||--o{ Lab_Film_Format : "supported by"
-```
 
-**Các bảng trong phân hệ:**
+    Users {
+        INT user_id PK
+        NVARCHAR email UK
+        VARCHAR phone
+        VARCHAR password_hash
+        NVARCHAR full_name
+        VARCHAR avatar_url
+        VARCHAR status
+        BIT email_verified
+        DATETIME2 created_at
+        DATETIME2 updated_at
+    }
 
-| Bảng | Khóa chính | Khóa ngoại chính |
-|---|---|---|
-| `Users` | `user_id` | — |
-| `Roles` | `role_id` | — |
-| `User_Roles` | `user_id`, `role_id` | `Users.user_id`, `Roles.role_id` |
-| `Lab_Profile` | `lab_id` | `Users.user_id` qua `owner_id` |
-| `Expert_Profile` | Theo thiết kế bảng | `Users.user_id` |
-| `Delivery_Partner_Profile` | Theo thiết kế bảng | `Users.user_id` |
-| `Service_Package` | `package_id` | `Lab_Profile.lab_id` |
-| `Film_Format` | `format_id` | — |
-| `Lab_Film_Format` | `lab_id`, `format_id` | `Lab_Profile.lab_id`, `Film_Format.format_id` |
+    Roles {
+        INT role_id PK
+        VARCHAR role_name UK
+        NVARCHAR description
+        DATETIME2 created_at
+    }
 
-**Lưu ý:** Tài liệu xác định các bảng `Expert_Profile` và `Delivery_Partner_Profile` nhưng chưa cung cấp đặc tả đầy đủ về các cột và khóa của hai bảng này.
+    User_Roles {
+        INT user_id PK, FK
+        INT role_id PK, FK
+        DATETIME2 assigned_at
+    }
+
+    Lab_Profile {
+        INT lab_id PK
+        INT owner_id FK
+        NVARCHAR lab_name
+        VARCHAR slug UK
+        NVARCHAR description
+        VARCHAR phone
+        NVARCHAR province
+        NVARCHAR district
+        NVARCHAR street_address
+        DECIMAL latitude
+        DECIMAL longitude
+        VARCHAR business_license_no
+        DECIMAL avg_rating
+        INT review_count
+        VARCHAR approval_status
+        DATETIME2 created_at
+    }
+
+    Expert_Profile {
+        INT user_id PK, FK
+    }
+
+    Delivery_Partner_Profile {
+        INT user_id PK, FK
+    }
+
+    Service_Package {
+        INT package_id PK
+        INT lab_id FK
+        VARCHAR service_type
+        NVARCHAR name
+        NVARCHAR description
+        SMALLINT format_id FK
+        SMALLINT process_type_id FK
+        VARCHAR scan_quality
+        SMALLINT scan_dpi
+        VARCHAR output_format
+        DECIMAL price
+        VARCHAR price_unit
+        TINYINT est_processing_days
+        BIT is_active
+    }
+
+    Film_Format {
+        SMALLINT format_id PK
+        NVARCHAR format_name
+        NVARCHAR description
+    }
+
+    Lab_Film_Format {
+        INT lab_id PK, FK
+        SMALLINT format_id PK, FK
+    }
 
 ### 1.3. Các mối quan hệ chính
 
