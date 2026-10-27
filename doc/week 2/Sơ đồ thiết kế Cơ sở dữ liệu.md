@@ -32,52 +32,6 @@ Ngoài ra, hệ thống có các thực thể hỗ trợ như `Roles`, `User_Rol
 
 ### 1.2. Sơ đồ ERD quan niệm tổng thể
 
-```mermaid
-erDiagram
-    Users }o--o{ Roles : "has roles"
-    Users ||--o| Lab_Profile : "owns"
-    Users ||--o| Expert_Profile : "has profile"
-    Users ||--o| Delivery_Partner_Profile : "has profile"
-
-    Lab_Profile ||--o{ Service_Package : "offers"
-    Lab_Profile }o--o{ Film_Format : "supports"
-
-    Users ||--o{ Orders : "places"
-    Lab_Profile ||--o{ Orders : "receives"
-    Orders ||--|{ Order_Item : "contains"
-    Service_Package ||--o{ Order_Item : "is selected"
-
-    Order_Item ||--o| Digital_Film_Archive : "may create"
-    Users ||--o{ Digital_Film_Archive : "owns"
-    Digital_Film_Archive ||--o{ Archive_Photo : "contains"
-    Archive_Photo ||--o| Photo_Metadata : "has metadata"
-    Archive_Photo }o--o{ Tag : "has tags"
-
-    Users ||--o{ Equipment_Listing : "creates listing"
-    Equipment_Listing ||--o{ Listing_Image : "has images"
-    Users }o--o{ Equipment_Listing : "favorites"
-    Equipment_Listing ||--o{ Marketplace_Transaction : "has transactions"
-
-    Users ||--o{ Review : "writes"
-    Orders ||--o| Review : "receives lab review"
-    Marketplace_Transaction ||--o| Review : "receives seller review"
-
-    Users ||--o{ Post_Article : "authors"
-    Post_Article }o--o{ Tag : "has tags"
-
-    Orders ||--o{ Dispute_Complaint : "may have disputes"
-    Users ||--o{ Dispute_Complaint : "submits"
-```
-
-**Giải thích sơ đồ:**
-
-- `||` biểu thị một thực thể bắt buộc có đúng một đối tượng ở đầu mối quan hệ.
-- `o|` biểu thị không hoặc một đối tượng.
-- `o{` biểu thị không hoặc nhiều đối tượng.
-- `|{` biểu thị một hoặc nhiều đối tượng.
-- `}o--o{` biểu thị quan hệ nhiều–nhiều (N–N).
-
-Sơ đồ trên mô tả các quan hệ nghiệp vụ chính. Khi chuyển sang thiết kế vật lý, các quan hệ N–N được triển khai thông qua bảng trung gian có khóa ngoại và khóa chính phù hợp.
 
 ### 1.3. Các mối quan hệ chính
 
@@ -137,48 +91,6 @@ Quy ước kiểu dữ liệu chính:
 
 ### 2.2. Sơ đồ ERD vật lý theo các phân hệ chính
 
-```mermaid
-erDiagram
-    Roles ||--o{ User_Roles : "assigned"
-    Users ||--o{ User_Roles : "has"
-    Users ||--o{ Lab_Profile : "owns"
-    Users ||--o| Expert_Profile : "has"
-    Users ||--o| Delivery_Partner_Profile : "has"
-
-    Lab_Profile ||--o{ Service_Package : "offers"
-    Lab_Profile ||--o{ Lab_Film_Format : "supports"
-    Film_Format ||--o{ Lab_Film_Format : "supported by"
-
-    Users ||--o{ Orders : "places"
-    Lab_Profile ||--o{ Orders : "receives"
-    Orders ||--|{ Order_Item : "contains"
-    Service_Package ||--o{ Order_Item : "selected in"
-
-    Users ||--o{ Digital_Film_Archive : "owns"
-    Order_Item ||--o| Digital_Film_Archive : "creates"
-    Digital_Film_Archive ||--o{ Archive_Photo : "contains"
-    Archive_Photo ||--o| Photo_Metadata : "described by"
-    Archive_Photo ||--o{ Photo_Tag : "tagged"
-    Tag ||--o{ Photo_Tag : "used by"
-
-    Users ||--o{ Equipment_Listing : "sells"
-    Equipment_Listing ||--o{ Listing_Image : "has"
-    Users ||--o{ Listing_Favorite : "favorites"
-    Equipment_Listing ||--o{ Listing_Favorite : "saved by"
-    Equipment_Listing ||--o{ Marketplace_Transaction : "has"
-    Users ||--o{ Marketplace_Transaction : "buys"
-
-    Users ||--o{ Review : "writes"
-    Orders o|--o| Review : "lab review"
-    Marketplace_Transaction o|--o| Review : "seller review"
-
-    Users ||--o{ Post_Article : "authors"
-    Post_Article ||--o{ Post_Tag : "tagged"
-    Tag ||--o{ Post_Tag : "used by"
-
-    Orders ||--o{ Dispute_Complaint : "disputed"
-    Users ||--o{ Dispute_Complaint : "submits"
-```
 
 ### 2.3. Đặc tả các bảng chính
 
