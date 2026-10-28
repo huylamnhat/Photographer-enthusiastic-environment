@@ -7,11 +7,11 @@
 ```mermaid
 flowchart LR
 
-    CUS([" Customer"])
-    EXP([" Photography Expert"])
-    LAB([" Film Lab Owner"])
-    DEL([" Delivery Partner"])
-    ADM([" System Administrator"])
+    CUS(["👤 Customer"])
+    EXP(["👤 Photography Expert"])
+    LAB(["👤 Film Lab Owner"])
+    DEL(["👤 Delivery Partner"])
+    ADM(["👤 System Administrator"])
 
     subgraph SYS["Hệ thống Quản lý Cộng đồng & Dịch vụ Film Lab"]
         direction LR
@@ -62,9 +62,9 @@ flowchart LR
 ```mermaid
 flowchart LR
 
-    CUS([" Customer"])
-    LAB([" Film Lab Owner"])
-    DEL([" Delivery Partner"])
+    CUS(["👤 Customer"])
+    LAB(["👤 Film Lab Owner"])
+    DEL(["👤 Delivery Partner"])
 
     subgraph SYS["Phân hệ Đặt & Xử lý dịch vụ Tráng/Scan"]
         direction LR
@@ -134,9 +134,9 @@ flowchart LR
 ```mermaid
 flowchart LR
 
-    CUS([" Customer"])
-    EXP([" Photography Expert"])
-    ADM([" System Administrator"])
+    CUS(["👤 Customer"])
+    EXP(["👤 Photography Expert"])
+    ADM(["👤 System Administrator"])
 
     subgraph SYS["Phân hệ Marketplace & Quản lý thiết bị"]
         direction LR
@@ -174,7 +174,7 @@ flowchart LR
 ```mermaid
 flowchart LR
 
-    ADM([" System Administrator"])
+    ADM(["👤 System Administrator"])
 
     subgraph SYS["Phân hệ Quản trị hệ thống & Kiểm duyệt"]
         direction LR
