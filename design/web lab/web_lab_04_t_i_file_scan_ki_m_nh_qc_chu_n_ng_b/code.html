@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+
+<html lang="vi"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;1,400&amp;family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={"darkMode":"class","theme":{"extend":{"colors":{"secondary-fixed-dim":"#abcebe","surface-container-lowest":"#ffffff","on-tertiary-fixed":"#221a11","error-container":"#ffdad6","surface-container":"#f4ede6","inverse-primary":"#ffb691","on-secondary-container":"#4a6b5d","on-surface":"#1e1b17","tertiary":"#5b5045","primary-container":"#a9511c","surface-dim":"#e0d9d2","on-secondary-fixed-variant":"#2d4d40","error":"#ba1a1a","on-primary-container":"#ffe6dc","on-primary-fixed-variant":"#793100","secondary":"#446557","secondary-fixed":"#c6ebd9","on-secondary-fixed":"#002116","surface-variant":"#e9e1da","surface-container-high":"#efe7e0","primary":"#8a3a03","surface-container-highest":"#e9e1da","on-error-container":"#93000a","on-tertiary-fixed-variant":"#4f453a","tertiary-container":"#74685c","primary-fixed-dim":"#ffb691","surface-tint":"#9a4610","on-surface-variant":"#55433a","outline":"#887268","secondary-container":"#c6ebd9","inverse-on-surface":"#f7efe8","inverse-surface":"#33302b","surface":"#fff8f3","on-tertiary":"#ffffff","tertiary-fixed-dim":"#d3c4b6","on-tertiary-container":"#f9e8d9","surface-bright":"#fff8f3","on-primary":"#ffffff","on-error":"#ffffff","primary-fixed":"#ffdbcb","on-secondary":"#ffffff","on-background":"#1e1b17","on-primary-fixed":"#341100","tertiary-fixed":"#f0e0d1","outline-variant":"#dcc1b5","background":"#fff8f3","surface-container-low":"#faf2eb"},"borderRadius":{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},"spacing":{"space-sm":"0.5rem","gutter-lg":"1.25rem","space-xs":"0.25rem","space-2xs":"0.125rem","margin-lg":"1.5rem","margin":"1rem","space-md":"0.75rem","space-lg":"1rem","space-xl":"1.5rem","gutter-md":"1rem","margin-md":"1.25rem","gutter":"0.75rem"},"fontFamily":{"headline-sm":["IBM Plex Sans"],"label-md":["IBM Plex Mono"],"body-md":["IBM Plex Sans"],"headline-xl":["IBM Plex Sans"],"code-md":["IBM Plex Mono"],"headline-md":["IBM Plex Sans"],"label-sm":["IBM Plex Mono"],"headline-lg":["IBM Plex Sans"],"body-sm":["IBM Plex Sans"]},"fontSize":{"headline-sm":["0.875rem",{"lineHeight":"1.25rem","letterSpacing":"0em","fontWeight":"600"}],"label-md":["0.75rem",{"lineHeight":"1rem","letterSpacing":"0.04em","fontWeight":"500"}],"body-md":["0.875rem",{"lineHeight":"1.25rem","letterSpacing":"0em","fontWeight":"400"}],"headline-xl":["1.75rem",{"lineHeight":"2.125rem","letterSpacing":"-0.015em","fontWeight":"600"}],"code-md":["0.8125rem",{"lineHeight":"1.125rem","letterSpacing":"0em","fontWeight":"400"}],"headline-md":["1rem",{"lineHeight":"1.375rem","letterSpacing":"-0.005em","fontWeight":"600"}],"label-sm":["0.6875rem",{"lineHeight":"0.875rem","letterSpacing":"0.06em","fontWeight":"500"}],"headline-lg":["1.25rem",{"lineHeight":"1.625rem","letterSpacing":"-0.01em","fontWeight":"600"}],"body-sm":["0.8125rem",{"lineHeight":"1.125rem","letterSpacing":"0.005em","fontWeight":"400"}]}}}}</script></head><body class="bg-surface font-body-md text-on-surface antialiased"><aside class="fixed left-0 top-0 h-screen w-64 bg-surface-container-low z-50 flex flex-col justify-between shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="flex flex-col"><div class="h-16 px-margin flex items-center justify-between bg-surface-container"><div class="flex items-center gap-space-sm"><div class="w-7 h-7 bg-primary flex items-center justify-center rounded"><span class="material-symbols-outlined text-on-primary text-[18px]">motion_photos_on</span></div><div class="flex flex-col"><span class="font-headline-sm text-headline-sm uppercase tracking-tight text-on-surface">MINILAB ARCHIVE</span><span class="font-label-sm text-label-sm uppercase text-primary">LAB OPS</span></div></div></div><div class="px-space-md pt-space-lg pb-space-xs"><span class="font-label-sm text-label-sm uppercase text-on-surface-variant px-space-xs tracking-wider">VẬN HÀNH TIỆM LAB</span></div><nav class="flex flex-col gap-space-2xs px-space-sm" data-active-classes="bg-primary-container text-on-primary-container font-semibold rounded"><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="bang-kanban-tiep-nhan" href="#"><span class="material-symbols-outlined text-[18px]">view_kanban</span><div class="flex flex-col flex-1 leading-tight"><span class="font-body-sm text-body-sm">1. Tiếp nhận &amp; Phân loại</span><span class="font-label-sm text-label-sm text-outline">WEB-LAB-03</span></div></a><a aria-current="page" class="flex items-center gap-space-sm px-space-md py-space-sm transition-colors bg-primary-container text-on-primary-container font-semibold rounded" data-path="tai-file-scan-qc" href="#"><span class="material-symbols-outlined text-[18px]">cloud_upload</span><div class="flex flex-col flex-1 leading-tight"><span class="font-body-sm text-body-sm">2. Tải file scan &amp; QC</span><span class="font-label-sm text-label-sm text-outline">WEB-LAB-04</span></div></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="dich-vu-bang-gia" href="#"><span class="material-symbols-outlined text-[18px]">price_change</span><div class="flex flex-col flex-1 leading-tight"><span class="font-body-sm text-body-sm">3. Dịch vụ &amp; Bảng giá</span><span class="font-label-sm text-label-sm text-outline">WEB-LAB-05</span></div></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="ho-so-tiem-cong-khai" href="#"><span class="material-symbols-outlined text-[18px]">storefront</span><div class="flex flex-col flex-1 leading-tight"><span class="font-body-sm text-body-sm">4. Hồ sơ tiệm công khai</span><span class="font-label-sm text-label-sm text-outline">WEB-LAB-06</span></div></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="xu-ly-khieu-nai" href="#"><span class="material-symbols-outlined text-[18px]">report_problem</span><div class="flex flex-col flex-1 leading-tight"><span class="font-body-sm text-body-sm">5. Xử lý khiếu nại</span><span class="font-label-sm text-label-sm text-outline">WEB-LAB-07</span></div></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="lich-su-don-sla" href="#"><span class="material-symbols-outlined text-[18px]">history_toggle_off</span><div class="flex flex-col flex-1 leading-tight"><span class="font-body-sm text-body-sm">6. Lịch sử đơn &amp; SLA</span><span class="font-label-sm text-label-sm text-outline">WEB-LAB-08</span></div></a></nav></div><div class="p-space-md bg-surface-container flex flex-col gap-space-xs"><div class="flex items-center justify-between"><span class="font-label-sm text-label-sm text-on-surface-variant uppercase">HỆ THỐNG TRẠM</span><span class="inline-block w-2 h-2 rounded-full bg-secondary"></span></div><span class="font-code-md text-code-md text-on-surface font-semibold">v4.8.2-LAB [ONLINE]</span></div></aside><div class="pl-64"><header class="fixed top-0 left-64 right-0 h-16 bg-surface/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-40 flex items-center justify-between px-gutter-lg"><div class="flex items-center gap-space-md"><div class="flex items-center gap-space-xs bg-surface-container px-space-md py-space-xs rounded"><span class="material-symbols-outlined text-primary text-[18px]">location_on</span><span class="font-body-sm text-body-sm text-on-surface font-medium">Saigon Darkroom - Chi nhánh Q.3</span><span class="material-symbols-outlined text-outline text-[16px]">expand_more</span></div><div class="hidden md:flex items-center gap-space-xs bg-surface-container-lowest px-space-md py-space-xs rounded"><span class="material-symbols-outlined text-outline text-[18px]">search</span><span class="font-body-sm text-body-sm text-on-surface-variant">Tìm roll ID, khách hàng...</span><span class="font-label-sm text-label-sm bg-surface-container-high px-space-xs rounded text-outline font-semibold">⌘K</span></div></div><div class="flex items-center gap-space-lg"><div class="relative flex items-center justify-center p-space-xs text-on-surface-variant hover:text-on-surface cursor-pointer"><span class="material-symbols-outlined text-[20px]">notifications</span><span class="absolute top-1 right-1 w-2 h-2 rounded-full bg-primary"></span></div><div class="flex items-center gap-space-sm pl-space-md"><div class="text-right hidden sm:flex flex-col"><span class="font-body-sm text-body-sm text-on-surface font-semibold leading-tight">Lê Hoài Nam</span><span class="font-label-sm text-label-sm text-primary uppercase font-medium">KỸ THUẬT VIÊN TRƯỞNG</span></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="w-full pt-16 px-gutter-lg bg-surface min-h-screen"><div class="flex flex-col w-full pb-margin-lg">
+<!-- Operational Meta Bar -->
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-space-md py-space-md border-b border-outline-variant/30 mb-space-lg">
+<div class="flex flex-col gap-space-2xs">
+<div class="flex items-center gap-space-xs">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-primary font-semibold">QUY TRÌNH HẬU KỲ / BƯỚC 02</span>
+<span class="text-outline">•</span>
+<span class="font-label-sm text-label-sm uppercase text-secondary font-medium bg-secondary-fixed/50 px-space-xs py-0.5 rounded">MÁY SCAN: NORITSU HS-1800</span>
+</div>
+<h1 class="font-headline-xl text-headline-xl text-on-surface tracking-tight">Tải File Scan &amp; Kiểm định QC</h1>
+<div class="flex flex-wrap items-center gap-space-sm mt-space-2xs">
+<span class="font-code-md text-code-md text-on-surface font-semibold bg-surface-container-high px-space-sm py-0.5 rounded">#ORD-2024-88412</span>
+<span class="text-outline">/</span>
+<span class="font-body-sm text-body-sm text-on-surface">Khách: <strong class="font-semibold text-on-surface">Lê Hoàng Nam</strong></span>
+<span class="text-outline">•</span>
+<span class="font-label-md text-label-md text-tertiary">02 cuộn Kodak Portra 400 (135/36)</span>
+<span class="text-outline">•</span>
+<span class="font-label-sm text-label-sm text-on-secondary-container bg-secondary-container px-space-xs py-0.5 rounded font-medium">BATH: C-41 FRESH (37.8°C)</span>
+</div>
+</div>
+<!-- Quick Stats Pill Container -->
+<div class="flex items-center gap-space-sm bg-surface-container-low p-space-xs rounded shadow-sm">
+<div class="flex flex-col px-space-sm py-space-2xs">
+<span class="font-label-sm text-label-sm uppercase text-outline">ĐÃ TẢI LÊN</span>
+<span class="font-code-md text-code-md font-semibold text-on-surface">72 / 72 TIỆP</span>
+</div>
+<div class="w-px h-6 bg-outline-variant/50"></div>
+<div class="flex flex-col px-space-sm py-space-2xs">
+<span class="font-label-sm text-label-sm uppercase text-outline">ĐÃ ĐẠT QC</span>
+<span class="font-code-md text-code-md font-semibold text-secondary" id="qc-passed-counter">69 / 72 FRAME</span>
+</div>
+<div class="w-px h-6 bg-outline-variant/50"></div>
+<div class="flex flex-col px-space-sm py-space-2xs">
+<span class="font-label-sm text-label-sm uppercase text-outline">GẮN CỜ LỖI</span>
+<span class="font-code-md text-code-md font-semibold text-error" id="qc-flagged-counter">03 CẦN XỬ LÝ</span>
+</div>
+</div>
+</div>
+<!-- SECTION 1: Resumable Upload Bay -->
+<section class="mb-space-xl">
+<div class="flex items-center justify-between mb-space-xs">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[18px] text-primary">cloud_sync</span>
+<span class="font-headline-md text-headline-md text-on-surface uppercase tracking-tight">1. CÔNG CỤ RESUMABLE UPLOAD TỰ ĐỘNG</span>
+</div>
+<span class="font-label-sm text-label-sm text-outline font-medium">CHUNK SIZE: 64MB • PARALLEL: 4 THREADS</span>
+</div>
+<!-- Dropzone with sunken card tier -->
+<div class="relative bg-surface-container rounded p-space-md shadow-sm">
+<!-- Dotted outline interior wrapper -->
+<div class="border-2 border-dashed border-outline-variant/80 rounded p-space-lg flex flex-col md:flex-row items-center justify-between gap-space-lg bg-surface-container-lowest/60">
+<!-- Left: Upload Icon & Metric Specs -->
+<div class="flex items-start gap-space-md w-full md:w-7/12">
+<div class="w-12 h-12 rounded bg-primary/10 flex items-center justify-center shrink-0 text-primary">
+<span class="material-symbols-outlined text-[28px]">archive</span>
+</div>
+<div class="flex flex-col gap-space-2xs w-full">
+<div class="flex items-center justify-between">
+<span class="font-body-sm text-body-sm font-semibold text-on-surface">Đang tải lên: 72/72 tệp TIFF 16-bit (3.4 GB)</span>
+<span class="font-code-md text-code-md font-bold text-primary">94%</span>
+</div>
+<!-- Progress Bar -->
+<div class="w-full bg-surface-container-high h-2.5 rounded-full overflow-hidden shadow-inner my-space-2xs">
+<div class="bg-primary h-full rounded-full transition-all duration-300 relative" style="width: 94%;">
+<div class="absolute inset-0 bg-white/20 animate-pulse"></div>
+</div>
+</div>
+<!-- Upload Telemetry details -->
+<div class="flex flex-wrap items-center gap-space-md text-outline">
+<span class="font-label-sm text-label-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">speed</span> Tốc độ: <strong class="text-on-surface font-semibold">48.2 MB/s</strong>
+</span>
+<span class="font-label-sm text-label-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">timelapse</span> Thời gian còn lại: <strong class="text-on-surface font-semibold">~4 giây</strong>
+</span>
+<span class="font-label-sm text-label-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">verified</span> MD5 Checksum: <span class="font-code-md text-on-surface">0x9F4B...72A</span>
+</span>
+</div>
+</div>
+</div>
+<!-- Right: Action Controls for Ingestion -->
+<div class="flex flex-wrap items-center justify-end gap-space-sm w-full md:w-auto shrink-0">
+<button class="flex items-center gap-space-xs px-space-md py-1.5 rounded bg-surface-container-lowest text-on-surface shadow-sm hover:bg-surface-container-high transition-colors font-headline-sm text-headline-sm" type="button">
+<span class="material-symbols-outlined text-[16px] text-tertiary">pause_circle</span>
+<span>Tạm dừng</span>
+</button>
+<button class="flex items-center gap-space-xs px-space-md py-1.5 rounded bg-surface-container-lowest text-error shadow-sm hover:bg-error-container/40 transition-colors font-headline-sm text-headline-sm" type="button">
+<span class="material-symbols-outlined text-[16px]">cancel</span>
+<span>Hủy</span>
+</button>
+<button class="flex items-center gap-space-xs px-space-md py-1.5 rounded bg-primary-container text-on-primary-container font-semibold shadow-sm hover:bg-primary transition-colors" type="button">
+<span class="material-symbols-outlined text-[16px]">add_photo_alternate</span>
+<span class="font-headline-sm text-headline-sm text-surface-container-lowest">Tải thêm tệp</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+<!-- SECTION 2: QC Frame Inspection Grid -->
+<section class="mb-space-xl">
+<!-- Section Sub-Header & Bulk Toggles -->
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm mb-space-md">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[18px] text-secondary">crop_original</span>
+<h2 class="font-headline-md text-headline-md text-on-surface uppercase tracking-tight">2. LƯỚI KIỂM ĐỊNH CHẤT LƯỢNG (QC FRAME INSPECTION)</h2>
+<span class="font-label-sm text-label-sm text-outline bg-surface-container px-space-xs py-0.5 rounded ml-space-xs">CUỘN 01 / ROLL-A</span>
+</div>
+<!-- Quick Inspection Filters -->
+<div class="flex items-center gap-space-xs bg-surface-container-low p-1 rounded">
+<button class="px-space-sm py-1 rounded text-on-surface font-headline-sm text-headline-sm bg-surface-container-lowest shadow-sm" type="button">Tất cả (36)</button>
+<button class="px-space-sm py-1 rounded text-on-surface-variant hover:text-on-surface font-headline-sm text-headline-sm" type="button">Chỉ xem lỗi (3)</button>
+<button class="px-space-sm py-1 rounded text-on-surface-variant hover:text-on-surface font-headline-sm text-headline-sm" type="button">Chưa duyệt (0)</button>
+<div class="w-px h-4 bg-outline-variant mx-1"></div>
+<button class="flex items-center gap-1 px-space-sm py-1 text-secondary font-headline-sm text-headline-sm hover:bg-secondary-fixed/30 rounded" id="btn-select-all" type="button">
+<span class="material-symbols-outlined text-[16px]">done_all</span> Đánh dấu Đạt tất cả
+        </button>
+</div>
+</div>
+<!-- 12-Frame Visual Workbench Grid (Representative subset of Roll 01, from 01 to 08 + edge cases) -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-space-md">
+<!-- CARD FRAME 01: Standard OK -->
+<div class="qc-frame-card flex flex-col bg-surface-container-lowest rounded shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+<!-- Frame Banner & Tech Specs -->
+<div class="flex items-center justify-between px-space-sm py-1.5 bg-surface-container-low border-b border-outline-variant/30">
+<div class="flex items-center gap-space-xs">
+<span class="font-code-md text-code-md font-bold text-on-surface">#FRAME-01</span>
+<span class="font-label-sm text-label-sm text-outline">TIFF 16b</span>
+</div>
+<span class="font-label-sm text-label-sm font-code-md text-tertiary">3000x2000px • 36MB</span>
+</div>
+<!-- Vintage Film Image Preview -->
+<div class="relative aspect-[3/2] bg-surface-dim overflow-hidden group">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" data-alt="High contrast 35mm film photograph of an old quiet Saigon alleyway captured on warm Kodak Portra 400 with delicate film grain, soft morning sunlight casting shadows on pastel textured walls, showing technical optical sharpness and rich tonal range." src="https://lh3.googleusercontent.com/aida-public/AB6AXuByIA1H90XAWTvlEokQ-a8EN1cJxarViik-Awm-kAN7-xMIhXMm-gNtbzyMiqLZ0huZXj1SqooAj3AdFktj1U5iLm6goXgAZflDXZdvvVia4H0PlwF84BwQWIWjdO-iHBwava7XVTxM3GI-cpcRZm3vXQwqe7iwGZRnM0BA6y0b_ulxPOxz-uOWyUCWwwOiLB0pWixnnZTMNMhoB3PvIRY1SsERWTI3ep53U3Ref68"/>
+<div class="absolute top-2 left-2 bg-inverse-surface/80 text-inverse-on-surface px-space-xs py-0.5 rounded font-code-md text-label-sm">EV +0.3</div>
+<div class="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="bg-surface/90 text-on-surface px-2 py-1 rounded text-label-sm font-headline-sm shadow flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">zoom_in</span> Xem 100%
+            </button>
+</div>
+</div>
+<!-- QC Feedback & Toggle Footer -->
+<div class="p-space-sm flex items-center justify-between bg-surface-container-lowest">
+<label class="flex items-center gap-space-xs cursor-pointer select-none">
+<input checked="" class="w-4 h-4 rounded text-secondary accent-secondary focus:ring-0" type="checkbox"/>
+<span class="font-headline-sm text-headline-sm text-secondary font-semibold">Đạt chuẩn</span>
+</label>
+<button class="qc-flag-btn flex items-center gap-0.5 px-space-xs py-1 rounded text-outline hover:text-error hover:bg-error-container/20 transition-colors font-label-sm text-label-sm" type="button">
+<span class="material-symbols-outlined text-[14px]">flag</span>
+<span>Báo lỗi</span>
+</button>
+</div>
+</div>
+<!-- CARD FRAME 02: Flagged Dust Defect -->
+<div class="qc-frame-card flex flex-col bg-surface-container-lowest rounded shadow-sm overflow-hidden ring-1 ring-error/50 bg-error-container/5">
+<!-- Frame Banner & Tech Specs -->
+<div class="flex items-center justify-between px-space-sm py-1.5 bg-error-container/30 border-b border-error/20">
+<div class="flex items-center gap-space-xs">
+<span class="font-code-md text-code-md font-bold text-error">#FRAME-02</span>
+<span class="font-label-sm text-label-sm text-error font-medium">BỤI FILM</span>
+</div>
+<span class="font-label-sm text-label-sm font-code-md text-error">3000x2000px</span>
+</div>
+<!-- Vintage Film Image Preview with Dust Defect Marker -->
+<div class="relative aspect-[3/2] bg-surface-dim overflow-hidden group">
+<img class="w-full h-full object-cover" data-alt="Film photograph of a portrait in golden hour with visible specks of darkroom dust across the sky and subject's shoulder, shot on Kodak Portra 400 with distinctive analog color tone and analog artifacts requiring technician cleaning." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAb7SQseFbvEH7CWEd7iwViqRqnZFtwtIUeG7sXt7l7m4aQLXqMZiqYUezJKfhmy6cM681M3bxfMIna8wnWcQ_z9WWE6yyhIk2ZMtO3ojxIphp1iqps1DZEuLccdo4cA0ZVGir81akcABxB0m4DtMwJR2x-11y-MqEQ9cAaxsdSglT0MJzzKaF-C3LWNu2xp1egvmxyS7LlRUSOTXQvbvSecl1gNwq69iJ6KixK4RI"/>
+<!-- QC Defect Pin -->
+<div class="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center gap-1 bg-error text-on-error px-1.5 py-0.5 rounded shadow text-label-sm font-label-sm">
+<span class="material-symbols-outlined text-[12px]">pest_control</span> Bụi kính scan góc phải
+          </div>
+</div>
+<!-- QC Feedback & Toggle Footer -->
+<div class="p-space-sm flex items-center justify-between bg-surface-container-lowest">
+<label class="flex items-center gap-space-xs cursor-pointer select-none">
+<input class="w-4 h-4 rounded text-secondary accent-secondary focus:ring-0" type="checkbox"/>
+<span class="font-headline-sm text-headline-sm text-outline">Đạt chuẩn</span>
+</label>
+<button class="qc-flag-btn flex items-center gap-1 px-space-sm py-1 rounded bg-error text-on-error font-label-sm text-label-sm font-semibold shadow-sm" type="button">
+<span class="material-symbols-outlined text-[14px]">refresh</span>
+<span>Cần scan lại</span>
+</button>
+</div>
+</div>
+<!-- CARD FRAME 03: Standard OK -->
+<div class="qc-frame-card flex flex-col bg-surface-container-lowest rounded shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+<div class="flex items-center justify-between px-space-sm py-1.5 bg-surface-container-low border-b border-outline-variant/30">
+<div class="flex items-center gap-space-xs">
+<span class="font-code-md text-code-md font-bold text-on-surface">#FRAME-03</span>
+<span class="font-label-sm text-label-sm text-outline">TIFF 16b</span>
+</div>
+<span class="font-label-sm text-label-sm font-code-md text-tertiary">3000x2000px • 36MB</span>
+</div>
+<div class="relative aspect-[3/2] bg-surface-dim overflow-hidden group">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" data-alt="Classic vintage Vietnamese streetside coffee shop analog film scan with warm wooden chairs, glass cups with dripping condensed milk filter, warm natural tones, crisp focus on porcelain saucer, Kodak Portra 400 grain profile." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCX74pybpbtvpehFGqHKj_gtY5R1jAZtW4XFWMpjiNfdttyCAVF3NgeoGRscc7lQAdYL0FHi45MmjF4BPexWUIojJSf4yQrwvpyXb6_a2kUs2O0VR_mI2811iFzaXjvm06dwgoGphJ7kdBucynXI-laQFhKHNOXZTcQV6oE9ThszayZ6N_rCNfF3OVmkUTKi1mMtczqY6zVTpRP9OchE2ZSQrfhDcSpXCICkc0Ba28"/>
+<div class="absolute top-2 left-2 bg-inverse-surface/80 text-inverse-on-surface px-space-xs py-0.5 rounded font-code-md text-label-sm">NORMAL</div>
+</div>
+<div class="p-space-sm flex items-center justify-between bg-surface-container-lowest">
+<label class="flex items-center gap-space-xs cursor-pointer select-none">
+<input checked="" class="w-4 h-4 rounded text-secondary accent-secondary focus:ring-0" type="checkbox"/>
+<span class="font-headline-sm text-headline-sm text-secondary font-semibold">Đạt chuẩn</span>
+</label>
+<button class="qc-flag-btn flex items-center gap-0.5 px-space-xs py-1 rounded text-outline hover:text-error hover:bg-error-container/20 transition-colors font-label-sm text-label-sm" type="button">
+<span class="material-symbols-outlined text-[14px]">flag</span>
+<span>Báo lỗi</span>
+</button>
+</div>
+</div>
+<!-- CARD FRAME 04: Flagged Sensor Streak -->
+<div class="qc-frame-card flex flex-col bg-surface-container-lowest rounded shadow-sm overflow-hidden ring-1 ring-error/50 bg-error-container/5">
+<div class="flex items-center justify-between px-space-sm py-1.5 bg-error-container/30 border-b border-error/20">
+<div class="flex items-center gap-space-xs">
+<span class="font-code-md text-code-md font-bold text-error">#FRAME-04</span>
+<span class="font-label-sm text-label-sm text-error font-medium">SỌC SENSOR</span>
+</div>
+<span class="font-label-sm text-label-sm font-code-md text-error">3000x2000px</span>
+</div>
+<div class="relative aspect-[3/2] bg-surface-dim overflow-hidden group">
+<img class="w-full h-full object-cover" data-alt="Vintage architecture film photo of an old French colonial building in District 1 with an artificial digital vertical line artifact streak across the frame caused by scanner sensor dirt, Kodacolor warm hues with evident technical scanning defect." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBnXZIH0j_USd4nd2qS46BzHsIseGZL4BHWepPYvSOTRVIWHyhPTE0Oq6CHirboJPRaHF1nCVTVJQm667Lztmyc3w6LqSJLCF_E9lAh75mY1FiZy-lDbCtWtQZy6tpauOHUc-VHepFvglkhd_tEconC42oxVDp3hdeL0zydZmy9IxYL7559l_pDQ64idw5pGUv3KPgIVLucrNKukHqBGlukgMjTwplef6_yj-Enjj4"/>
+<div class="absolute inset-y-0 left-1/3 w-0.5 bg-error/90 animate-pulse"></div>
+<div class="absolute bottom-2 left-2 bg-error text-on-error px-1.5 py-0.5 rounded text-label-sm font-code-md">
+            Sọc CCD Track 1
+          </div>
+</div>
+<div class="p-space-sm flex items-center justify-between bg-surface-container-lowest">
+<label class="flex items-center gap-space-xs cursor-pointer select-none">
+<input class="w-4 h-4 rounded text-secondary accent-secondary focus:ring-0" type="checkbox"/>
+<span class="font-headline-sm text-headline-sm text-outline">Đạt chuẩn</span>
+</label>
+<button class="qc-flag-btn flex items-center gap-1 px-space-sm py-1 rounded bg-error text-on-error font-label-sm text-label-sm font-semibold shadow-sm" type="button">
+<span class="material-symbols-outlined text-[14px]">flag</span>
+<span>Sọc sensor</span>
+</button>
+</div>
+</div>
+<!-- CARD FRAME 05: Standard OK -->
+<div class="qc-frame-card flex flex-col bg-surface-container-lowest rounded shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+<div class="flex items-center justify-between px-space-sm py-1.5 bg-surface-container-low border-b border-outline-variant/30">
+<div class="flex items-center gap-space-xs">
+<span class="font-code-md text-code-md font-bold text-on-surface">#FRAME-05</span>
+<span class="font-label-sm text-label-sm text-outline">TIFF 16b</span>
+</div>
+<span class="font-label-sm text-label-sm font-code-md text-tertiary">3000x2000px • 36MB</span>
+</div>
+<div class="relative aspect-[3/2] bg-surface-dim overflow-hidden group">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" data-alt="Lush tropical monstera plant in a sunlit courtyard on 35mm film with rich emerald greens and warm amber shadows, true analog color reproduction, Portra 400 clean negative exposure." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBgMPLS7p3NdErjFFVoNNJP7_86rA47OE-h9moYvC6poSXQEKbBTITKEpYSseuorZc6DfgCkA0dQr786GZTBrOK2YaxQ0-zUZn74gH0S2nwZQ3mAoxX0pmCAASFxrbOnMEZgy_EuLn7rWoFO5UfsjtFhA5UxJiC7G0u-UyDkT0UTHZ8r8lLQwuW_C4J99Kk8SESQpuf6cbLn00AARn703u43kx2-cjA-t-oxE0H27o"/>
+<div class="absolute top-2 left-2 bg-inverse-surface/80 text-inverse-on-surface px-space-xs py-0.5 rounded font-code-md text-label-sm">EV 0.0</div>
+</div>
+<div class="p-space-sm flex items-center justify-between bg-surface-container-lowest">
+<label class="flex items-center gap-space-xs cursor-pointer select-none">
+<input checked="" class="w-4 h-4 rounded text-secondary accent-secondary focus:ring-0" type="checkbox"/>
+<span class="font-headline-sm text-headline-sm text-secondary font-semibold">Đạt chuẩn</span>
+</label>
+<button class="qc-flag-btn flex items-center gap-0.5 px-space-xs py-1 rounded text-outline hover:text-error hover:bg-error-container/20 transition-colors font-label-sm text-label-sm" type="button">
+<span class="material-symbols-outlined text-[14px]">flag</span>
+<span>Báo lỗi</span>
+</button>
+</div>
+</div>
+<!-- CARD FRAME 06: Standard OK -->
+<div class="qc-frame-card flex flex-col bg-surface-container-lowest rounded shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+<div class="flex items-center justify-between px-space-sm py-1.5 bg-surface-container-low border-b border-outline-variant/30">
+<div class="flex items-center gap-space-xs">
+<span class="font-code-md text-code-md font-bold text-on-surface">#FRAME-06</span>
+<span class="font-label-sm text-label-sm text-outline">TIFF 16b</span>
+</div>
+<span class="font-label-sm text-label-sm font-code-md text-tertiary">3000x2000px • 36MB</span>
+</div>
+<div class="relative aspect-[3/2] bg-surface-dim overflow-hidden group">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" data-alt="Atmospheric sunset over Nhieu Loc canal with reflections of city motorcycles and bridges on water, warm orange and violet tones, high exposure tolerance, analog grain aesthetic, Kodak Portra 400 emulsion." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDwhDs4jPjAzHCmNQbMX3S4DvFE_Rupa4qv877O47yVna7-bl7gwlTqxx11qoOpTnGA1ZV0F4G1cp7byrHeMkrsfTYFjpBE4hHl49cMrY6s0uVOX0JEvInjjCMUFUnImD-pd1kS8gSK9SuDhaCY4lzmsoDhOvqDtefIGuLOO-6oMw6IJVBC2Nh0_CeRGyvCXGIB0jhGvZSiJsxxh70ysY_M-IM0nrV23oK96eRLPA0"/>
+<div class="absolute top-2 left-2 bg-inverse-surface/80 text-inverse-on-surface px-space-xs py-0.5 rounded font-code-md text-label-sm">EV -0.5</div>
+</div>
+<div class="p-space-sm flex items-center justify-between bg-surface-container-lowest">
+<label class="flex items-center gap-space-xs cursor-pointer select-none">
+<input checked="" class="w-4 h-4 rounded text-secondary accent-secondary focus:ring-0" type="checkbox"/>
+<span class="font-headline-sm text-headline-sm text-secondary font-semibold">Đạt chuẩn</span>
+</label>
+<button class="qc-flag-btn flex items-center gap-0.5 px-space-xs py-1 rounded text-outline hover:text-error hover:bg-error-container/20 transition-colors font-label-sm text-label-sm" type="button">
+<span class="material-symbols-outlined text-[14px]">flag</span>
+<span>Báo lỗi</span>
+</button>
+</div>
+</div>
+<!-- CARD FRAME 07: Standard OK -->
+<div class="qc-frame-card flex flex-col bg-surface-container-lowest rounded shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+<div class="flex items-center justify-between px-space-sm py-1.5 bg-surface-container-low border-b border-outline-variant/30">
+<div class="flex items-center gap-space-xs">
+<span class="font-code-md text-code-md font-bold text-on-surface">#FRAME-07</span>
+<span class="font-label-sm text-label-sm text-outline">TIFF 16b</span>
+</div>
+<span class="font-label-sm text-label-sm font-code-md text-tertiary">3000x2000px • 36MB</span>
+</div>
+<div class="relative aspect-[3/2] bg-surface-dim overflow-hidden group">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" data-alt="Close-up still life photograph of vintage cameras and lenses arranged on an oak darkroom table with warm desk lamp illumination, sharp film detail, Portra 400 skin tone precision and balanced highlight roll-off." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBjfTRx4O8ksgwq_mzl4oUPl-HMJUno33A887k8V9Qw8Lc5hjV_aPsnNqZ6NeXT5E7Y_NTPPamAuaG0TMkMRuvIOI-D6KPOPMKAo2-IOoG-gpj4QFLPa60CovEOjhL6C1zDrOPcWVDpFWHQsDpnHq_bjIy3MuSgfsYp_7PNAEUYs52RYpN-5oc0YPQJeJwIXPQKo9x7wUXKANXRsfqUBPW1Ebjidow4QMIHTtj8_es"/>
+<div class="absolute top-2 left-2 bg-inverse-surface/80 text-inverse-on-surface px-space-xs py-0.5 rounded font-code-md text-label-sm">EV +0.7</div>
+</div>
+<div class="p-space-sm flex items-center justify-between bg-surface-container-lowest">
+<label class="flex items-center gap-space-xs cursor-pointer select-none">
+<input checked="" class="w-4 h-4 rounded text-secondary accent-secondary focus:ring-0" type="checkbox"/>
+<span class="font-headline-sm text-headline-sm text-secondary font-semibold">Đạt chuẩn</span>
+</label>
+<button class="qc-flag-btn flex items-center gap-0.5 px-space-xs py-1 rounded text-outline hover:text-error hover:bg-error-container/20 transition-colors font-label-sm text-label-sm" type="button">
+<span class="material-symbols-outlined text-[14px]">flag</span>
+<span>Báo lỗi</span>
+</button>
+</div>
+</div>
+<!-- CARD FRAME 08: Flagged Vignette / Misaligned Carrier -->
+<div class="qc-frame-card flex flex-col bg-surface-container-lowest rounded shadow-sm overflow-hidden ring-1 ring-error/50 bg-error-container/5">
+<div class="flex items-center justify-between px-space-sm py-1.5 bg-error-container/30 border-b border-error/20">
+<div class="flex items-center gap-space-xs">
+<span class="font-code-md text-code-md font-bold text-error">#FRAME-08</span>
+<span class="font-label-sm text-label-sm text-error font-medium">LỆCH KHUNG MASK</span>
+</div>
+<span class="font-label-sm text-label-sm font-code-md text-error">3000x2000px</span>
+</div>
+<div class="relative aspect-[3/2] bg-surface-dim overflow-hidden group">
+<img class="w-full h-full object-cover" data-alt="Film photograph of a traditional ceramic pottery workshop where the film frame is partially cut off on the edge showing black sprocket border encroachment due to misaligned film carrier in the scanner." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCQ85tt2ZyVhS9mpH3R54J0zgMn7T3M7A0GF-7FfD5ZLhB365dqoijUHWrU2P4_3QhM3p6nAwdVzyq81Lf_YRT52fIYse3SMMrEGWWhGlg7c4sStaFPc45O2fCugGGxB1rMlDdWCuvqdV7qrdWyt2Dsc-Yy7Z5dfp2gFu7EhDBCYvOI41bed0CiXZWOe3hECCxzI98GycYuTHwGKAFLPeya9Pq1vjf4RT2jfOMNM_4"/>
+<div class="absolute inset-y-0 right-0 w-8 bg-black/80 flex items-center justify-center">
+<span class="font-label-sm text-label-sm text-white/80 [writing-mode:vertical-rl] tracking-widest font-code-md">SPROCKET</span>
+</div>
+</div>
+<div class="p-space-sm flex items-center justify-between bg-surface-container-lowest">
+<label class="flex items-center gap-space-xs cursor-pointer select-none">
+<input class="w-4 h-4 rounded text-secondary accent-secondary focus:ring-0" type="checkbox"/>
+<span class="font-headline-sm text-headline-sm text-outline">Đạt chuẩn</span>
+</label>
+<button class="qc-flag-btn flex items-center gap-1 px-space-sm py-1 rounded bg-error text-on-error font-label-sm text-label-sm font-semibold shadow-sm" type="button">
+<span class="material-symbols-outlined text-[14px]">crop</span>
+<span>Lệch mask</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Batch Roll Navigation Pagination -->
+<div class="flex items-center justify-between mt-space-md py-space-xs px-space-md bg-surface-container rounded">
+<span class="font-label-sm text-label-sm text-outline">HIỂN THỊ 8 TRÊN TỔNG SỐ 72 FRAME (2 CUỘN)</span>
+<div class="flex items-center gap-space-xs">
+<button class="px-space-sm py-1 bg-surface-container-lowest text-on-surface rounded font-code-md text-label-sm hover:bg-surface-container-high transition-colors disabled:opacity-50" disabled="">◀ Cuộn 01 (1-36)</button>
+<button class="px-space-sm py-1 bg-surface-container-lowest text-on-surface rounded font-code-md text-label-sm hover:bg-surface-container-high transition-colors">Cuộn 02 (37-72) ▶</button>
+</div>
+</div>
+</section>
+<!-- SECTION 3: Revoke & Replace Safe Tool (24H Safety Window) -->
+<section class="mb-space-xl">
+<div class="bg-surface-container rounded p-space-md shadow-sm">
+<div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-space-md">
+<!-- Left: Informative Safety Banner -->
+<div class="flex items-start gap-space-md">
+<div class="w-10 h-10 rounded bg-tertiary-container/30 flex items-center justify-center shrink-0 text-on-surface">
+<span class="material-symbols-outlined text-[24px]">verified_user</span>
+</div>
+<div class="flex flex-col gap-space-2xs">
+<div class="flex items-center gap-space-xs">
+<span class="font-headline-md text-headline-md text-on-surface font-semibold tracking-tight">Cơ Chế An Toàn 24H: Thu Hồi &amp; Ghi Đè File</span>
+<span class="font-code-md text-label-sm bg-primary-fixed text-on-primary-fixed px-space-xs py-0.5 rounded font-bold uppercase">ACTIVE LOCK</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant max-w-2xl leading-relaxed">
+              Chế độ an toàn 24h: Cho phép kỹ thuật viên nạp lại bản sửa lỗi hoặc thu hồi nếu tải nhầm cuộn film mà không làm gián đoạn tài khoản của khách. Khách hàng sẽ nhận link xem trước và chỉ khóa vĩnh viễn sau 24 giờ kể từ thời điểm duyệt QC.
+            </p>
+</div>
+</div>
+<!-- Right: Revocation Tool Trigger Controls -->
+<div class="flex items-center gap-space-sm shrink-0 w-full md:w-auto justify-end">
+<button class="flex items-center gap-space-xs px-space-md py-2 rounded bg-surface-container-lowest text-on-surface hover:bg-surface-container-high transition-colors font-headline-sm text-headline-sm shadow-sm" type="button">
+<span class="material-symbols-outlined text-[16px] text-tertiary">history</span>
+<span>Lịch sử phiên scan</span>
+</button>
+<button class="flex items-center gap-space-xs px-space-md py-2 rounded bg-error-container text-on-error-container hover:bg-error hover:text-on-error transition-colors font-headline-sm text-headline-sm shadow-sm" type="button">
+<span class="material-symbols-outlined text-[16px]">lock_reset</span>
+<span>Kích hoạt Thu hồi Khẩn cấp</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+<!-- Sticky Bottom Operational Action Ribbon -->
+<footer class="sticky bottom-0 bg-surface/95 backdrop-blur-md p-space-md rounded shadow-xl flex flex-col sm:flex-row items-center justify-between gap-space-md z-30">
+<div class="flex items-center gap-space-md">
+<div class="flex items-center gap-space-xs">
+<span class="w-3 h-3 rounded-full bg-secondary"></span>
+<span class="font-body-sm text-body-sm font-semibold text-on-surface">Sẵn sàng xuất kho Archive:</span>
+<span class="font-code-md text-code-md text-primary font-bold">72 / 72 TIỆP</span>
+</div>
+<span class="text-outline hidden md:inline">•</span>
+<span class="font-label-sm text-label-sm text-tertiary hidden md:inline">TỰ ĐỘNG NÉN BẢN XEM TRƯỚC WEBP 2048PX CHO CLOUD GALLERY</span>
+</div>
+<!-- Dual Actions -->
+<div class="flex items-center gap-space-md w-full sm:w-auto justify-end">
+<!-- Secondary Action: Save Internal Log -->
+<button class="px-space-md py-2 rounded bg-surface-container text-on-surface hover:bg-surface-container-high transition-colors font-headline-sm text-headline-sm shadow-sm flex items-center gap-space-xs" id="btn-save-draft" type="button">
+<span class="material-symbols-outlined text-[16px] text-outline">save</span>
+<span>Lưu kết quả QC nội bộ</span>
+</button>
+<!-- Primary Amber Commit Action -->
+<button class="px-space-lg py-2 rounded bg-primary text-on-primary hover:bg-primary-container transition-colors font-headline-sm text-headline-sm shadow-md flex items-center gap-space-xs" id="btn-approve-publish" type="button">
+<span class="material-symbols-outlined text-[18px]">cloud_done</span>
+<span>Phê duyệt QC &amp; Nạp tự động vào Archive của khách</span>
+</button>
+</div>
+</footer>
+</div>
+<script>
+  // Simple micro-interaction for batch selection and status toggle
+  document.addEventListener('DOMContentLoaded', () => {
+    const selectAllBtn = document.getElementById('btn-select-all');
+    const checkboxes = document.querySelectorAll('.qc-frame-card input[type="checkbox"]');
+    const passedCounter = document.getElementById('qc-passed-counter');
+    const flaggedCounter = document.getElementById('qc-flagged-counter');
+    const approveBtn = document.getElementById('btn-approve-publish');
+    const saveDraftBtn = document.getElementById('btn-save-draft');
+
+    if (selectAllBtn) {
+      selectAllBtn.addEventListener('click', () => {
+        checkboxes.forEach(cb => {
+          cb.checked = true;
+          const card = cb.closest('.qc-frame-card');
+          if (card) {
+            card.classList.remove('ring-1', 'ring-error/50', 'bg-error-container/5');
+          }
+        });
+        if (passedCounter) passedCounter.textContent = '72 / 72 FRAME';
+        if (flaggedCounter) flaggedCounter.textContent = '00 ĐÃ SỬA';
+      });
+    }
+
+    checkboxes.forEach(cb => {
+      cb.addEventListener('change', () => {
+        const card = cb.closest('.qc-frame-card');
+        if (cb.checked && card) {
+          card.classList.remove('ring-1', 'ring-error/50', 'bg-error-container/5');
+        }
+      });
+    });
+
+    if (approveBtn) {
+      approveBtn.addEventListener('click', () => {
+        approveBtn.innerHTML = '<span class="material-symbols-outlined text-[18px] animate-spin">sync</span> Đang nạp Archive...';
+        setTimeout(() => {
+          approveBtn.innerHTML = '<span class="material-symbols-outlined text-[18px]">check_circle</span> Đã đồng bộ thành công!';
+          approveBtn.classList.remove('bg-primary');
+          approveBtn.classList.add('bg-secondary');
+        }, 1200);
+      });
+    }
+
+    if (saveDraftBtn) {
+      saveDraftBtn.addEventListener('click', () => {
+        const origText = saveDraftBtn.innerHTML;
+        saveDraftBtn.innerHTML = '<span class="material-symbols-outlined text-[16px]">done</span> Đã lưu!';
+        setTimeout(() => {
+          saveDraftBtn.innerHTML = origText;
+        }, 1500);
+      });
+    }
+  });
+</script></main></div></body></html>

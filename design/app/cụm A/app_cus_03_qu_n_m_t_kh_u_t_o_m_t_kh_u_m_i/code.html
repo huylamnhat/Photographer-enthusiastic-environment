@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="vi"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_blank" name="shell-type"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&amp;family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "on-secondary-container": "#4a6b5d", "tertiary-container": "#74685c", "surface-bright": "#fff8f3", "primary": "#8a3a03", "background": "#fff8f3", "surface-container-low": "#faf2eb", "on-tertiary": "#ffffff", "on-error": "#ffffff", "on-secondary-fixed-variant": "#2d4d40", "tertiary-fixed": "#f0e0d1", "on-error-container": "#93000a", "inverse-primary": "#ffb691", "on-surface-variant": "#55433a", "on-tertiary-fixed-variant": "#4f453a", "error-container": "#ffdad6", "primary-container": "#a9511c", "primary-fixed-dim": "#ffb691", "on-secondary-fixed": "#002116", "on-tertiary-fixed": "#221a11", "surface-container-high": "#efe7e0", "outline-variant": "dcc1b5", "on-primary-fixed": "#341100", "primary-fixed": "#ffdbcb", "on-background": "#1e1b17", "secondary-fixed-dim": "#abcebe", "surface-container": "#f4ede6", "surface-tint": "#9a4610", "surface-variant": "#e9e1da", "secondary-container": "#c6ebd9", "on-tertiary-container": "#f9e8d9", "on-primary-fixed-variant": "#793100", "secondary": "#446557", "on-surface": "#1e1b17", "on-primary": "#ffffff", "surface-dim": "#e0d9d2", "outline": "#887268", "inverse-surface": "#33302b", "surface": "#fff8f3", "on-primary-container": "#ffe6dc", "surface-container-lowest": "#ffffff", "tertiary-fixed-dim": "#d3c4b6", "secondary-fixed": "#c6ebd9", "surface-container-highest": "#e9e1da", "on-secondary": "#ffffff", "inverse-on-surface": "#f7efe8", "tertiary": "#5b5045", "error": "#ba1a1a" }, "borderRadius": { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" }, "spacing": { "margin": "1rem", "space-sm": "0.5rem", "space-lg": "1rem", "gutter-lg": "1.25rem", "space-xl": "1.5rem", "gutter-md": "1rem", "space-md": "0.75rem", "gutter": "0.75rem", "space-xs": "0.25rem", "margin-md": "1.25rem", "space-2xs": "0.125rem", "margin-lg": "1.5rem" }, "fontFamily": { "headline-md": ["IBM Plex Sans"], "headline-lg": ["IBM Plex Sans"], "headline-xl": ["IBM Plex Sans"], "label-md": ["IBM Plex Mono"], "label-sm": ["IBM Plex Mono"], "body-sm": ["IBM Plex Sans"], "headline-sm": ["IBM Plex Sans"], "code-md": ["IBM Plex Mono"], "body-md": ["IBM Plex Sans"] }, "fontSize": { "headline-md": ["1rem", { "lineHeight": "1.375rem", "letterSpacing": "-0.005em", "fontWeight": "600" }], "headline-lg": ["1.25rem", { "lineHeight": "1.625rem", "letterSpacing": "-0.01em", "fontWeight": "600" }], "headline-xl": ["1.75rem", { "lineHeight": "2.125rem", "letterSpacing": "-0.015em", "fontWeight": "600" }], "label-md": ["0.75rem", { "lineHeight": "1rem", "letterSpacing": "0.04em", "fontWeight": "500" }], "label-sm": ["0.6875rem", { "lineHeight": "0.875rem", "letterSpacing": "0.06em", "fontWeight": "500" }], "body-sm": ["0.8125rem", { "lineHeight": "1.125rem", "letterSpacing": "0.005em", "fontWeight": "400" }], "headline-sm": ["0.875rem", { "lineHeight": "1.25rem", "letterSpacing": "0em", "fontWeight": "600" }], "code-md": ["0.8125rem", { "lineHeight": "1.125rem", "letterSpacing": "0em", "fontWeight": "400" }], "body-md": ["0.875rem", { "lineHeight": "1.25rem", "letterSpacing": "0em", "fontWeight": "400" }] } } } }</script><style>@layer base { html, body { min-height: 100%; margin: 0; padding: 0; } body { overscroll-behavior-y: none; -webkit-tap-highlight-color: transparent; } .pb-safe { padding-bottom: env(safe-area-inset-bottom, 0px); } .pt-safe { padding-top: env(safe-area-inset-top, 0px); } main > :first-child { margin-top: 0 !important; } main > :last-child { margin-bottom: 0 !important; } } ::-webkit-scrollbar { display: none; }</style><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-surface font-body-md text-body-md text-on-surface antialiased flex flex-col min-h-screen"><main class="flex-1 flex flex-col relative w-full pt-safe pb-safe bg-surface"><div class="flex flex-col w-full pb-8 px-4">
+<!-- Top Navigation & Department Label -->
+<div class="flex items-center justify-between py-3">
+<button aria-label="Quay lại" class="w-8 h-8 rounded flex items-center justify-center bg-surface-container hover:bg-surface-variant transition-colors" type="button">
+<span class="material-symbols-outlined text-on-surface text-lg">arrow_back</span>
+</button>
+<div class="flex items-center space-x-1.5 px-2 py-0.5 rounded bg-surface-container-high">
+<span class="material-symbols-outlined text-primary text-xs" style="font-variation-settings: 'FILL' 1;">shield</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant tracking-wider uppercase">XÁC THỰC BẢO MẬT</span>
+</div>
+<div class="w-8 h-8"></div>
+</div>
+<!-- Screen Header -->
+<div class="mt-2 mb-4">
+<h1 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">Khôi phục Mật khẩu</h1>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1 leading-relaxed">
+      Nhập thông tin tài khoản đã đăng ký để nhận mã xác thực đặt lại mật khẩu trong 15 phút.
+    </p>
+</div>
+<!-- Method Selection Tabs -->
+<div class="bg-surface-container-high p-1 rounded-xl flex items-center mb-4">
+<button class="flex-1 py-1.5 px-3 rounded-lg bg-surface-container-lowest text-primary shadow-sm flex items-center justify-center space-x-1.5 transition-all" id="tab-email" type="button">
+<span class="material-symbols-outlined text-sm">mail</span>
+<span class="font-headline-sm text-headline-sm">Qua Email</span>
+</button>
+<button class="flex-1 py-1.5 px-3 rounded-lg text-on-surface-variant hover:text-on-surface flex items-center justify-center space-x-1.5 transition-all" id="tab-phone" type="button">
+<span class="material-symbols-outlined text-sm">sms</span>
+<span class="font-headline-sm text-headline-sm">Qua Số điện thoại</span>
+</button>
+</div>
+<!-- Account Identifier Card -->
+<div class="bg-surface-container-lowest p-3.5 rounded-xl shadow-sm mb-4">
+<div class="flex justify-between items-center mb-1.5">
+<label class="font-label-sm text-label-sm text-on-surface-variant uppercase" id="input-label">ĐỊA CHỈ EMAIL TÀI KHOẢN</label>
+<span class="font-label-sm text-label-sm text-secondary flex items-center space-x-1">
+<span class="material-symbols-outlined text-xs">check_circle</span>
+<span>Đã gửi mã xác nhận</span>
+</span>
+</div>
+<div class="flex space-x-2">
+<div class="relative flex-1">
+<input class="w-full h-8 px-2.5 bg-surface-container-low text-on-surface font-code-md text-code-md rounded-lg focus:bg-surface-container-lowest focus:outline-none" id="identity-input" type="email" value="hoanganh.film@gmail.com"/>
+</div>
+<button class="h-8 px-3 bg-surface-container hover:bg-surface-variant text-on-surface font-headline-sm text-headline-sm rounded-lg flex items-center space-x-1 transition-colors" id="btn-resend" type="button">
+<span class="material-symbols-outlined text-xs">restart_alt</span>
+<span>Gửi lại</span>
+</button>
+</div>
+</div>
+<!-- Verification & Reset Password Section -->
+<div class="bg-surface-container-lowest p-3.5 rounded-xl shadow-sm space-y-4 mb-4">
+<!-- OTP Verification Code -->
+<div>
+<div class="flex justify-between items-center mb-1.5">
+<label class="font-label-sm text-label-sm text-on-surface-variant uppercase">MÃ XÁC NHẬN 6 SỐ (OTP)</label>
+<div class="flex items-center space-x-1 px-1.5 py-0.5 rounded bg-surface-container text-primary font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-xs">timer</span>
+<span id="countdown-timer">Hiệu lực còn: 14:20</span>
+</div>
+</div>
+<div class="grid grid-cols-6 gap-2">
+<input class="h-10 text-center font-code-md text-headline-md bg-surface-container-low rounded-lg focus:bg-surface-container-lowest focus:text-primary focus:outline-none" maxlength="1" type="text" value="4"/>
+<input class="h-10 text-center font-code-md text-headline-md bg-surface-container-low rounded-lg focus:bg-surface-container-lowest focus:text-primary focus:outline-none" maxlength="1" type="text" value="8"/>
+<input class="h-10 text-center font-code-md text-headline-md bg-surface-container-low rounded-lg focus:bg-surface-container-lowest focus:text-primary focus:outline-none" maxlength="1" type="text" value="2"/>
+<input class="h-10 text-center font-code-md text-headline-md bg-surface-container-low rounded-lg focus:bg-surface-container-lowest focus:text-primary focus:outline-none" maxlength="1" type="text" value="9"/>
+<input class="h-10 text-center font-code-md text-headline-md bg-surface-container-low rounded-lg focus:bg-surface-container-lowest focus:text-primary focus:outline-none" maxlength="1" type="text" value="0"/>
+<input class="h-10 text-center font-code-md text-headline-md bg-surface-container-low rounded-lg focus:bg-surface-container-lowest focus:text-primary focus:outline-none" maxlength="1" type="text" value="5"/>
+</div>
+</div>
+<!-- New Password -->
+<div>
+<label class="block font-label-sm text-label-sm text-on-surface-variant uppercase mb-1.5">MẬT KHẨU MỚI</label>
+<div class="relative flex items-center">
+<input class="w-full h-9 px-3 pr-9 bg-surface-container-low text-on-surface font-body-md text-body-md rounded-lg focus:bg-surface-container-lowest focus:outline-none" id="password-input" placeholder="Nhập mật khẩu mới" type="password" value="FilmLab2024@"/>
+<button class="absolute right-2 text-on-surface-variant hover:text-on-surface" id="toggle-pwd" type="button">
+<span class="material-symbols-outlined text-sm">visibility</span>
+</button>
+</div>
+</div>
+<!-- Confirm New Password -->
+<div>
+<label class="block font-label-sm text-label-sm text-on-surface-variant uppercase mb-1.5">XÁC NHẬN MẬT KHẨU MỚI</label>
+<div class="relative flex items-center">
+<input class="w-full h-9 px-3 pr-9 bg-surface-container-low text-on-surface font-body-md text-body-md rounded-lg focus:bg-surface-container-lowest focus:outline-none" id="confirm-password-input" placeholder="Nhập lại mật khẩu mới" type="password" value="FilmLab2024@"/>
+<button class="absolute right-2 text-on-surface-variant hover:text-on-surface" id="toggle-confirm-pwd" type="button">
+<span class="material-symbols-outlined text-sm">visibility</span>
+</button>
+</div>
+</div>
+<!-- Security Criteria Checklist -->
+<div class="bg-surface-container p-2.5 rounded-lg space-y-1.5">
+<div class="flex items-center space-x-2">
+<div class="w-4 h-4 rounded-full bg-secondary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-secondary text-xs">check</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface">Tối thiểu 8 ký tự</span>
+<span class="font-label-sm text-label-sm text-secondary font-medium ml-auto">Đạt ✓</span>
+</div>
+<div class="flex items-center space-x-2">
+<div class="w-4 h-4 rounded-full bg-secondary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-secondary text-xs">check</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface">Bao gồm cả chữ và số</span>
+<span class="font-label-sm text-label-sm text-secondary font-medium ml-auto">Đạt ✓</span>
+</div>
+<div class="flex items-center space-x-2">
+<div class="w-4 h-4 rounded-full bg-secondary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-secondary text-xs">check</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface">Mật khẩu xác nhận trùng khớp</span>
+<span class="font-label-sm text-label-sm text-secondary font-medium ml-auto">Đạt ✓</span>
+</div>
+</div>
+</div>
+<!-- Primary Action CTA -->
+<button class="w-full h-11 bg-primary hover:bg-primary-container text-on-primary font-headline-md text-headline-md rounded-xl shadow-md flex items-center justify-center space-x-2 active:scale-[0.99] transition-all mb-4" type="button">
+<span class="material-symbols-outlined text-sm">lock_reset</span>
+<span>Lưu Mật khẩu mới &amp; Đăng nhập</span>
+</button>
+<!-- Administrator Technical Support Box -->
+<div class="bg-surface-container-low p-3 rounded-xl flex items-start space-x-2.5 mb-5">
+<div class="p-1 rounded bg-surface-container-high text-on-surface-variant shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-sm">contact_support</span>
+</div>
+<div class="flex-1">
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-snug">
+        Nếu bạn không còn truy cập được Email đăng ký, vui lòng liên hệ <span class="text-primary font-medium">Bộ phận hỗ trợ quản trị viên</span> để xác minh danh tính thủ công.
+      </p>
+</div>
+</div>
+<!-- Back to Login Navigation Link -->
+<div class="text-center">
+<a class="inline-flex items-center space-x-1.5 font-headline-sm text-headline-sm text-primary hover:text-primary-container transition-colors py-1" href="#">
+<span class="material-symbols-outlined text-sm">arrow_left_alt</span>
+<span>Quay lại Đăng nhập</span>
+</a>
+</div>
+</div>
+<script>
+  (function() {
+    const tabEmail = document.getElementById('tab-email');
+    const tabPhone = document.getElementById('tab-phone');
+    const inputLabel = document.getElementById('input-label');
+    const identityInput = document.getElementById('identity-input');
+
+    if (tabEmail && tabPhone && inputLabel && identityInput) {
+      tabEmail.addEventListener('click', function() {
+        tabEmail.className = 'flex-1 py-1.5 px-3 rounded-lg bg-surface-container-lowest text-primary shadow-sm flex items-center justify-center space-x-1.5 transition-all';
+        tabPhone.className = 'flex-1 py-1.5 px-3 rounded-lg text-on-surface-variant hover:text-on-surface flex items-center justify-center space-x-1.5 transition-all';
+        inputLabel.textContent = 'ĐỊA CHỈ EMAIL TÀI KHOẢN';
+        identityInput.type = 'email';
+        identityInput.value = 'hoanganh.film@gmail.com';
+      });
+
+      tabPhone.addEventListener('click', function() {
+        tabPhone.className = 'flex-1 py-1.5 px-3 rounded-lg bg-surface-container-lowest text-primary shadow-sm flex items-center justify-center space-x-1.5 transition-all';
+        tabEmail.className = 'flex-1 py-1.5 px-3 rounded-lg text-on-surface-variant hover:text-on-surface flex items-center justify-center space-x-1.5 transition-all';
+        inputLabel.textContent = 'SỐ ĐIỆN THOẠI ĐĂNG KÝ';
+        identityInput.type = 'tel';
+        identityInput.value = '+84 988 123 456';
+      });
+    }
+
+    const togglePwd = document.getElementById('toggle-pwd');
+    const pwdInput = document.getElementById('password-input');
+    if (togglePwd && pwdInput) {
+      togglePwd.addEventListener('click', function() {
+        const isPassword = pwdInput.type === 'password';
+        pwdInput.type = isPassword ? 'text' : 'password';
+        togglePwd.querySelector('span').textContent = isPassword ? 'visibility_off' : 'visibility';
+      });
+    }
+
+    const toggleConfirmPwd = document.getElementById('toggle-confirm-pwd');
+    const confirmPwdInput = document.getElementById('confirm-password-input');
+    if (toggleConfirmPwd && confirmPwdInput) {
+      toggleConfirmPwd.addEventListener('click', function() {
+        const isPassword = confirmPwdInput.type === 'password';
+        confirmPwdInput.type = isPassword ? 'text' : 'password';
+        toggleConfirmPwd.querySelector('span').textContent = isPassword ? 'visibility_off' : 'visibility';
+      });
+    }
+
+    let remainingSeconds = 14 * 60 + 20;
+    const countdownEl = document.getElementById('countdown-timer');
+    if (countdownEl) {
+      setInterval(function() {
+        if (remainingSeconds > 0) {
+          remainingSeconds--;
+          const m = Math.floor(remainingSeconds / 60);
+          const s = remainingSeconds % 60;
+          countdownEl.textContent = 'Hiệu lực còn: ' + (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+        }
+      }, 1000);
+    }
+  })();
+</script></main></body></html>

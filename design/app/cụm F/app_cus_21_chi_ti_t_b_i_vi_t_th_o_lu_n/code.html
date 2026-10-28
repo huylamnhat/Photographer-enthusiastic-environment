@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="vi"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_stack" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;1,400&amp;family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "on-background": "#1e1b17", "primary-container": "#a9511c", "tertiary": "#5b5045", "tertiary-container": "#74685c", "on-surface-variant": "#55433a", "on-tertiary-container": "#f9e8d9", "secondary-fixed-dim": "#abcebe", "on-surface": "#1e1b17", "outline-variant": "#dcc1b5", "surface-tint": "#9a4610", "secondary": "#446557", "on-primary-fixed-variant": "#793100", "tertiary-fixed-dim": "#d3c4b6", "surface-container-low": "#faf2eb", "inverse-primary": "#ffb691", "on-secondary": "#ffffff", "surface-container-lowest": "#ffffff", "on-secondary-container": "#4a6b5d", "on-secondary-fixed": "#002116", "surface": "#fff8f3", "primary-fixed-dim": "#ffb691", "on-tertiary": "#ffffff", "on-error-container": "#93000a", "secondary-container": "#c6ebd9", "on-tertiary-fixed": "#221a11", "primary": "#8a3a03", "inverse-surface": "#33302b", "on-primary-fixed": "#341100", "surface-container": "#f4ede6", "secondary-fixed": "#c6ebd9", "surface-container-highest": "#e9e1da", "on-primary-container": "#ffe6dc", "inverse-on-surface": "#f7efe8", "error": "#ba1a1a", "background": "#fff8f3", "primary-fixed": "#ffdbcb", "surface-dim": "#e0d9d2", "error-container": "#ffdad6", "outline": "#887268", "tertiary-fixed": "#f0e0d1", "on-secondary-fixed-variant": "#2d4d40", "on-primary": "#ffffff", "surface-container-high": "#efe7e0", "surface-variant": "#e9e1da", "on-error": "#ffffff", "surface-bright": "#fff8f3", "on-tertiary-fixed-variant": "#4f453a" }, borderRadius: { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" }, spacing: { "space-2xs": "0.125rem", "space-md": "0.75rem", "gutter-md": "1rem", "gutter-lg": "1.25rem", "space-xs": "0.25rem", "space-xl": "1.5rem", "space-lg": "1rem", "margin-md": "1.25rem", "margin-lg": "1.5rem", "gutter": "0.75rem", "space-sm": "0.5rem", "margin": "1rem" }, fontFamily: { "headline-sm": ["IBM Plex Sans"], "headline-md": ["IBM Plex Sans"], "body-md": ["IBM Plex Sans"], "label-md": ["IBM Plex Mono"], "headline-xl": ["IBM Plex Sans"], "code-md": ["IBM Plex Mono"], "body-sm": ["IBM Plex Sans"], "headline-lg": ["IBM Plex Sans"], "label-sm": ["IBM Plex Mono"] }, fontSize: { "headline-sm": ["0.875rem", { lineHeight: "1.25rem", letterSpacing: "0em", fontWeight: "600" }], "headline-md": ["1rem", { lineHeight: "1.375rem", letterSpacing: "-0.005em", fontWeight: "600" }], "body-md": ["0.875rem", { lineHeight: "1.25rem", letterSpacing: "0em", fontWeight: "400" }], "label-md": ["0.75rem", { lineHeight: "1rem", letterSpacing: "0.04em", fontWeight: "500" }], "headline-xl": ["1.75rem", { lineHeight: "2.125rem", letterSpacing: "-0.015em", fontWeight: "600" }], "code-md": ["0.8125rem", { lineHeight: "1.125rem", letterSpacing: "0em", fontWeight: "400" }], "body-sm": ["0.8125rem", { lineHeight: "1.125rem", letterSpacing: "0.005em", fontWeight: "400" }], "headline-lg": ["1.25rem", { lineHeight: "1.625rem", letterSpacing: "-0.01em", fontWeight: "600" }], "label-sm": ["0.6875rem", { lineHeight: "0.875rem", letterSpacing: "0.06em", fontWeight: "500" }] } } } }</script><style>@layer base{html,body{width:100vw;margin:0;padding:0;}body{overscroll-behavior:none;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-surface font-body-md text-on-surface antialiased flex flex-col min-h-screen"><header class="fixed top-0 w-full z-50 pt-safe bg-surface/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-14 px-gutter flex items-center justify-between"><div class="flex items-center gap-space-xs"><button aria-label="Quay lại" class="min-w-[44px] min-h-[44px] -ml-space-xs flex items-center justify-center text-on-surface hover:text-primary transition-colors" onclick="history.back()"><span class="material-symbols-outlined text-[20px]">arrow_back</span></button><h1 class="font-headline-md text-headline-md tracking-tight uppercase text-on-surface truncate">Chi Tiết Bài Viết</h1></div><div class="flex items-center gap-space-sm"><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="flex-1 w-full bg-surface pt-14 pb-safe"><div class="flex flex-col w-full pb-20 relative bg-surface">
+<!-- Top Utility Context Bar (Complementing Fixed Shell) -->
+<div class="w-full bg-surface-container-low px-gutter py-space-sm flex items-center justify-between">
+<div class="flex items-center gap-space-xs text-on-surface-variant font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[14px]">auto_stories</span>
+<span class="uppercase tracking-wider">HỒ SƠ KỸ THUẬT // LAB NOTE #4092</span>
+</div>
+<div class="flex items-center gap-space-xs">
+<!-- Bookmark Action -->
+<button aria-label="Lưu bài viết" class="w-8 h-8 rounded-lg flex items-center justify-center bg-surface hover:bg-surface-container text-on-surface transition-colors" id="bookmarkBtn" onclick="toggleBookmark()">
+<span class="material-symbols-outlined text-[18px]" id="bookmarkIcon">bookmark_border</span>
+</button>
+<!-- Three-dot Menu -->
+<div class="relative">
+<button aria-label="Tùy chọn khác" class="w-8 h-8 rounded-lg flex items-center justify-center bg-surface hover:bg-surface-container text-on-surface transition-colors" id="menuTrigger" onclick="toggleMenu()">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+<!-- Dropdown Popup -->
+<div class="hidden absolute right-0 top-10 w-56 bg-surface-container-lowest rounded-xl shadow-xl z-30 p-space-xs" id="postDropdown">
+<button class="w-full flex items-center gap-space-sm px-space-md py-space-sm text-left text-error hover:bg-error-container/40 rounded-lg transition-colors" onclick="openReportModal('BÀI VIẾT: Kỹ thuật đo sáng Zone System')">
+<span class="material-symbols-outlined text-[18px]">flag</span>
+<span class="font-body-sm text-body-sm font-semibold">Báo cáo vi phạm</span>
+</button>
+<button class="w-full flex items-center gap-space-sm px-space-md py-space-sm text-left text-on-surface hover:bg-surface-container rounded-lg transition-colors" onclick="copyPostLink()">
+<span class="material-symbols-outlined text-[18px]">link</span>
+<span class="font-body-sm text-body-sm">Sao chép liên kết</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Main Article Content Container -->
+<article class="px-gutter pt-space-lg flex flex-col gap-space-lg">
+<!-- Author Header Segment -->
+<header class="flex items-center justify-between gap-space-md bg-surface-container-lowest p-space-md rounded-xl">
+<div class="flex items-center gap-space-md min-w-0">
+<div class="relative shrink-0">
+<img class="w-12 h-12 rounded-full object-cover" data-alt="Chân dung nghệ sĩ nhiếp ảnh phim analog đen trắng với ánh sáng studio tự nhiên, ánh mắt tập trung, phong thái điềm đạm chuyên nghiệp trong phòng tối lab." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCFsJpKCS4uIQaZUq4WZCZBEqmb2Uy1nHXk9_Lqzjtw4octayBGB_Cx8XaKeSgWi7qrglrftk58PnKzXPWH-1m0lkcQuRw2GBOPcpxi4fjWRMGAvcEdQroIqkpoc5giX7ji-bONRVqFQ_bqXoapzwu83AxaC4CK9mtDcrb3kwAtIntBsuPvEG7zP51CyqYVY57-K_IL-4To2clUyGWDWipCf_E2_Gef2ugLQm5qXQQ"/>
+<span class="absolute -bottom-1 -right-1 w-4 h-4 bg-secondary text-on-secondary rounded-full flex items-center justify-center text-[10px]" title="Chuyên gia">
+<span class="material-symbols-outlined text-[11px]">verified</span>
+</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-space-xs">
+<span class="font-headline-sm text-headline-sm text-on-surface truncate">Trần Hải Đăng</span>
+<span class="bg-secondary-container text-on-secondary-container font-label-sm text-label-sm px-1.5 py-0.5 rounded uppercase">Verified</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">12/05/2025 • 5 phút đọc</span>
+</div>
+</div>
+<button class="shrink-0 bg-surface-container-high hover:bg-surface-container-highest text-on-surface px-space-md py-1.5 rounded-lg font-body-sm text-body-sm flex items-center gap-1 transition-colors" id="followBtn" onclick="toggleFollow()">
+<span class="material-symbols-outlined text-[16px]" id="followIcon">person_add</span>
+<span id="followText">Theo dõi</span>
+</button>
+</header>
+<!-- Post Title -->
+<div>
+<h1 class="font-headline-lg text-headline-lg text-on-surface leading-snug">
+        Kỹ thuật đo sáng Zone System trên máy cơ hoàn toàn
+      </h1>
+<div class="mt-space-xs flex items-center gap-2 font-label-sm text-label-sm text-primary">
+<span>#ANALOG_LAB</span>
+<span>•</span>
+<span>#ZONE_SYSTEM</span>
+<span>•</span>
+<span>#KODAK_TRI_X</span>
+</div>
+</div>
+<!-- Article Rich Text Body -->
+<div class="flex flex-col gap-space-md text-on-surface font-body-md text-body-md leading-relaxed">
+<p>
+        Khi làm việc với các hệ thống máy cơ khí cổ điển không tích hợp đo sáng điện tử (như Leica M3, Nikon S2 hay Rolleiflex), việc áp dụng hệ thống Zone System của Ansel Adams vào thực tế chụp đường phố đòi hỏi kỹ thuật nội suy vùng tối (shadow placement) chuẩn xác trước khi bấm cò.
+      </p>
+<p>
+        Quy tắc vàng của phim âm bản đen trắng luôn là: <em>"Phơi sáng cho vùng tối, tráng cho vùng sáng" (Expose for the shadows, develop for the highlights)</em>. Khi bạn đặt máy đo sáng cầm tay hoặc đo sáng phản xạ vào Zone III (nơi chi tiết kết cấu của bóng tối vẫn được lưu giữ), phim bạc halogen sẽ thu thập đầy đủ mật độ quang học (density) cần thiết.
+      </p>
+<!-- Image Sample Component -->
+<figure class="w-full flex flex-col gap-space-xs mt-space-xs">
+<div class="w-full rounded-xl overflow-hidden bg-surface-container-high relative">
+<img class="w-full h-72 object-cover" data-alt="Ảnh phim analog đen trắng chụp góc phố cổ Hà Nội bằng máy cơ leica m3, độ tương phản cao, hạt grain mịn màng, vùng shadow giữ trọn chi tiết nếp áo và vân tường gạch cũ, tone màu archival ấm áp của giấy rọi baryta." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDZ342zVNqTc9FM_QAW9GT_pMLlrxU9T3gbKxnDaQ831jEPj94r7ujFSE7yJ5kYquvDxrDF6ahpakSozjfJaNob3xYQahByaOgGtI10S6K9azJdaFaZxPsSqQc10VFlD_hdJm259ILKisK5gf82UAEIkSWzZH6zDw2zbGoFPVjKDfqLzeyBAXwp09QGtNxjTg9yrq_jDfWiAxBElIsrn1RoUtPC1pdEFcAQpY2zpbE"/>
+<div class="absolute top-2 right-2 bg-on-background/80 text-background px-2 py-1 rounded font-code-md text-code-md text-[11px] backdrop-blur-sm">
+            ISO 400 • f/4 • 1/250s
+          </div>
+</div>
+<figcaption class="font-body-sm text-body-sm text-on-surface-variant px-space-xs italic flex items-center gap-1">
+<span class="material-symbols-outlined text-[15px] not-italic text-secondary">photo_camera</span>
+          Ảnh chụp thực tế: Đo sáng vào vùng bóng đổ shadow để giữ chi tiết hạt và độ chuyển tone mượt mà.
+        </figcaption>
+</figure>
+<!-- Archival Technical Metadata Block -->
+<div class="bg-surface-container p-space-md rounded-xl flex flex-col gap-space-xs">
+<div class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">tune</span>
+          THÔNG SỐ THỰC NGHIỆM LAB
+        </div>
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-space-sm font-label-md text-label-md text-on-surface">
+<div class="bg-surface-container-lowest p-2 rounded">
+<span class="text-tertiary block font-label-sm text-label-sm">THÂN MÁY</span>
+<span class="font-semibold">Leica M3 Single-Stroke</span>
+</div>
+<div class="bg-surface-container-lowest p-2 rounded">
+<span class="text-tertiary block font-label-sm text-label-sm">ỐNG KÍNH</span>
+<span class="font-semibold">Summicron 50mm f/2 Rigid</span>
+</div>
+<div class="bg-surface-container-lowest p-2 rounded">
+<span class="text-tertiary block font-label-sm text-label-sm">CUỘN PHIM</span>
+<span class="font-semibold">Kodak Tri-X 400 (D-76 1:1)</span>
+</div>
+</div>
+</div>
+<p>
+        Trong quá trình tráng tại lab, nếu thời gian lắc thuốc (agitation) quá mạnh, Zone VII và VIII sẽ nhanh chóng bị cháy và mất dải chuyển xám. Do đó, việc hiểu rõ độ dốc đặc tuyến (characteristic curve) sẽ giúp bạn chủ động kiểm soát dải động (dynamic range) tốt hơn bất kỳ bộ lọc kỹ thuật số nào.
+      </p>
+</div>
+<!-- Reactions & Social Metrics Bar -->
+<div class="bg-surface-container-low px-space-md py-space-sm rounded-xl flex items-center justify-between">
+<div class="flex items-center gap-space-md">
+<!-- Like Action Button -->
+<button class="flex items-center gap-1.5 text-primary font-label-md text-label-md" id="likeBtn" onclick="toggleLike()">
+<span class="material-symbols-outlined text-[20px]" id="likeIcon" style="font-variation-settings: 'FILL' 1;">favorite</span>
+<span id="likeCount">128</span> <span class="font-body-sm text-body-sm text-on-surface-variant">Thích</span>
+</button>
+<!-- Discussions Counter -->
+<div class="flex items-center gap-1.5 text-on-surface-variant font-label-md text-label-md">
+<span class="material-symbols-outlined text-[20px]">chat_bubble_outline</span>
+<span>34</span> <span class="font-body-sm text-body-sm text-on-surface-variant">Thảo luận</span>
+</div>
+</div>
+<!-- Share Action -->
+<button class="flex items-center gap-1 text-on-surface-variant hover:text-primary transition-colors font-label-md text-label-md" onclick="sharePost()">
+<span class="material-symbols-outlined text-[18px]">share</span>
+<span>15</span>
+</button>
+</div>
+</article>
+<!-- Discussion Section -->
+<section class="mt-space-xl px-gutter flex flex-col gap-space-md">
+<div class="flex items-center justify-between pb-space-xs">
+<h2 class="font-headline-md text-headline-md text-on-surface flex items-center gap-2">
+<span>Thảo luận</span>
+<span class="bg-surface-container-highest px-2 py-0.5 rounded-full font-label-sm text-label-sm text-on-surface-variant">34</span>
+</h2>
+<span class="font-label-sm text-label-sm text-tertiary">MỚI NHẤT TRƯỚC</span>
+</div>
+<!-- Comments List -->
+<div class="flex flex-col gap-space-md">
+<!-- Comment 1: Top Level -->
+<div class="bg-surface-container-lowest p-space-md rounded-xl flex flex-col gap-space-sm">
+<div class="flex items-start justify-between">
+<div class="flex items-center gap-space-sm">
+<img class="w-8 h-8 rounded-full object-cover" data-alt="Chân dung bạn trẻ đam mê máy phim đang cầm máy ảnh rangefinder, phong cách đường phố tự nhiên và ấm áp." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCnz28HR9rhXKlbIlVY1gk_ohgFgOhrH_WOgbu66DfJm9eCHrPLPTcN1MskUgPmWLwf2tvYXVcmWIFV7OunHu5kF3FDlYTRTF9WCwcmO24fm03G3h7gDCRi-b-_6ssT6B1OLqHoIMOvBYBzI16vlSQJM9KxCerh1gC4MpvRgZejPGGhTDC_4QAOGk2pxVl5h-Ika2oi_fna_myg0pAlsvwZMNUi6uSHNm14dbJDUuQ"/>
+<div>
+<div class="flex items-center gap-1.5">
+<span class="font-headline-sm text-headline-sm text-on-surface">Vũ Hoàng Nam</span>
+<span class="font-label-sm text-label-sm text-tertiary">• 2 giờ trước</span>
+</div>
+<span class="font-label-sm text-label-sm text-secondary">Kỹ thuật viên Lab</span>
+</div>
+</div>
+<!-- Quick Report Button for Comment -->
+<button class="text-on-surface-variant hover:text-error flex items-center gap-0.5 font-label-sm text-label-sm px-1 py-0.5 rounded hover:bg-error-container/30 transition-colors" onclick="openReportModal('Bình luận của Vũ Hoàng Nam')">
+<span class="material-symbols-outlined text-[14px]">flag</span>
+<span>Báo cáo</span>
+</button>
+</div>
+<p class="font-body-md text-body-md text-on-surface pl-10">
+          Bài viết rất chi tiết anh Đăng ơi! Cho em hỏi nếu chụp trong điều kiện ánh sáng gắt buổi trưa ở Sài Gòn thì mình nên trừ đi nửa khẩu hay để nguyên Zone IV cho an toàn?
+        </p>
+<div class="flex items-center gap-space-lg pl-10 text-on-surface-variant font-label-sm text-label-sm">
+<button class="flex items-center gap-1 hover:text-primary transition-colors font-medium" onclick="replyTo('Vũ Hoàng Nam')">
+<span class="material-symbols-outlined text-[15px]">reply</span>
+            Trả lời
+          </button>
+<button class="flex items-center gap-1 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[15px]">thumb_up</span>
+            8 Thích
+          </button>
+</div>
+<!-- Nested Reply -->
+<div class="ml-10 mt-space-xs bg-surface-container-low p-space-sm rounded-lg flex flex-col gap-space-xs">
+<div class="flex items-start justify-between">
+<div class="flex items-center gap-space-sm">
+<img class="w-6 h-6 rounded-full object-cover" data-alt="Chân dung nghệ sĩ Trần Hải Đăng với phong thái điềm đạm, nụ cười nhẹ." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDhdL0Cbmx02T3Tn6UJ5DxVH1MFu1uNBLKhaqLJ50NqC4ZX2ZpAGotUXVW6p6IzdV0wDfeW-n0dyijE5u-V4OtzOZz1V76hydIsu6Vp6uElKvWQEw3UtcR1V9LsnxbhfuVedvt81RUuIP9mGoYv0BZ0FL63fowwYGrnn6vAh5sR9Uk6uu44y12JC8PzElolDsHR0NpfGz5Bdhtq-y6wZ09BgxWSW5fbqLs_2XibIz4"/>
+<div class="flex items-center gap-1">
+<span class="font-headline-sm text-headline-sm text-on-surface text-[13px]">Trần Hải Đăng</span>
+<span class="bg-primary text-on-primary font-label-sm text-[10px] px-1 rounded">TÁC GIẢ</span>
+<span class="font-label-sm text-label-sm text-tertiary">• 1 giờ trước</span>
+</div>
+</div>
+<button class="text-on-surface-variant hover:text-error text-label-sm font-label-sm" onclick="openReportModal('Bình luận của Trần Hải Đăng')">
+<span class="material-symbols-outlined text-[13px]">flag</span>
+</button>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface pl-8">
+            Nắng gắt tương phản mạnh thì anh khuyên nên hạ bớt thời gian tráng (N-1 development) khoảng 15-20% thay vì khép khẩu quá tay, tránh làm vùng tối bị rỗng hoàn toàn nhé!
+          </p>
+<div class="pl-8 flex items-center gap-space-md font-label-sm text-label-sm text-on-surface-variant">
+<button class="hover:text-primary" onclick="replyTo('Trần Hải Đăng')">Trả lời</button>
+<span>•</span>
+<span class="text-primary font-medium">12 Thích</span>
+</div>
+</div>
+</div>
+<!-- Comment 2: Second Item -->
+<div class="bg-surface-container-lowest p-space-md rounded-xl flex flex-col gap-space-sm">
+<div class="flex items-start justify-between">
+<div class="flex items-center gap-space-sm">
+<img class="w-8 h-8 rounded-full object-cover" data-alt="Nữ nhiếp ảnh gia trẻ chụp ảnh chân dung với ánh sáng tự nhiên dịu dàng, nụ cười vui tươi." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDnnbkOYlXFMvYDAVkTs3yuQemCb2PnJEpm3WwgA4smT6DV4R-WPLQe4PRqBaFA_hQM3MghnEs87st_TYLze2mveFsZaaDwv2if9z1Z-qXelUO7na06YMEGbRB80Mdi-W7sr0IeEfj4JJdkuYvuSP1fNH2KjUs6uEnu15etQutSk5tIvrFKRsTOzV-wMpjP9QI_mzHCypXpTfatJ2IjxQJgQsHaMPNpLQfYHcq0_LU"/>
+<div>
+<div class="flex items-center gap-1.5">
+<span class="font-headline-sm text-headline-sm text-on-surface">Lê Mai Chi</span>
+<span class="font-label-sm text-label-sm text-tertiary">• 4 giờ trước</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Thành viên mới</span>
+</div>
+</div>
+<button class="text-on-surface-variant hover:text-error flex items-center gap-0.5 font-label-sm text-label-sm px-1 py-0.5 rounded hover:bg-error-container/30 transition-colors" onclick="openReportModal('Bình luận của Lê Mai Chi')">
+<span class="material-symbols-outlined text-[14px]">flag</span>
+<span>Báo cáo</span>
+</button>
+</div>
+<p class="font-body-md text-body-md text-on-surface pl-10">
+          Hình mẫu scan lên chi tiết tuyệt đẹp luôn ạ. Cuộn Tri-X này lab tráng bằng thuốc Kodak D-76 đúng chuẩn công thức gốc của hãng phải không anh?
+        </p>
+<div class="flex items-center gap-space-lg pl-10 text-on-surface-variant font-label-sm text-label-sm">
+<button class="flex items-center gap-1 hover:text-primary transition-colors font-medium" onclick="replyTo('Lê Mai Chi')">
+<span class="material-symbols-outlined text-[15px]">reply</span>
+            Trả lời
+          </button>
+<button class="flex items-center gap-1 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[15px]">thumb_up</span>
+            3 Thích
+          </button>
+</div>
+</div>
+</div>
+</section>
+<!-- Sticky Bottom Discussion Input Bar -->
+<div class="fixed bottom-0 left-0 right-0 z-40 bg-surface/95 backdrop-blur-md px-gutter py-space-sm shadow-[0_-4px_16px_rgba(0,0,0,0.06)]">
+<div class="hidden pb-1 text-label-sm font-label-sm text-primary flex items-center justify-between" id="replyingNotice">
+<span id="replyingText">Đang trả lời...</span>
+<button class="text-on-surface-variant hover:text-on-surface" onclick="cancelReply()">Hủy</button>
+</div>
+<form class="flex items-center gap-space-sm w-full" onsubmit="handleSendComment(event)">
+<div class="w-8 h-8 rounded-full bg-primary-container text-on-primary-container shrink-0 flex items-center justify-center font-bold text-xs">
+        H
+      </div>
+<div class="relative flex-1">
+<input class="w-full h-10 px-space-md pr-10 bg-surface-container rounded-full text-on-surface font-body-md text-body-md placeholder:text-on-surface-variant focus:outline-none focus:bg-surface-container-lowest focus:ring-1 focus:ring-primary transition-all" id="commentInput" placeholder="Chia sẻ ý kiến của bạn..." type="text"/>
+</div>
+<button aria-label="Gửi bình luận" class="w-10 h-10 rounded-full bg-primary hover:bg-primary-container text-on-primary flex items-center justify-center shrink-0 shadow-sm transition-transform active:scale-95" type="submit">
+<span class="material-symbols-outlined text-[18px]">send</span>
+</button>
+</form>
+</div>
+<!-- Report Violation Modal Overlay -->
+<div class="hidden fixed inset-0 z-50 bg-inverse-surface/40 flex items-end sm:items-center justify-center p-0 sm:p-4 backdrop-blur-sm" id="reportModal">
+<div class="w-full max-w-md bg-surface-container-lowest rounded-t-2xl sm:rounded-xl p-space-lg flex flex-col gap-space-md shadow-2xl">
+<div class="flex items-center justify-between pb-space-xs">
+<div class="flex items-center gap-2 text-error">
+<span class="material-symbols-outlined text-[22px]">report</span>
+<h3 class="font-headline-md text-headline-md text-on-surface">Báo cáo vi phạm</h3>
+</div>
+<button class="w-8 h-8 flex items-center justify-center text-on-surface-variant hover:text-on-surface rounded-full" onclick="closeReportModal()">
+<span class="material-symbols-outlined text-[20px]">close</span>
+</button>
+</div>
+<div class="bg-surface-container p-space-sm rounded font-label-sm text-label-sm text-on-surface-variant truncate">
+        Đối tượng: <span class="text-on-surface font-medium" id="reportTarget">Bài viết</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+        Vui lòng chọn lý do vi phạm tiêu chuẩn cộng đồng hoặc kỹ thuật chuyên môn của Analog Lab:
+      </p>
+<!-- Reason Radio Form -->
+<form class="flex flex-col gap-space-sm" id="reportForm" onsubmit="submitReport(event)">
+<label class="flex items-center gap-space-sm p-space-sm rounded-lg hover:bg-surface-container cursor-pointer transition-colors">
+<input checked="" class="accent-primary w-4 h-4" name="reportReason" type="radio" value="spam"/>
+<div class="flex flex-col">
+<span class="font-body-md text-body-md text-on-surface font-medium">Spam / Quảng cáo thương mại</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Rao vặt, lặp lại nội dung, đường link lừa đảo</span>
+</div>
+</label>
+<label class="flex items-center gap-space-sm p-space-sm rounded-lg hover:bg-surface-container cursor-pointer transition-colors">
+<input class="accent-primary w-4 h-4" name="reportReason" type="radio" value="technical_error"/>
+<div class="flex flex-col">
+<span class="font-body-md text-body-md text-on-surface font-medium">Nội dung sai kỹ thuật / Gây hại hóa chất</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Hướng dẫn pha hóa chất sai quy chuẩn, nguy hiểm</span>
+</div>
+</label>
+<label class="flex items-center gap-space-sm p-space-sm rounded-lg hover:bg-surface-container cursor-pointer transition-colors">
+<input class="accent-primary w-4 h-4" name="reportReason" type="radio" value="abusive"/>
+<div class="flex flex-col">
+<span class="font-body-md text-body-md text-on-surface font-medium">Ngôn từ xúc phạm / Đả kích cá nhân</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Quấy rối, thù ghét, phi văn hóa trong thảo luận</span>
+</div>
+</label>
+<div class="pt-space-xs flex gap-space-sm justify-end">
+<button class="px-space-md py-space-sm rounded-lg bg-surface-container-high text-on-surface font-body-sm text-body-sm" onclick="closeReportModal()" type="button">
+            Hủy bỏ
+          </button>
+<button class="px-space-md py-space-sm rounded-lg bg-primary text-on-primary font-body-sm text-body-sm font-medium hover:bg-primary-container transition-colors" type="submit">
+            Gửi báo cáo
+          </button>
+</div>
+</form>
+</div>
+</div>
+<!-- Micro-Toast Notification -->
+<div class="fixed top-16 left-1/2 -translate-x-1/2 z-50 hidden bg-inverse-surface text-inverse-on-surface px-space-md py-space-xs rounded-full font-body-sm text-body-sm shadow-lg flex items-center gap-2" id="toastNotification">
+<span class="material-symbols-outlined text-[18px] text-secondary-container" id="toastIcon">check_circle</span>
+<span id="toastMessage">Thao tác thành công</span>
+</div>
+</div>
+<script>
+  let isBookmarked = false;
+  let isLiked = false;
+  let likeCountVal = 128;
+  let isFollowing = false;
+
+  function showToast(msg, icon = 'check_circle') {
+    const toast = document.getElementById('toastNotification');
+    const toastMsg = document.getElementById('toastMessage');
+    const toastIcon = document.getElementById('toastIcon');
+    if (!toast) return;
+    toastMsg.textContent = msg;
+    toastIcon.textContent = icon;
+    toast.classList.remove('hidden');
+    setTimeout(() => {
+      toast.classList.add('hidden');
+    }, 2400);
+  }
+
+  function toggleMenu() {
+    const dropdown = document.getElementById('postDropdown');
+    dropdown.classList.toggle('hidden');
+  }
+
+  // Close dropdown on outside tap
+  document.addEventListener('click', (e) => {
+    const menuTrigger = document.getElementById('menuTrigger');
+    const dropdown = document.getElementById('postDropdown');
+    if (menuTrigger && dropdown && !menuTrigger.contains(e.target) && !dropdown.contains(e.target)) {
+      dropdown.classList.add('hidden');
+    }
+  });
+
+  function toggleBookmark() {
+    isBookmarked = !isBookmarked;
+    const icon = document.getElementById('bookmarkIcon');
+    if (isBookmarked) {
+      icon.textContent = 'bookmark';
+      icon.style.fontVariationSettings = "'FILL' 1";
+      showToast('Đã lưu bài viết vào kho tư liệu cá nhân');
+    } else {
+      icon.textContent = 'bookmark_border';
+      icon.style.fontVariationSettings = "'FILL' 0";
+      showToast('Đã bỏ lưu bài viết');
+    }
+  }
+
+  function toggleFollow() {
+    isFollowing = !isFollowing;
+    const text = document.getElementById('followText');
+    const icon = document.getElementById('followIcon');
+    const btn = document.getElementById('followBtn');
+    if (isFollowing) {
+      text.textContent = 'Đang theo dõi';
+      icon.textContent = 'check';
+      btn.classList.add('bg-secondary-container', 'text-on-secondary-container');
+      btn.classList.remove('bg-surface-container-high', 'text-on-surface');
+      showToast('Đã theo dõi Trần Hải Đăng');
+    } else {
+      text.textContent = 'Theo dõi';
+      icon.textContent = 'person_add';
+      btn.classList.remove('bg-secondary-container', 'text-on-secondary-container');
+      btn.classList.add('bg-surface-container-high', 'text-on-surface');
+      showToast('Đã hủy theo dõi');
+    }
+  }
+
+  function toggleLike() {
+    isLiked = !isLiked;
+    const countEl = document.getElementById('likeCount');
+    const icon = document.getElementById('likeIcon');
+    if (isLiked) {
+      likeCountVal += 1;
+      icon.style.fontVariationSettings = "'FILL' 1";
+      icon.classList.add('text-primary');
+    } else {
+      likeCountVal -= 1;
+      icon.style.fontVariationSettings = "'FILL' 0";
+    }
+    countEl.textContent = likeCountVal;
+  }
+
+  function sharePost() {
+    if (navigator.share) {
+      navigator.share({
+        title: 'Kỹ thuật đo sáng Zone System trên máy cơ hoàn toàn',
+        url: window.location.href
+      }).catch(() => {});
+    } else {
+      navigator.clipboard.writeText(window.location.href);
+      showToast('Đã sao chép liên kết chia sẻ!');
+    }
+  }
+
+  function copyPostLink() {
+    toggleMenu();
+    navigator.clipboard.writeText(window.location.href);
+    showToast('Đã sao chép liên kết bài viết!');
+  }
+
+  function openReportModal(targetDesc) {
+    const dropdown = document.getElementById('postDropdown');
+    if (dropdown) dropdown.classList.add('hidden');
+    document.getElementById('reportTarget').textContent = targetDesc;
+    document.getElementById('reportModal').classList.remove('hidden');
+  }
+
+  function closeReportModal() {
+    document.getElementById('reportModal').classList.add('hidden');
+  }
+
+  function submitReport(e) {
+    e.preventDefault();
+    closeReportModal();
+    showToast('Báo cáo của bạn đã được ghi nhận vào hệ thống điều phối lab.', 'verified');
+  }
+
+  function replyTo(userName) {
+    const notice = document.getElementById('replyingNotice');
+    const text = document.getElementById('replyingText');
+    const input = document.getElementById('commentInput');
+    notice.classList.remove('hidden');
+    text.textContent = 'Đang trả lời @' + userName;
+    input.focus();
+    input.placeholder = 'Trả lời ' + userName + '...';
+  }
+
+  function cancelReply() {
+    const notice = document.getElementById('replyingNotice');
+    const input = document.getElementById('commentInput');
+    notice.classList.add('hidden');
+    input.placeholder = 'Chia sẻ ý kiến của bạn...';
+  }
+
+  function handleSendComment(e) {
+    e.preventDefault();
+    const input = document.getElementById('commentInput');
+    if (input.value.trim().length > 0) {
+      showToast('Bình luận của bạn đã được đăng!', 'send');
+      input.value = '';
+      cancelReply();
+    }
+  }
+</script></main></body></html>

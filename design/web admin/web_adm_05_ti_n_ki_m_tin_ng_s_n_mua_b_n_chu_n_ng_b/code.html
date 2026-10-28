@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+
+<html lang="vi"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{colors:{"surface-container-high":"#efe7e0","inverse-primary":"#ffb691","on-primary":"#ffffff","on-secondary-container":"#4a6b5d","surface":"#fff8f3","on-tertiary-fixed-variant":"#4f453a","primary-fixed":"#ffdbcb","error-container":"#ffdad6","surface-container-highest":"#e9e1da","secondary-fixed-dim":"#abcebe","surface-container-low":"#faf2eb","primary-fixed-dim":"#ffb691","background":"#fff8f3","secondary":"#446557","on-tertiary":"#ffffff","surface-dim":"#e0d9d2","secondary-fixed":"#c6ebd9","tertiary-container":"#74685c","outline-variant":"#dcc1b5","tertiary":"#5b5045","surface-variant":"#e9e1da","on-secondary":"#ffffff","on-primary-container":"#ffe6dc","tertiary-fixed":"#f0e0d1","surface-container-lowest":"#ffffff","surface-container":"#f4ede6","on-secondary-fixed-variant":"#2d4d40","secondary-container":"#c6ebd9","inverse-surface":"#33302b","inverse-on-surface":"#f7efe8","on-error-container":"#93000a","primary-container":"#a9511c","on-tertiary-container":"#f9e8d9","on-error":"#ffffff","on-primary-fixed":"#341100","on-surface":"#1e1b17","surface-bright":"#fff8f3","primary":"#8a3a03","on-surface-variant":"#55433a","error":"#ba1a1a","on-background":"#1e1b17","on-primary-fixed-variant":"#793100","surface-tint":"#9a4610","on-tertiary-fixed":"#221a11","tertiary-fixed-dim":"#d3c4b6","on-secondary-fixed":"#002116","outline":"#887268"},borderRadius:{DEFAULT:"0.125rem",lg:"0.25rem",xl:"0.5rem",full:"0.75rem"},spacing:{"space-2xs":"0.125rem","space-md":"0.75rem","gutter-lg":"1.25rem","margin-lg":"1.5rem",gutter:"0.75rem","margin-md":"1.25rem","space-lg":"1rem",margin:"1rem","gutter-md":"1rem","space-sm":"0.5rem","space-xs":"0.25rem","space-xl":"1.5rem"},fontFamily:{"headline-xl":["IBM Plex Sans"],"headline-md":["IBM Plex Sans"],"headline-lg":["IBM Plex Sans"],"body-md":["IBM Plex Sans"],"label-md":["IBM Plex Mono"],"headline-sm":["IBM Plex Sans"],"label-sm":["IBM Plex Mono"],"body-sm":["IBM Plex Sans"],"code-md":["IBM Plex Mono"]},fontSize:{"headline-xl":["1.75rem",{lineHeight:"2.125rem",letterSpacing:"-0.015em",fontWeight:"600"}],"headline-md":["1rem",{lineHeight:"1.375rem",letterSpacing:"-0.005em",fontWeight:"600"}],"headline-lg":["1.25rem",{lineHeight:"1.625rem",letterSpacing:"-0.01em",fontWeight:"600"}],"body-md":["0.875rem",{lineHeight:"1.25rem",letterSpacing:"0em",fontWeight:"400"}],"label-md":["0.75rem",{lineHeight:"1rem",letterSpacing:"0.04em",fontWeight:"500"}],"headline-sm":["0.875rem",{lineHeight:"1.25rem",letterSpacing:"0em",fontWeight:"600"}],"label-sm":["0.6875rem",{lineHeight:"0.875rem",letterSpacing:"0.06em",fontWeight:"500"}],"body-sm":["0.8125rem",{lineHeight:"1.125rem",letterSpacing:"0.005em",fontWeight:"400"}],"code-md":["0.8125rem",{lineHeight:"1.125rem",letterSpacing:"0em",fontWeight:"400"}]}}}};</script></head><body class="bg-surface font-body-md text-body-md text-on-surface"><aside class="fixed left-0 top-0 h-full w-64 bg-surface-container-lowest border-r border-outline-variant z-50 flex flex-col justify-between select-none"><div class="flex flex-col"><div class="px-space-lg py-space-lg border-b border-outline-variant bg-surface-container-lowest"><div class="flex items-center justify-between"><span class="font-headline-md text-headline-md font-bold tracking-tight text-on-surface">MINILAB ARCHIVE</span><span class="font-label-sm text-label-sm px-space-xs py-space-2xs bg-primary-container text-on-primary rounded">SYS.ADM</span></div><p class="font-label-sm text-label-sm text-tertiary mt-space-2xs uppercase tracking-wider">HỆ THỐNG VẬN HÀNH</p></div><div class="px-space-lg pt-space-lg pb-space-xs"><span class="font-label-sm text-label-sm text-tertiary uppercase tracking-wider block">SỔ QUẢN TRỊ &amp; ĐIỀU HÀNH</span></div><nav class="px-space-sm space-y-space-2xs" data-active-classes="bg-primary-container text-on-primary font-medium rounded-lg"><a class="flex items-center justify-between px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="tong-quan-van-hanh" href="#"><span class="font-body-sm text-body-sm">1. Tổng quan vận hành</span><span class="font-label-sm text-label-sm opacity-60">ADM-02</span></a><a class="flex items-center justify-between px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="tai-khoan-phan-quyen" href="#"><span class="font-body-sm text-body-sm">2. Tài khoản &amp; Phân quyền</span><span class="font-label-sm text-label-sm opacity-60">ADM-03</span></a><a class="flex items-center justify-between px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="tham-dinh-doi-tac" href="#"><span class="font-body-sm text-body-sm">3. Thẩm định đối tác</span><span class="font-label-sm text-label-sm opacity-60">ADM-04</span></a><a class="flex items-center justify-between px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="kiem-duyet-san-mua-ban" href="#"><span class="font-body-sm text-body-sm">4. Kiểm duyệt sàn mua bán</span><span class="font-label-sm text-label-sm opacity-60">ADM-05</span></a><a class="flex items-center justify-between px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="hau-kiem-cong-dong" href="#"><span class="font-body-sm text-body-sm">5. Hậu kiểm cộng đồng</span><span class="font-label-sm text-label-sm opacity-60">ADM-06</span></a><a class="flex items-center justify-between px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="danh-muc-ky-thuat-lab" href="#"><span class="font-body-sm text-body-sm">6. Danh mục kỹ thuật &amp; Lab</span><span class="font-label-sm text-label-sm opacity-60">ADM-07</span></a><a class="flex items-center justify-between px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="khieu-nai-hoan-tien" href="#"><span class="font-body-sm text-body-sm">7. Khiếu nại &amp; Hoàn tiền</span><span class="font-label-sm text-label-sm opacity-60">ADM-08</span></a><a class="flex items-center justify-between px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="nhat-ky-kiem-toan" href="#"><span class="font-body-sm text-body-sm">8. Nhật ký kiểm toán</span><span class="font-label-sm text-label-sm opacity-60">ADM-09</span></a></nav></div><div class="p-space-lg border-t border-outline-variant bg-surface-container-low"><div class="flex items-center justify-between"><span class="font-label-sm text-label-sm text-tertiary">v4.8.2-PROD</span><div class="flex items-center gap-space-xs"><span class="w-2 h-2 rounded-full bg-secondary inline-block"></span><span class="font-label-sm text-label-sm text-secondary font-medium">ONLINE</span></div></div><p class="font-label-sm text-label-sm text-outline mt-space-2xs">BẢN PHÁT HÀNH ĐỘC QUYỀN</p></div></aside><div class="pl-64"><header class="fixed top-0 left-64 right-0 h-16 bg-surface-container-lowest border-b border-outline-variant z-40 flex items-center justify-between px-margin-lg"><div class="flex items-center gap-space-md"><span class="font-label-sm text-label-sm text-tertiary tracking-wider uppercase">HỆ THỐNG / VẬN HÀNH TRUNG TÂM</span></div><div class="flex items-center gap-space-lg"><div class="relative flex items-center"><span class="material-symbols-outlined absolute left-space-md text-outline text-[18px]">search</span><input class="w-80 h-8 pl-9 pr-12 bg-surface-container-low border border-outline-variant rounded-lg font-body-sm text-body-sm text-on-surface placeholder:text-outline focus:outline-none focus:border-primary" placeholder="Tra cứu mã phiếu, lab, đơn hàng..." type="text"/><kbd class="absolute right-space-sm px-space-xs py-space-2xs bg-surface-container-highest border border-outline-variant rounded font-label-sm text-label-sm text-tertiary">⌘ K</kbd></div><div class="flex items-center gap-space-md border-l border-outline-variant pl-space-lg"><button class="relative p-space-xs text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors rounded" type="button"><span class="material-symbols-outlined text-[20px]">notifications</span><span class="absolute 0 top-0 -right-1 min-w-[16px] h-4 px-1 rounded-full bg-primary text-on-primary font-label-sm text-label-sm flex items-center justify-center leading-none">7</span></button><div class="flex items-center gap-space-sm pl-space-xs"><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-on-primary font-label-md text-label-md font-bold">VT</div><div class="flex flex-col text-left"><span class="font-headline-sm text-headline-sm text-on-surface leading-tight">Vũ Minh Tuấn</span><span class="font-label-sm text-label-sm text-tertiary uppercase leading-none">CHỈ HUY HỆ THỐNG</span></div></div></div></div></header><main class="relative pt-16 bg-surface min-h-screen"><div class="w-full max-w-[1440px] px-margin-lg py-margin"><div class="w-8 h-8 rounded-full bg-primary hidden items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div><div class="flex flex-col w-full">
+<!-- Operational Header -->
+<header class="flex flex-col md:flex-row md:items-center justify-between pb-space-lg mb-space-lg gap-space-md">
+<div class="flex items-center gap-space-md flex-wrap">
+<div class="flex items-center gap-space-sm">
+<span class="font-headline-lg text-headline-lg text-on-surface uppercase tracking-tight">Tiền kiểm tin đăng</span>
+<span class="font-label-sm text-label-sm px-space-xs py-space-2xs bg-primary-container text-on-primary rounded font-semibold tracking-wider">18 CHỜ DUYỆT</span>
+</div>
+<span class="hidden sm:inline-block text-outline">|</span>
+<span class="font-label-sm text-label-sm text-tertiary uppercase tracking-wider">QUY TRÌNH HẬU KIỂM THIẾT BỊ ANALOG</span>
+</div>
+<div class="flex items-center gap-space-sm self-start md:self-auto bg-surface-container-high px-space-md py-space-xs rounded">
+<span class="material-symbols-outlined text-[16px] text-secondary">task_alt</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">ĐÃ DUYỆT HÔM NAY:</span>
+<span class="font-label-md text-label-md font-bold text-on-surface">42 TIN</span>
+</div>
+</header>
+<!-- 2-Column Split Workbench (Ratio 4:8) -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter-lg items-start">
+<!-- Left Column: Moderation Queue List (Span 4) -->
+<section class="lg:col-span-4 flex flex-col gap-space-sm">
+<div class="flex items-center justify-between px-space-xs pb-space-2xs">
+<span class="font-label-sm text-label-sm text-tertiary uppercase tracking-wider">HÀNG ĐỢI TIỀN KIỂM (18)</span>
+<span class="font-label-sm text-label-sm text-outline">MỚI NHẤT TRƯỚC</span>
+</div>
+<!-- Item 1: Active Card -->
+<article class="relative flex flex-col p-space-md bg-surface-container-lowest rounded-xl shadow-md cursor-pointer transition-all hover:translate-y-[-1px]" style="outline: 2px solid #a9511c; outline-offset: -2px;">
+<div class="flex gap-space-md">
+<div class="relative w-20 h-20 rounded bg-surface-container-high overflow-hidden shrink-0">
+<img class="w-full h-full object-cover" data-alt="Close-up shot of a classic black chrome Leica M6 rangefinder film camera on archival velvet fabric, soft warm darkroom directional light highlighting the mechanical dials and red dot logo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDzCmZYtlhXoTjk7HWy_CT0tevD4jGfMtLGP6r2W6eQHDJLbh_aSGoyUuUcXr6PKiROA3jFYQVvfNqgD1eWkiTLmEFBGpWoqS3hGxlugIw5Cvcu9IHM6VhRfc1MuDQp19O1juM9y8cHbmhrLD_OAI_F4eALe7ZH4wU_o9aSuZaMGVycllm8xIhhg5aFnaZjFXLT_Ncw8ytWdAqtsTwbjejEGNq1zaTeWPsuNg4X-wca_KGC9zRHVQSI"/>
+<span class="absolute bottom-1 right-1 px-1 bg-inverse-surface/85 text-inverse-on-surface font-label-sm text-[10px] rounded leading-tight">4 ẢNH</span>
+</div>
+<div class="flex flex-col justify-between flex-1 min-w-0">
+<div>
+<div class="flex items-center justify-between gap-space-xs mb-space-2xs">
+<span class="font-label-sm text-label-sm px-space-xs py-space-2xs bg-surface-container-high text-primary-container font-semibold rounded">CHỜ DUYỆT</span>
+<span class="font-label-sm text-label-sm text-outline">08:24</span>
+</div>
+<h2 class="font-headline-sm text-headline-sm text-on-surface truncate">Leica M6 Classic 0.72x</h2>
+<p class="font-label-md text-label-md font-bold text-primary mt-space-2xs">45.000.000 đ</p>
+</div>
+<div class="flex items-center gap-space-xs mt-space-xs pt-space-xs bg-surface-container-low px-space-xs py-space-2xs rounded">
+<span class="material-symbols-outlined text-[13px] text-tertiary">person</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant truncate">Nguyễn Văn Khang</p>
+<span class="text-outline text-label-sm">•</span>
+<span class="font-label-sm text-label-sm text-secondary font-medium">KYC ✓</span>
+</div>
+</div>
+</div>
+</article>
+<!-- Item 2 -->
+<article class="flex flex-col p-space-md bg-surface-container-lowest rounded-xl shadow-sm hover:shadow-md cursor-pointer transition-all hover:bg-surface-container-low">
+<div class="flex gap-space-md">
+<div class="relative w-20 h-20 rounded bg-surface-container-high overflow-hidden shrink-0">
+<img class="w-full h-full object-cover" data-alt="Medium format Hasselblad 500CM camera with Carl Zeiss planar lens placed on wooden workbench under focused tungsten lamp, archival laboratory inspection background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB6ULdeePvfeXzBIWZkPYx52MLDPEElINMpo17JUtKTSeh2aCyo9XvbfkLy6r_Bzz45ULav72LCg8mgYUrOzh8eGoUh9Oo60usUc3vVrhPQ7X7NmusqHMBCOOn9SllEOkoDt23TCxCjs761p8qIAHuZQKhcncz1NBgaGLjnfT7Ne66X86tbajOAPGncNZd2RbGDbOTYakIVeRiH_Y6VOhypYQTUIlf4msBm6TLAgXbsrfLuN57xCYi3"/>
+<span class="absolute bottom-1 right-1 px-1 bg-inverse-surface/85 text-inverse-on-surface font-label-sm text-[10px] rounded leading-tight">6 ẢNH</span>
+</div>
+<div class="flex flex-col justify-between flex-1 min-w-0">
+<div>
+<div class="flex items-center justify-between gap-space-xs mb-space-2xs">
+<span class="font-label-sm text-label-sm px-space-xs py-space-2xs bg-surface-container-high text-tertiary rounded">CHỜ DUYỆT</span>
+<span class="font-label-sm text-label-sm text-outline">07:50</span>
+</div>
+<h2 class="font-headline-sm text-headline-sm text-on-surface truncate">Hasselblad 500C/M Planar 80mm</h2>
+<p class="font-label-md text-label-md font-bold text-primary mt-space-2xs">58.500.000 đ</p>
+</div>
+<div class="flex items-center gap-space-xs mt-space-xs pt-space-xs bg-surface-container-low px-space-xs py-space-2xs rounded">
+<span class="material-symbols-outlined text-[13px] text-tertiary">person</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant truncate">Trần Đức Anh • 6 ảnh</p>
+</div>
+</div>
+</div>
+</article>
+<!-- Item 3 -->
+<article class="flex flex-col p-space-md bg-surface-container-lowest rounded-xl shadow-sm hover:shadow-md cursor-pointer transition-all hover:bg-surface-container-low">
+<div class="flex gap-space-md">
+<div class="relative w-20 h-20 rounded bg-surface-container-high overflow-hidden shrink-0">
+<img class="w-full h-full object-cover" data-alt="Vintage black and silver Canon AE-1 Program 35mm SLR camera resting beside vintage leather strap and exposure meter on laboratory stone desk" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBsA06GXzpb6Z2ZfdPq10OwoI-i3Q-uIExfh46AcHhr7wb-_573NEg8GcLp9Dw-mUDATHe56B39a1x7f_bCzn7tYutvEc_DR9-uK_JzQyTzZ_DecKzGnIJ8eabsll4y4bbhtRdS4eLrdZ-JW4jrYOuwfZZvxhTqNfPrhC40aq-UY6wI8L18i5OMQcLLpJ34QfWkH-RISkpP7b43zScaXcHkb_fmtAUzo9eIIUj7NnsMZ4m7-uFTgOJB"/>
+<span class="absolute bottom-1 right-1 px-1 bg-inverse-surface/85 text-inverse-on-surface font-label-sm text-[10px] rounded leading-tight">5 ẢNH</span>
+</div>
+<div class="flex flex-col justify-between flex-1 min-w-0">
+<div>
+<div class="flex items-center justify-between gap-space-xs mb-space-2xs">
+<span class="font-label-sm text-label-sm px-space-xs py-space-2xs bg-surface-container-high text-tertiary rounded">CHỜ DUYỆT</span>
+<span class="font-label-sm text-label-sm text-outline">06:15</span>
+</div>
+<h2 class="font-headline-sm text-headline-sm text-on-surface truncate">Canon AE-1 Program FD 50mm f/1.4</h2>
+<p class="font-label-md text-label-md font-bold text-primary mt-space-2xs">3.800.000 đ</p>
+</div>
+<div class="flex items-center gap-space-xs mt-space-xs pt-space-xs bg-surface-container-low px-space-xs py-space-2xs rounded">
+<span class="material-symbols-outlined text-[13px] text-tertiary">person</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant truncate">Đỗ Gia Bảo • 5 ảnh</p>
+</div>
+</div>
+</div>
+</article>
+<!-- Item 4 -->
+<article class="flex flex-col p-space-md bg-surface-container-lowest rounded-xl shadow-sm hover:shadow-md cursor-pointer transition-all hover:bg-surface-container-low">
+<div class="flex gap-space-md">
+<div class="relative w-20 h-20 rounded bg-surface-container-high overflow-hidden shrink-0">
+<img class="w-full h-full object-cover" data-alt="Pack of five yellow Kodak Portra 400 120 format film rolls aligned vertically on a technical darkroom light table showing expiry dates" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB0Bp3PNvQ2edyQKw3HwwqszKnxLZWMke3eZ24pnuWm_WH7ckffdCQt7qDo1tBlNoyASvPYWj4t7kV3fnuaAfc_7dKgSh5Hwwsy6PtFiRuj2mmuQkIOVz9hAwwIirNzauM3REAUU0VnBXzRdYQ_Aw67OMWVn6cBzJhMN4gDBLNWY76b0TlU8yeb-AR2pkTYaZzZvhw90jmFwCJR9hGqsclOGQsz5shBxj_qc5SIgpotMcxTwBtQQfTG"/>
+<span class="absolute bottom-1 right-1 px-1 bg-inverse-surface/85 text-inverse-on-surface font-label-sm text-[10px] rounded leading-tight">3 ẢNH</span>
+</div>
+<div class="flex flex-col justify-between flex-1 min-w-0">
+<div>
+<div class="flex items-center justify-between gap-space-xs mb-space-2xs">
+<span class="font-label-sm text-label-sm px-space-xs py-space-2xs bg-surface-container-high text-tertiary rounded">CHỜ DUYỆT</span>
+<span class="font-label-sm text-label-sm text-outline">Hôm qua</span>
+</div>
+<h2 class="font-headline-sm text-headline-sm text-on-surface truncate">Lô film Kodak Portra 400 (5 cuộn)</h2>
+<p class="font-label-md text-label-md font-bold text-primary mt-space-2xs">1.200.000 đ</p>
+</div>
+<div class="flex items-center gap-space-xs mt-space-xs pt-space-xs bg-surface-container-low px-space-xs py-space-2xs rounded">
+<span class="material-symbols-outlined text-[13px] text-tertiary">person</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant truncate">Lê Hoàng Vũ • 3 ảnh</p>
+</div>
+</div>
+</div>
+</article>
+<!-- Queue Pagination Micro-bar -->
+<div class="flex items-center justify-between p-space-sm bg-surface-container-high rounded text-tertiary font-label-sm text-label-sm">
+<span>HIỂN THỊ 1 - 4 TRÊN 18</span>
+<div class="flex gap-space-xs">
+<button class="w-6 h-6 flex items-center justify-center bg-surface-container-lowest rounded text-on-surface hover:bg-surface" type="button"><span class="material-symbols-outlined text-[14px]">chevron_left</span></button>
+<button class="w-6 h-6 flex items-center justify-center bg-surface-container-lowest rounded text-on-surface hover:bg-surface" type="button"><span class="material-symbols-outlined text-[14px]">chevron_right</span></button>
+</div>
+</div>
+</section>
+<!-- Right Column: Detail Inspector Card (Span 8) -->
+<section class="lg:col-span-8 flex flex-col p-space-xl bg-surface-container-lowest rounded-xl shadow-md">
+<!-- Detail Header -->
+<div class="flex flex-col sm:flex-row sm:items-start justify-between pb-space-lg gap-space-md">
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center gap-space-sm">
+<span class="font-label-sm text-label-sm px-space-xs py-space-2xs bg-surface-container-high text-tertiary rounded font-mono">POST-89421</span>
+<span class="font-label-sm text-label-sm text-outline">GỬI LÚC 08:24 • 24/10/2024</span>
+</div>
+<h1 class="font-headline-lg text-headline-lg text-on-surface font-bold tracking-tight">Leica M6 Classic 0.72x Black Chrome</h1>
+<div class="flex flex-wrap items-center gap-space-md pt-space-xs text-body-sm text-on-surface-variant">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[16px] text-primary">account_circle</span>
+<span class="font-medium text-on-surface">Nguyễn Văn Khang</span>
+</div>
+<div class="flex items-center gap-space-2xs px-space-xs py-space-2xs bg-secondary-container text-on-secondary-container rounded font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[14px]">verified</span>
+<span>ĐÃ XÁC THỰC KYC</span>
+</div>
+<div class="flex items-center gap-space-xs text-outline font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[14px]">history</span>
+<span>Đã hoàn tất 12 giao dịch</span>
+</div>
+</div>
+</div>
+<div class="flex flex-col sm:items-end bg-surface-container-low p-space-md rounded shrink-0">
+<span class="font-label-sm text-label-sm text-tertiary uppercase">GIÁ ĐỀ XUẤT</span>
+<span class="font-headline-xl text-headline-xl text-primary font-bold tracking-tight">45.000.000 <span class="text-headline-sm font-normal">đ</span></span>
+</div>
+</div>
+<!-- Photo Inspection Grid -->
+<div class="flex flex-col gap-space-sm pt-space-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<span class="font-label-sm text-label-sm text-tertiary uppercase tracking-wider font-semibold">BỘ ẢNH THẨM ĐỊNH THỰC TẾ</span>
+<span class="font-label-sm text-label-sm px-space-xs py-space-2xs bg-secondary-container text-on-secondary-container rounded font-bold">✓ ĐỦ 4 GÓC CHỤP BẮT BUỘC</span>
+</div>
+<span class="font-label-sm text-label-sm text-outline">ĐỘ PHÂN GIẢI CAO (EXIF GỐC)</span>
+</div>
+<!-- 4-Image Grid -->
+<div class="grid grid-cols-2 md:grid-cols-4 gap-space-md">
+<!-- Shot 1 -->
+<div class="flex flex-col gap-space-2xs group">
+<div class="relative aspect-square rounded bg-surface-container-high overflow-hidden shadow-sm">
+<img class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" data-alt="High resolution studio documentation photo of front body of Leica M6 Classic black chrome camera showing clean rangefinder window and pristine enamel finish" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAWFGinUxSJfoZIdGsxvSE0nAOi0AuNStwBbxqSl5o-Fy80yJZ9KK5J0XIT4shvJQJNB9Hzpa6RvpDJaDn4zcJUH-KM4rTyNYaVBVwucENUFN19prL_d1q67nspWdWHWlXqE8QjxsWk6TuJEjBRqXKSKAuBvwwYC94F-fGkEd8G_LkQYTCfJpiUy0euVh-Cmtoohw2p9Yo1iNRqj4x-p5q0eYOntTjEkA5rr7YQKQ9Sz5cJbUEOda9q"/>
+<span class="absolute top-2 left-2 px-1.5 py-0.5 bg-inverse-surface/85 text-inverse-on-surface font-label-sm text-[10px] rounded">1. MẶT TRƯỚC BODY</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant truncate">Kính view sáng, logo nét</span>
+</div>
+<!-- Shot 2 -->
+<div class="flex flex-col gap-space-2xs group">
+<div class="relative aspect-square rounded bg-surface-container-high overflow-hidden shadow-sm">
+<img class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" data-alt="Technical macro inspection photograph inside open film compartment of Leica M6 showing pristine cloth shutter curtain, take up spool and pressure plate" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCuUE4qJgWygoIk3CKPt6Rhh1OUcBPjVbYNfxGqdpIpnGpdJ-yw6bh6arVFSkOnEoQJWt5XWd--UmViCN9A09X9kqmGw6FkCksmvFLhc8feif4GhMENBcEk_QAI3npdKEV7sbrwdjgfdeu4iIcnqKcu3wV9KjF6rRlHjueid1IJxWrJampCfHa-hY9UE84INK0Me9AMuQ23FTpLFA9hRsitPtbR5aLb-SBMcK5knSa8gfcZUi1pu12M"/>
+<span class="absolute top-2 left-2 px-1.5 py-0.5 bg-inverse-surface/85 text-inverse-on-surface font-label-sm text-[10px] rounded">2. BUỒNG FILM &amp; MÀN TRẬP</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant truncate">Rèm vải phẳng, không mốc</span>
+</div>
+<!-- Shot 3 -->
+<div class="flex flex-col gap-space-2xs group">
+<div class="relative aspect-square rounded bg-surface-container-high overflow-hidden shadow-sm">
+<img class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" data-alt="Direct front optical flashlight test through camera rangefinder beam splitter and lens bayonet mount showing clear glass elements without haze or fungus" src="https://lh3.googleusercontent.com/aida-public/AB6AXuArrm-f0ZXCJ_ze8kqjWUUR4LxwNVHxN_xOeZyCCOPnjXR3Tcj9dva-cbOC_YxowsLQcnw4UNGQwlbTlt3zWd8GnIGKZOzOc85fGKSz3JUPAQAfNSxQPuZfcGHPbLGd2uObwvHlpIdE3B-fO4W4BigtMYQRH-gu5b-XgYdAvd9j0HimrORRsWvdzv4bodF1mVbDo8s1IkzyrnGGCxrOmNxMZzSvREY8-W9ZO0Rzne9PJoZ8FhC1YNWS"/>
+<span class="absolute top-2 left-2 px-1.5 py-0.5 bg-inverse-surface/85 text-inverse-on-surface font-label-sm text-[10px] rounded">3. THẤU KÍNH &amp; ỐNG KÍNH</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant truncate">Không mù, không rễ tre</span>
+</div>
+<!-- Shot 4 -->
+<div class="flex flex-col gap-space-2xs group">
+<div class="relative aspect-square rounded bg-surface-container-high overflow-hidden shadow-sm">
+<img class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" data-alt="Clear macro view of the bottom plate of black chrome Leica camera highlighting engraved serial number 1789421 and battery compartment with zero corrosion" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB-ipb0yxKubhh_BSulhn-mrvj79W66_RmdO7CG8zlf33X_gL5hgDrW8G530uX_r-coYxfHgbLEDM-hQpe4sW7wLjzxL7xTC_y7LDWJx1_-3HGWEIyeLJPBYbGYS051LNhSRpnUMhH-Ppj7dir-lum22L4lzQ5nbvHcNkXI4TSuGXBfbtkFHEXDB_cnht-bS150TpEWB_TYVY6At9it3arlVD-u0282Zq4TFdWN_olQckeyYimgtLHS"/>
+<span class="absolute top-2 left-2 px-1.5 py-0.5 bg-inverse-surface/85 text-inverse-on-surface font-label-sm text-[10px] rounded">4. ĐÁY &amp; SERIAL</span>
+</div>
+<span class="font-label-sm text-label-sm font-mono text-on-surface-variant truncate">S/N: #1789421 (Trùng khớp)</span>
+</div>
+</div>
+</div>
+<!-- Technical & Optical Condition Checklist Table -->
+<div class="flex flex-col gap-space-sm pt-space-lg">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-tertiary uppercase tracking-wider font-semibold">BẢNG KIỂM TRA CƠ HỌC &amp; TÌNH TRẠNG QUANG HỌC</span>
+<span class="font-label-sm text-label-sm text-secondary font-medium">4/4 TIÊU CHÍ HỢP LỆ</span>
+</div>
+<div class="w-full overflow-x-auto bg-surface-container-low rounded-lg p-space-xs">
+<table class="w-full text-left font-body-sm text-body-sm">
+<thead>
+<tr class="bg-surface-container-high text-tertiary font-label-sm text-label-sm uppercase">
+<th class="py-space-sm px-space-md rounded-l">Hạng mục kiểm định</th>
+<th class="py-space-sm px-space-md">Mô tả của người bán</th>
+<th class="py-space-sm px-space-md">Dữ liệu tham chiếu</th>
+<th class="py-space-sm px-space-md text-right rounded-r">Kết quả</th>
+</tr>
+</thead>
+<tbody class="divide-y-0">
+<tr class="bg-surface-container-lowest">
+<td class="py-space-sm px-space-md font-medium text-on-surface">1. Tốc độ màn trập</td>
+<td class="py-space-sm px-space-md text-on-surface-variant">Hoạt động trơn tru từ 1s đến 1/1000s, bulb chuẩn</td>
+<td class="py-space-sm px-space-md font-mono text-outline">Sai lệch &lt; 5%</td>
+<td class="py-space-sm px-space-md text-right">
+<span class="font-label-sm text-label-sm px-space-xs py-space-2xs bg-secondary-container text-on-secondary-container font-bold rounded">ĐẠT</span>
+</td>
+</tr>
+<tr class="bg-surface-container-lowest">
+<td class="py-space-sm px-space-md font-medium text-on-surface">2. Bộ đo sáng (Light Meter)</td>
+<td class="py-space-sm px-space-md text-on-surface-variant">Đèn LED tam giác và chấm đỏ nhạy, pin LR44 mới</td>
+<td class="py-space-sm px-space-md font-mono text-outline">Điện áp 3.0V chuẩn</td>
+<td class="py-space-sm px-space-md text-right">
+<span class="font-label-sm text-label-sm px-space-xs py-space-2xs bg-secondary-container text-on-secondary-container font-bold rounded">ĐẠT</span>
+</td>
+</tr>
+<tr class="bg-surface-container-lowest">
+<td class="py-space-sm px-space-md font-medium text-on-surface">3. Buồng tối &amp; Mút đệm (Light Seals)</td>
+<td class="py-space-sm px-space-md text-on-surface-variant">Mút đệm đàn hồi nguyên bản, buồng film không lọt sáng</td>
+<td class="py-space-sm px-space-md font-mono text-outline">Kiểm tra kín quang</td>
+<td class="py-space-sm px-space-md text-right">
+<span class="font-label-sm text-label-sm px-space-xs py-space-2xs bg-secondary-container text-on-secondary-container font-bold rounded">ĐẠT</span>
+</td>
+</tr>
+<tr class="bg-surface-container-lowest">
+<td class="py-space-sm px-space-md font-medium text-on-surface">4. Kính ngắm &amp; Thấu kính (Optics/Viewfinder)</td>
+<td class="py-space-sm px-space-md text-on-surface-variant">Điểm vàng hội tụ nét căng, không xước, không bong tróc coat</td>
+<td class="py-space-sm px-space-md font-mono text-outline">Độ truyền sáng 98%</td>
+<td class="py-space-sm px-space-md text-right">
+<span class="font-label-sm text-label-sm px-space-xs py-space-2xs bg-secondary-container text-on-secondary-container font-bold rounded">ĐẠT</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- Description Excerpt & Moderation Notice -->
+<div class="mt-space-lg p-space-md bg-surface-container-low rounded-lg flex flex-col gap-space-xs">
+<span class="font-label-sm text-label-sm text-tertiary uppercase">GHI CHÚ NGƯỜI BÁN</span>
+<p class="font-body-sm text-body-sm text-on-surface italic">
+          "Máy sưu tầm cá nhân ít chụp, giữ trong tủ chống ẩm 45% quanh năm. Kèm dây đeo da artisanal và nắp body nguyên bản. Ưu tiên giao dịch trực tiếp kiểm tra tại lab hoặc ship COD có đồng kiểm."
+        </p>
+</div>
+<!-- Decision Commitment Block -->
+<div class="mt-space-xl pt-space-lg flex flex-col sm:flex-row items-center justify-between gap-space-md bg-surface-container p-space-md rounded-lg">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-[20px] text-secondary">verified_user</span>
+<div class="flex flex-col">
+<span class="font-headline-sm text-headline-sm text-on-surface">Tin đăng đáp ứng đầy đủ điều kiện quy chuẩn Sàn Mua Bán</span>
+<span class="font-label-sm text-label-sm text-tertiary">Mã niêm yết sẽ được đẩy trực tiếp lên hệ thống công khai sau khi duyệt</span>
+</div>
+</div>
+<div class="flex items-center gap-space-md w-full sm:w-auto justify-end">
+<!-- Reject Trigger -->
+<button class="px-space-md py-space-xs bg-surface-container-lowest text-error rounded font-body-sm text-body-sm font-medium hover:bg-error-container hover:text-on-error-container transition-colors shadow-sm flex items-center gap-space-xs" onclick="handleReject()" type="button">
+<span class="material-symbols-outlined text-[16px]">close</span>
+<span>✕ Từ chối</span>
+</button>
+<!-- Approve Trigger -->
+<button class="px-space-lg py-space-xs bg-primary-container text-on-primary rounded font-body-sm text-body-sm font-semibold hover:opacity-90 active:scale-[0.98] transition-all shadow-sm flex items-center gap-space-xs" onclick="handleApprove()" type="button">
+<span class="material-symbols-outlined text-[16px]">check_circle</span>
+<span>✓ Duyệt tin đăng</span>
+</button>
+</div>
+</div>
+</section>
+</div>
+</div>
+<script>
+  function handleApprove() {
+    const confirmed = confirm('Xác nhận duyệt tin đăng "Leica M6 Classic 0.72x" và mở niêm yết công khai trên Sàn Giao Dịch?');
+    if (confirmed) {
+      alert('Đã phê duyệt thành công tin đăng POST-89421. Số tin đã duyệt hôm nay cập nhật: 43 tin.');
+    }
+  }
+
+  function handleReject() {
+    const reason = prompt('Nhập lý do từ chối tin đăng để gửi thông báo hoàn trả cho người bán (KYC):', 'Ảnh chụp đáy máy chưa đủ độ rõ nét của số Serial');
+    if (reason) {
+      alert('Đã từ chối tin đăng POST-89421 và gửi lý do cho Nguyễn Văn Khang.');
+    }
+  }
+</script></div></main></div></body></html>

@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="vi"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_stack" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;1,400&amp;family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "on-background": "#1e1b17", "primary-container": "#a9511c", "tertiary": "#5b5045", "tertiary-container": "#74685c", "on-surface-variant": "#55433a", "on-tertiary-container": "#f9e8d9", "secondary-fixed-dim": "#abcebe", "on-surface": "#1e1b17", "outline-variant": "#dcc1b5", "surface-tint": "#9a4610", "secondary": "#446557", "on-primary-fixed-variant": "#793100", "tertiary-fixed-dim": "#d3c4b6", "surface-container-low": "#faf2eb", "inverse-primary": "#ffb691", "on-secondary": "#ffffff", "surface-container-lowest": "#ffffff", "on-secondary-container": "#4a6b5d", "on-secondary-fixed": "#002116", "surface": "#fff8f3", "primary-fixed-dim": "#ffb691", "on-tertiary": "#ffffff", "on-error-container": "#93000a", "secondary-container": "#c6ebd9", "on-tertiary-fixed": "#221a11", "primary": "#8a3a03", "inverse-surface": "#33302b", "on-primary-fixed": "#341100", "surface-container": "#f4ede6", "secondary-fixed": "#c6ebd9", "surface-container-highest": "#e9e1da", "on-primary-container": "#ffe6dc", "inverse-on-surface": "#f7efe8", "error": "#ba1a1a", "background": "#fff8f3", "primary-fixed": "#ffdbcb", "surface-dim": "#e0d9d2", "error-container": "#ffdad6", "outline": "#887268", "tertiary-fixed": "#f0e0d1", "on-secondary-fixed-variant": "#2d4d40", "on-primary": "#ffffff", "surface-container-high": "#efe7e0", "surface-variant": "#e9e1da", "on-error": "#ffffff", "surface-bright": "#fff8f3", "on-tertiary-fixed-variant": "#4f453a" }, borderRadius: { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" }, spacing: { "space-2xs": "0.125rem", "space-md": "0.75rem", "gutter-md": "1rem", "gutter-lg": "1.25rem", "space-xs": "0.25rem", "space-xl": "1.5rem", "space-lg": "1rem", "margin-md": "1.25rem", "margin-lg": "1.5rem", "gutter": "0.75rem", "space-sm": "0.5rem", "margin": "1rem" }, fontFamily: { "headline-sm": ["IBM Plex Sans"], "headline-md": ["IBM Plex Sans"], "body-md": ["IBM Plex Sans"], "label-md": ["IBM Plex Mono"], "headline-xl": ["IBM Plex Sans"], "code-md": ["IBM Plex Mono"], "body-sm": ["IBM Plex Sans"], "headline-lg": ["IBM Plex Sans"], "label-sm": ["IBM Plex Mono"] }, fontSize: { "headline-sm": ["0.875rem", { lineHeight: "1.25rem", letterSpacing: "0em", fontWeight: "600" }], "headline-md": ["1rem", { lineHeight: "1.375rem", letterSpacing: "-0.005em", fontWeight: "600" }], "body-md": ["0.875rem", { lineHeight: "1.25rem", letterSpacing: "0em", fontWeight: "400" }], "label-md": ["0.75rem", { lineHeight: "1rem", letterSpacing: "0.04em", fontWeight: "500" }], "headline-xl": ["1.75rem", { lineHeight: "2.125rem", letterSpacing: "-0.015em", fontWeight: "600" }], "code-md": ["0.8125rem", { lineHeight: "1.125rem", letterSpacing: "0em", fontWeight: "400" }], "body-sm": ["0.8125rem", { lineHeight: "1.125rem", letterSpacing: "0.005em", fontWeight: "400" }], "headline-lg": ["1.25rem", { lineHeight: "1.625rem", letterSpacing: "-0.01em", fontWeight: "600" }], "label-sm": ["0.6875rem", { lineHeight: "0.875rem", letterSpacing: "0.06em", fontWeight: "500" }] } } } }</script><style>@layer base{html,body{width:100vw;margin:0;padding:0;}body{overscroll-behavior:none;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-surface font-body-md text-on-surface antialiased flex flex-col min-h-screen"><header class="fixed top-0 w-full z-50 pt-safe bg-surface/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-14 px-gutter flex items-center justify-between"><div class="flex items-center gap-space-xs"><button aria-label="Quay lại" class="min-w-[44px] min-h-[44px] -ml-space-xs flex items-center justify-center text-on-surface hover:text-primary transition-colors" onclick="history.back()"><span class="material-symbols-outlined text-[20px]">arrow_back</span></button><h1 class="font-headline-md text-headline-md tracking-tight uppercase text-on-surface truncate">Hồ Sơ Chuyên Gia</h1></div><div class="flex items-center gap-space-sm"><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="flex-1 w-full bg-surface pt-14 pb-safe"><div class="flex flex-col w-full pb-10">
+<div class="px-gutter pt-space-md pb-space-sm flex items-center justify-between">
+<div class="flex items-center gap-space-xs text-on-surface-variant font-label-sm text-label-sm">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+<span>CHUYÊN GIA ANALOG LAB</span>
+</div>
+<div class="flex items-center gap-space-xs">
+<button class="flex items-center justify-center w-8 h-8 rounded-full bg-surface-container-high text-on-surface hover:bg-surface-container-highest transition-colors" id="shareBtn" title="Chia sẻ hồ sơ">
+<span class="material-symbols-outlined text-[18px]">share</span>
+</button>
+</div>
+</div>
+<div class="px-gutter pt-space-xs pb-space-md">
+<div class="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm">
+<div class="flex items-start gap-space-md">
+<div class="relative shrink-0">
+<div class="w-20 h-20 rounded-full overflow-hidden bg-surface-container-high">
+<img class="w-full h-full object-cover" data-alt="Portrait of an experienced Vietnamese male analog photographer in his mid-30s wearing a rugged canvas work apron inside an authentic vintage darkroom, warm red amber safety light highlights, silver gelatin photo prints hanging in the background, sharp features, calm artisan expression." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCDZrAIE5tFbDsMKduxEw25t-VwKXUhQZTSrXFNsR-T2t6K4YtV-fAcIsJRRDooeoibypOZK72GIRIOZyclsEpa4MXBIyfAYyWeyPSfT1EHTjJWW3HRwacFG9jCNH6U2d22tasZm9GUosimAlwFZKltcB7lBPGanDrEH3EFG9F_obfV08Y4wJARTapAurijqibmcdDM39KwcEiNljWy4iaz1QpbUiZ2MpIfTJk6Ei8"/>
+</div>
+<div class="absolute -bottom-1 -right-1 bg-surface-container-lowest p-0.5 rounded-full">
+<span class="material-symbols-outlined text-secondary text-[20px]" style="font-variation-settings: 'FILL' 1;">verified</span>
+</div>
+</div>
+<div class="flex flex-col min-w-0 flex-1">
+<div class="flex items-center gap-space-xs flex-wrap">
+<h2 class="font-headline-lg text-headline-lg text-on-surface font-semibold truncate">Trần Hải Đăng</h2>
+</div>
+<div class="mt-space-2xs flex items-center gap-space-xs">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-secondary-container text-on-secondary-container font-label-sm text-label-sm tracking-wide">
+<span class="material-symbols-outlined text-[12px]" style="font-variation-settings: 'FILL' 1;">verified</span>
+              CHUYÊN GIA VERIFIED
+            </span>
+</div>
+<p class="font-code-md text-code-md text-on-surface-variant mt-space-xs">@dang.analog.zone</p>
+</div>
+</div>
+<div class="mt-space-md bg-surface-container-low rounded-lg p-space-md">
+<p class="font-body-md text-body-md text-on-surface leading-relaxed">
+          Nhiếp ảnh gia phim tài liệu &amp; Phục chế buồng tối analog. 10 năm theo đuổi nhiếp ảnh phim đen trắng (<span class="font-code-md text-code-md font-semibold text-primary">B&amp;W Zone System</span>).
+        </p>
+</div>
+<div class="grid grid-cols-3 gap-space-xs mt-space-md text-center py-space-xs bg-surface-container rounded-lg">
+<div class="flex flex-col items-center justify-center p-space-xs">
+<span class="font-headline-md text-headline-md font-bold text-on-surface">1.4K</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Người theo dõi</span>
+</div>
+<div class="flex flex-col items-center justify-center p-space-xs">
+<span class="font-headline-md text-headline-md font-bold text-on-surface">42</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Bài kỹ thuật</span>
+</div>
+<div class="flex flex-col items-center justify-center p-space-xs">
+<span class="font-headline-md text-headline-md font-bold text-on-surface">12</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Sự kiện đã mở</span>
+</div>
+</div>
+<div class="flex items-center gap-space-sm mt-space-md">
+<button class="flex-1 h-9 rounded-lg bg-primary text-on-primary font-headline-sm text-headline-sm flex items-center justify-center gap-space-xs transition-colors shadow-sm" id="followBtn">
+<span class="material-symbols-outlined text-[18px]">add</span>
+<span>Theo dõi</span>
+</button>
+<button class="flex-1 h-9 rounded-lg bg-surface-container-high hover:bg-surface-container-highest text-on-surface font-headline-sm text-headline-sm flex items-center justify-center gap-space-xs transition-colors" id="zaloBtn">
+<span class="material-symbols-outlined text-secondary text-[18px]">chat</span>
+<span>Nhắn qua Zalo</span>
+</button>
+</div>
+</div>
+</div>
+<div class="px-gutter">
+<div class="bg-surface-container-low rounded-xl p-space-md">
+<div class="flex items-center justify-between mb-space-xs">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Thành tựu &amp; Xuất bản</span>
+<span class="material-symbols-outlined text-[16px] text-tertiary">military_tech</span>
+</div>
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center gap-space-sm bg-surface-container-lowest p-space-xs rounded-lg">
+<div class="w-6 h-6 rounded bg-primary-fixed flex items-center justify-center text-on-primary-fixed shrink-0">
+<span class="material-symbols-outlined text-[14px]">star</span>
+</div>
+<div class="min-w-0 flex-1">
+<p class="font-headline-sm text-headline-sm text-on-surface truncate">Giải Nhất Triển Lãm Phim Hà Nội 2023</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant truncate">Loạt ảnh "Vệt Nắng Phố Cổ" • Thể tài Ilford HP5+</p>
+</div>
+</div>
+<div class="flex items-center gap-space-sm bg-surface-container-lowest p-space-xs rounded-lg">
+<div class="w-6 h-6 rounded bg-secondary-fixed flex items-center justify-center text-on-secondary-fixed shrink-0">
+<span class="material-symbols-outlined text-[14px]">auto_stories</span>
+</div>
+<div class="min-w-0 flex-1">
+<p class="font-headline-sm text-headline-sm text-on-surface truncate">Tác giả sách "Zone System Thực Chiến"</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant truncate">Nhà xuất bản Mỹ Thuật • Bản in thủ công 2022</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="px-gutter mt-space-md">
+<div class="flex items-center gap-space-xs bg-surface-container-high p-1 rounded-xl">
+<button class="flex-1 py-1.5 px-2 rounded-lg font-headline-sm text-headline-sm text-center transition-all bg-surface-container-lowest text-on-surface shadow-sm" id="tab-portfolio" onclick="switchTab('portfolio')">
+        Portfolio
+      </button>
+<button class="flex-1 py-1.5 px-2 rounded-lg font-headline-sm text-headline-sm text-center transition-all text-on-surface-variant hover:text-on-surface" id="tab-articles" onclick="switchTab('articles')">
+        Bài viết (42)
+      </button>
+<button class="flex-1 py-1.5 px-2 rounded-lg font-headline-sm text-headline-sm text-center transition-all text-on-surface-variant hover:text-on-surface" id="tab-workshops" onclick="switchTab('workshops')">
+        Sự kiện (3)
+      </button>
+</div>
+</div>
+<div class="px-gutter mt-space-md flex flex-col gap-space-md" id="content-portfolio">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[18px] text-primary">view_quilt</span>
+<h3 class="font-headline-md text-headline-md text-on-surface">Tác phẩm tuyển chọn</h3>
+</div>
+<span class="font-code-md text-code-md text-on-surface-variant">LEICA M3 • B&amp;W</span>
+</div>
+<div class="grid grid-cols-3 gap-2">
+<div class="group relative flex flex-col bg-surface-container-lowest rounded-lg overflow-hidden shadow-sm cursor-pointer" onclick="openPhotoModal('01', 'Bà Cụ Dệt Vải Phố Hàng Thiếc', 'Leica M3 • Summicron 50mm f/2 • Ilford HP5+ 400')">
+<div class="bg-on-background px-1 py-0.5 flex items-center justify-between text-[8px] font-label-sm text-surface-container-highest tracking-widest uppercase">
+<span>ILFORD</span>
+<span>#01</span>
+</div>
+<div class="aspect-square w-full bg-surface-container-high overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" data-alt="High contrast black and white authentic film photograph of an elderly Vietnamese artisan woman weaving traditional silk fabric near a sunlit doorway in Hanoi, intense shadows, glowing highlights, fine film grain, captured on Leica M3 35mm Ilford HP5 plus film." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCekUd7Yxg_OzUtK87NDZNJ2yhwtzABaNb7yAr4u0kzrJrkdTY_y2EL2BdnIhkS-UaXtkiPoHnj6uArIB2HJJwvlGSLpJeyarXhCrN4XOQB1DOZQCXMrwWuaPtLjbLZBc89UJ8-5ZVISMiSHVdG5wUx0c6b2BqxEYgwnfttWDwQRwqM3OiKkQN4XrnhjmApcfQ5C7G1t-hFae1h5c3lRDjMgUDgGaABMlq81FlXGr4"/>
+</div>
+<div class="p-1.5 bg-surface-container-low flex flex-col justify-between">
+<p class="font-label-sm text-label-sm text-on-surface truncate font-medium">Bà Cụ Dệt Vải</p>
+<p class="font-code-md text-[10px] text-on-surface-variant">HP5+ • ISO 400</p>
+</div>
+</div>
+<div class="group relative flex flex-col bg-surface-container-lowest rounded-lg overflow-hidden shadow-sm cursor-pointer" onclick="openPhotoModal('02', 'Cơn Mưa Cầu Long Biên', 'Leica M3 • Elmar 90mm f/4 • Kodak Tri-X 400')">
+<div class="bg-on-background px-1 py-0.5 flex items-center justify-between text-[8px] font-label-sm text-surface-container-highest tracking-widest uppercase">
+<span>KODAK</span>
+<span>#02</span>
+</div>
+<div class="aspect-square w-full bg-surface-container-high overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" data-alt="Black and white street photograph of Long Bien bridge Hanoi during a sudden monsoon downpour, silhouettes of cyclists with rain capes against metallic structural trusses, water reflections on weathered asphalt, gritty monochrome film texture, Zone System processing." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB7zSSgHXoX2rW5SAt-saKgtYe0k5cMZqsu6D4G-UxjCVVeXUgn7tJ63dtn9Q6WxZajbKG5nl3jsmWeOgteQAD-8Rcdvx6l1O4HopzCh0xHFLn7u95ar7yytm2SqYLzwVdB5nyXNtpS8-x_OHaQQxc1mTss6AiW0gSxxaB7HjiWtx_mDpIn1SGznryPQNSSuIaW2yE_FZxrNJ2rAI5dI8DhWxQjV-6Ec0IvY11IqyQ"/>
+</div>
+<div class="p-1.5 bg-surface-container-low flex flex-col justify-between">
+<p class="font-label-sm text-label-sm text-on-surface truncate font-medium">Mưa Cầu Long Biên</p>
+<p class="font-code-md text-[10px] text-on-surface-variant">Tri-X • Zone VI</p>
+</div>
+</div>
+<div class="group relative flex flex-col bg-surface-container-lowest rounded-lg overflow-hidden shadow-sm cursor-pointer" onclick="openPhotoModal('03', 'Tiệm Đồng Hồ Cổ Giảng Võ', 'Hasselblad 500C/M • Planar 80mm • Ilford FP4+ 125')">
+<div class="bg-on-background px-1 py-0.5 flex items-center justify-between text-[8px] font-label-sm text-surface-container-highest tracking-widest uppercase">
+<span>ILFORD</span>
+<span>#03</span>
+</div>
+<div class="aspect-square w-full bg-surface-container-high overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" data-alt="Monochrome medium format photograph of an antique watch repair shop interior in Hanoi, vintage mechanical clocks lining wooden shelves, microscopic magnifying loupe on technician desk, deep velvety darkroom blacks and sharp silver tones." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBHtwQl4Hxfs0TKU__veTSjtgCBi3qvQgiKZzZZfYOaDI8AHpEADqAtw2LY6SivsNvk_UKIhRRHh-1E6A8sTrJj85q6MTv4HAEb5H7PssRLHjIdjWnpLJGdGnINuVOUu63QalduEGSvxMIJDoYwWUrGaNuy8f4hBxRbyFf6ikea9MpqHgRYY8OQiyMCfluAtiCvCA_4Wuw84yo_dSS9KC4gNp2WDwlDdpMscUt8s9Q"/>
+</div>
+<div class="p-1.5 bg-surface-container-low flex flex-col justify-between">
+<p class="font-label-sm text-label-sm text-on-surface truncate font-medium">Tiệm Sửa Đồng Hồ</p>
+<p class="font-code-md text-[10px] text-on-surface-variant">FP4+ • ISO 125</p>
+</div>
+</div>
+<div class="group relative flex flex-col bg-surface-container-lowest rounded-lg overflow-hidden shadow-sm cursor-pointer" onclick="openPhotoModal('04', 'Buổi Sáng Bên Hồ Tây', 'Leica M3 • Summaron 35mm f/2.8 • Fomapan 100')">
+<div class="bg-on-background px-1 py-0.5 flex items-center justify-between text-[8px] font-label-sm text-surface-container-highest tracking-widest uppercase">
+<span>FOMAPAN</span>
+<span>#04</span>
+</div>
+<div class="aspect-square w-full bg-surface-container-high overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" data-alt="Ethereal misty morning at West Lake Hanoi, solitary fisherman rowing a wooden sampan through still water, soft silver tonal gradients, gentle contrast, classic European darkroom film aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCBctyXTG_qMvA6oNyawYTuuJU6F7wSF1MSKQAXyZA6OH0tcY84L90ZLkK9sm50x004HahO2pQa22Rq-xE6fSlDeSAHr4iWsQZ9zW-4dGgARbR-hYCpiBNJj0QIxHjwc7lEWLr8qziSFLFB7OLiecKlzwlldYLQ_5Nq3S8_Ahl1uGsOEdE_2K04mngsj4pkbkVmX27Orq8h1pBcIAMyahNqScqWE3kGyHKtAK2df7o"/>
+</div>
+<div class="p-1.5 bg-surface-container-low flex flex-col justify-between">
+<p class="font-label-sm text-label-sm text-on-surface truncate font-medium">Sương Sớm Hồ Tây</p>
+<p class="font-code-md text-[10px] text-on-surface-variant">Foma • Stand Dev</p>
+</div>
+</div>
+<div class="group relative flex flex-col bg-surface-container-lowest rounded-lg overflow-hidden shadow-sm cursor-pointer" onclick="openPhotoModal('05', 'Góc Buồng Tối Analog Lab', 'Leica M3 • Summicron 50mm • T-Max 400')">
+<div class="bg-on-background px-1 py-0.5 flex items-center justify-between text-[8px] font-label-sm text-surface-container-highest tracking-widest uppercase">
+<span>KODAK</span>
+<span>#05</span>
+</div>
+<div class="aspect-square w-full bg-surface-container-high overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" data-alt="Artistic still life photograph of an enlarger lens in darkroom bath tray, developer ripples catching light, chemistry thermometer with glass markings, rich monochrome gradation, authentic analog film emulsion texture." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDR04uj8t5Mui24zZbDZHHaS2QqdNqN42NQylKozAI2zWIqHnCQFzPoup5Lo-3_Y_3WQNXA5158AXmVLelfRldEWn9bgvoQDWyU8eRsVWTpPVGSn_eAnQ7agh9LbbkjPspmflRA3dQJElJPHTS95ik8EppXG2PUH4z0NXUeUJpcT7bfh5HrfSp8_ZkL02LvzDFimtWY6bmAUO9iZhxKPMAUwmFq4w2IxsgmVTuOIk4"/>
+</div>
+<div class="p-1.5 bg-surface-container-low flex flex-col justify-between">
+<p class="font-label-sm text-label-sm text-on-surface truncate font-medium">Khay Thuốc Hiện</p>
+<p class="font-code-md text-[10px] text-on-surface-variant">T-Max • D-76 1:1</p>
+</div>
+</div>
+<div class="group relative flex flex-col bg-surface-container-lowest rounded-lg overflow-hidden shadow-sm cursor-pointer" onclick="openPhotoModal('06', 'Người Đạp Xích Lô Chiều Đông', 'Leica M3 • Rigid 50mm • Ilford HP5+ Push 1600')">
+<div class="bg-on-background px-1 py-0.5 flex items-center justify-between text-[8px] font-label-sm text-surface-container-highest tracking-widest uppercase">
+<span>ILFORD</span>
+<span>#06</span>
+</div>
+<div class="aspect-square w-full bg-surface-container-high overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" data-alt="Expressive black and white street portrait of an old cyclotour driver smoking a cigarette in Hanoi winter cold, dramatic side lighting highlighting wrinkles and breath vapor, pushed film grain, heavy cinematic contrast." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBzT4GR1Hs_fe4oB4SSiI3-WMT05_obwmCICHnIZgm4LMR97pVPmB5iZFUa9qnNOe19GkxBRxFJvFTMpvsB9720sucDt9rY5klN8euWlbG-2tUElmlx0-rGHNEAhubR4Yd6jN6qZIoO-vf3s2PoOsxFw2buHesJUn42Pp8cWYyR2oAf5qS9GSjZwkUYHH617bgWrGX2GvPu3yMlG6_dG8AAf5-cCgogKg4OdFKUprY"/>
+</div>
+<div class="p-1.5 bg-surface-container-low flex flex-col justify-between">
+<p class="font-label-sm text-label-sm text-on-surface truncate font-medium">Chiều Đông Phố Hàng</p>
+<p class="font-code-md text-[10px] text-on-surface-variant">HP5+ • Push 1600</p>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-center p-space-sm bg-surface-container-low rounded-lg text-on-surface-variant font-code-md text-code-md gap-space-xs">
+<span class="material-symbols-outlined text-[16px]">cloud_download</span>
+<span>Đang hiển thị 6 / 128 tác phẩm lưu trữ buồng tối</span>
+</div>
+</div>
+<div class="px-gutter mt-space-md hidden flex-col gap-space-sm" id="content-articles">
+<div class="flex items-center justify-between mb-space-2xs">
+<h3 class="font-headline-md text-headline-md text-on-surface">Cẩm nang &amp; Tài liệu kỹ thuật</h3>
+<span class="font-label-sm text-label-sm text-secondary">42 TÀI LIỆU</span>
+</div>
+<article class="p-space-md bg-surface-container-lowest rounded-xl shadow-sm flex flex-col gap-space-xs">
+<div class="flex items-center gap-space-xs font-label-sm text-label-sm text-primary">
+<span class="px-1.5 py-0.5 rounded bg-primary-fixed text-on-primary-fixed font-semibold">B&amp;W KỸ THUẬT</span>
+<span>• 12 THÁNG 5, 2024</span>
+</div>
+<h4 class="font-headline-md text-headline-md text-on-surface font-semibold">Làm chủ Ansel Adams Zone System trên cuộn phim 35mm đường phố</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2">
+        Cách đo sáng điểm (spot meter) vào Vùng III để giữ chi tiết vùng tối sâu nhất và kiểm soát thời gian tráng bù trừ với thuốc D-76 tỉ lệ 1:1.
+      </p>
+<div class="flex items-center justify-between pt-space-xs mt-space-2xs font-code-md text-code-md text-on-surface-variant">
+<span>Đọc 8 phút • 842 lượt xem</span>
+<button class="text-primary font-medium hover:underline flex items-center gap-0.5">
+          Xem bài <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+</button>
+</div>
+</article>
+<article class="p-space-md bg-surface-container-lowest rounded-xl shadow-sm flex flex-col gap-space-xs">
+<div class="flex items-center gap-space-xs font-label-sm text-label-sm text-secondary">
+<span class="px-1.5 py-0.5 rounded bg-secondary-fixed text-on-secondary-fixed font-semibold">BUỒNG TỐI HÓA CHẤT</span>
+<span>• 28 THÁNG 4, 2024</span>
+</div>
+<h4 class="font-headline-md text-headline-md text-on-surface font-semibold">Công thức pha chế thuốc hiện Rodinal (R09) tại nhà chuẩn nhiệt độ</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2">
+        Kinh nghiệm kiểm soát nhiệt độ 20°C trong khí hậu mùa hè nhiệt đới Việt Nam nhằm ngăn ngừa hiện tượng vỡ hạt (grain explosion) và đục gelatine.
+      </p>
+<div class="flex items-center justify-between pt-space-xs mt-space-2xs font-code-md text-code-md text-on-surface-variant">
+<span>Đọc 12 phút • 1.2K lượt xem</span>
+<button class="text-primary font-medium hover:underline flex items-center gap-0.5">
+          Xem bài <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+</button>
+</div>
+</article>
+<article class="p-space-md bg-surface-container-lowest rounded-xl shadow-sm flex flex-col gap-space-xs">
+<div class="flex items-center gap-space-xs font-label-sm text-label-sm text-tertiary">
+<span class="px-1.5 py-0.5 rounded bg-tertiary-fixed text-on-tertiary-fixed font-semibold">SCAN &amp; ARCHIVE</span>
+<span>• 15 THÁNG 3, 2024</span>
+</div>
+<h4 class="font-headline-md text-headline-md text-on-surface font-semibold">Quy trình số hóa phim âm bản bằng máy ảnh Mirrorless + Lens Macro</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2">
+        So sánh chi tiết chất lượng độ phân giải và dynamic range giữa máy quét chuyên dụng Noritsu HS-1800 và hệ thống scan camera số hiện đại.
+      </p>
+<div class="flex items-center justify-between pt-space-xs mt-space-2xs font-code-md text-code-md text-on-surface-variant">
+<span>Đọc 15 phút • 950 lượt xem</span>
+<button class="text-primary font-medium hover:underline flex items-center gap-0.5">
+          Xem bài <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+</button>
+</div>
+</article>
+</div>
+<div class="px-gutter mt-space-md hidden flex-col gap-space-sm" id="content-workshops">
+<div class="flex items-center justify-between mb-space-2xs">
+<h3 class="font-headline-md text-headline-md text-on-surface">Lớp học &amp; Trải nghiệm trực tiếp</h3>
+<span class="font-label-sm text-label-sm text-secondary">3 SỰ KIỆN MỚI</span>
+</div>
+<div class="p-space-md bg-surface-container-lowest rounded-xl shadow-sm flex flex-col gap-space-sm">
+<div class="flex items-start justify-between gap-space-sm">
+<div>
+<span class="inline-block px-2 py-0.5 rounded bg-primary text-on-primary font-label-sm text-label-sm font-semibold">SẮP DIỄN RA</span>
+<h4 class="font-headline-md text-headline-md text-on-surface font-semibold mt-space-2xs">Workshop Buồng Tối 01: Tráng Phim B&amp;W Cơ Bản</h4>
+</div>
+<div class="w-12 h-12 rounded-lg bg-surface-container flex flex-col items-center justify-center shrink-0">
+<span class="font-headline-sm text-headline-sm font-bold text-primary">25</span>
+<span class="font-label-sm text-[10px] text-on-surface-variant">TH06</span>
+</div>
+</div>
+<div class="flex flex-col gap-1 text-on-surface-variant font-body-sm text-body-sm">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[16px] text-tertiary">schedule</span>
+<span>09:00 - 12:30 (Thứ Bảy)</span>
+</div>
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[16px] text-tertiary">location_on</span>
+<span>Analog Lab Studio, 48 Tràng Tiền, Hoàn Kiếm, HN</span>
+</div>
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[16px] text-tertiary">group</span>
+<span>Tối đa 6 học viên • Còn lại 2 chỗ</span>
+</div>
+</div>
+<div class="pt-space-xs flex items-center justify-between">
+<span class="font-headline-md text-headline-md text-primary font-bold">650.000đ</span>
+<button class="px-space-md py-1.5 rounded-lg bg-primary text-on-primary font-headline-sm text-headline-sm shadow-sm">
+          Đăng ký ngay
+        </button>
+</div>
+</div>
+<div class="p-space-md bg-surface-container-lowest rounded-xl shadow-sm flex flex-col gap-space-sm">
+<div class="flex items-start justify-between gap-space-sm">
+<div>
+<span class="inline-block px-2 py-0.5 rounded bg-secondary-container text-on-secondary-container font-label-sm text-label-sm font-semibold">NÂNG CAO</span>
+<h4 class="font-headline-md text-headline-md text-on-surface font-semibold mt-space-2xs">In Phóng Rọi Ảnh Bạc Gelatin (Darkroom Printing)</h4>
+</div>
+<div class="w-12 h-12 rounded-lg bg-surface-container flex flex-col items-center justify-center shrink-0">
+<span class="font-headline-sm text-headline-sm font-bold text-secondary">06</span>
+<span class="font-label-sm text-[10px] text-on-surface-variant">TH07</span>
+</div>
+</div>
+<div class="flex flex-col gap-1 text-on-surface-variant font-body-sm text-body-sm">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[16px] text-tertiary">schedule</span>
+<span>14:00 - 18:00 (Chủ Nhật)</span>
+</div>
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[16px] text-tertiary">location_on</span>
+<span>Analog Lab Studio, 48 Tràng Tiền, Hoàn Kiếm, HN</span>
+</div>
+</div>
+<div class="pt-space-xs flex items-center justify-between">
+<span class="font-headline-md text-headline-md text-on-surface font-bold">1.200.000đ</span>
+<button class="px-space-md py-1.5 rounded-lg bg-surface-container-high hover:bg-surface-container-highest text-on-surface font-headline-sm text-headline-sm">
+          Xem thông tin
+        </button>
+</div>
+</div>
+<div class="p-space-md bg-surface-container-lowest rounded-xl shadow-sm flex flex-col gap-space-sm">
+<div class="flex items-start justify-between gap-space-sm">
+<div>
+<span class="inline-block px-2 py-0.5 rounded bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm font-semibold">PHOTO WALK</span>
+<h4 class="font-headline-md text-headline-md text-on-surface font-semibold mt-space-2xs">Đi Dạo Bấm Phim B&amp;W: Ký Họa Phố Cổ 5 Giờ Sáng</h4>
+</div>
+<div class="w-12 h-12 rounded-lg bg-surface-container flex flex-col items-center justify-center shrink-0">
+<span class="font-headline-sm text-headline-sm font-bold text-on-surface-variant">14</span>
+<span class="font-label-sm text-[10px] text-on-surface-variant">TH07</span>
+</div>
+</div>
+<div class="flex flex-col gap-1 text-on-surface-variant font-body-sm text-body-sm">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[16px] text-tertiary">schedule</span>
+<span>05:00 - 08:30 (Chủ Nhật)</span>
+</div>
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[16px] text-tertiary">location_on</span>
+<span>Tập trung tại Đài Cảm Tử, Hoàn Kiếm</span>
+</div>
+</div>
+<div class="pt-space-xs flex items-center justify-between">
+<span class="font-headline-md text-headline-md text-secondary font-bold">Miễn phí tham gia</span>
+<button class="px-space-md py-1.5 rounded-lg bg-secondary text-on-secondary font-headline-sm text-headline-sm shadow-sm">
+          Đăng ký tham gia
+        </button>
+</div>
+</div>
+</div>
+<div class="fixed inset-0 z-50 bg-on-background/70 backdrop-blur-sm hidden items-center justify-center p-space-md" id="photoDialog">
+<div class="w-full max-w-sm bg-surface-container-lowest rounded-xl overflow-hidden shadow-xl flex flex-col">
+<div class="p-space-md bg-surface-container flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="font-label-sm text-label-sm font-semibold text-primary" id="modalIndex">#01</span>
+<h4 class="font-headline-md text-headline-md text-on-surface truncate" id="modalTitle">Tác phẩm</h4>
+</div>
+<button class="w-7 h-7 flex items-center justify-center rounded-full bg-surface-container-highest text-on-surface" onclick="closePhotoModal()">
+<span class="material-symbols-outlined text-[18px]">close</span>
+</button>
+</div>
+<div class="aspect-[4/3] w-full bg-on-background flex items-center justify-center overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="High contrast film photograph display inside darkroom viewing lightbox, rich silver highlights and pure carbon shadows, archival fine art print preview." id="modalImg" src="https://lh3.googleusercontent.com/aida-public/AB6AXuASfZJWUTcugkRf8fhHfbvgwStEi-sH6NC5a5X8WcPaPBEIUodL8MKc-iazvkVj9zNzcKJgw4ueBJ0OoUWVefHvyGQrJyC1PYbBxwYu1PpFoJZNQDgpzyvv5TMvbSrtM1nDTVs6_jFNb4RSW-zo4kp0skzqpKONSblwqBq1V82VtrX1HzBKUnJVg-Zozg3PMeSuu58SKgDSmPBo-yx4LP-2tCU8CMs4r99t2I7K1ak"/>
+</div>
+<div class="p-space-md flex flex-col gap-space-xs bg-surface-container-lowest">
+<p class="font-code-md text-code-md text-on-surface-variant" id="modalMeta">Thông số kỹ thuật</p>
+<div class="flex items-center justify-between pt-space-xs mt-space-xs">
+<span class="font-label-sm text-label-sm text-secondary flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">verified</span> Tác quyền Chuyên gia
+          </span>
+<button class="flex items-center gap-1 font-headline-sm text-headline-sm text-primary hover:underline" id="saveBtn" onclick="saveBookmark()">
+<span class="material-symbols-outlined text-[16px]">bookmark_border</span>
+<span>Lưu ảnh</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<div class="fixed bottom-6 left-1/2 -translate-x-1/2 px-space-md py-space-xs rounded-full bg-inverse-surface text-inverse-on-surface font-label-md text-label-md shadow-md opacity-0 pointer-events-none transition-opacity duration-300 z-50 flex items-center gap-space-xs" id="toast">
+<span class="material-symbols-outlined text-[16px] text-secondary-fixed">check_circle</span>
+<span id="toastMsg">Đã cập nhật</span>
+</div>
+</div>
+<script>
+  function switchTab(tabName) {
+    const tabs = ['portfolio', 'articles', 'workshops'];
+    tabs.forEach(t => {
+      const btn = document.getElementById('tab-' + t);
+      const content = document.getElementById('content-' + t);
+      if (t === tabName) {
+        btn.classList.add('bg-surface-container-lowest', 'text-on-surface', 'shadow-sm');
+        btn.classList.remove('text-on-surface-variant');
+        content.classList.remove('hidden');
+        content.classList.add('flex');
+      } else {
+        btn.classList.remove('bg-surface-container-lowest', 'text-on-surface', 'shadow-sm');
+        btn.classList.add('text-on-surface-variant');
+        content.classList.add('hidden');
+        content.classList.remove('flex');
+      }
+    });
+  }
+
+  const followBtn = document.getElementById('followBtn');
+  let isFollowing = false;
+  followBtn.addEventListener('click', () => {
+    isFollowing = !isFollowing;
+    if (isFollowing) {
+      followBtn.classList.remove('bg-primary', 'text-on-primary');
+      followBtn.classList.add('bg-secondary-container', 'text-on-secondary-container');
+      followBtn.innerHTML = '<span class="material-symbols-outlined text-[18px]">done</span><span>Đang theo dõi</span>';
+      showToast('Đã theo dõi Chuyên gia Trần Hải Đăng');
+    } else {
+      followBtn.classList.add('bg-primary', 'text-on-primary');
+      followBtn.classList.remove('bg-secondary-container', 'text-on-secondary-container');
+      followBtn.innerHTML = '<span class="material-symbols-outlined text-[18px]">add</span><span>Theo dõi</span>';
+      showToast('Đã hủy theo dõi');
+    }
+  });
+
+  const zaloBtn = document.getElementById('zaloBtn');
+  zaloBtn.addEventListener('click', () => {
+    showToast('Đang kết nối Zalo Chuyên gia...');
+  });
+
+  const shareBtn = document.getElementById('shareBtn');
+  shareBtn.addEventListener('click', () => {
+    navigator.clipboard?.writeText(window.location.href);
+    showToast('Đã sao chép liên kết hồ sơ chuyên gia!');
+  });
+
+  function openPhotoModal(idx, title, meta) {
+    document.getElementById('modalIndex').innerText = '#' + idx;
+    document.getElementById('modalTitle').innerText = title;
+    document.getElementById('modalMeta').innerText = meta;
+    const dialog = document.getElementById('photoDialog');
+    dialog.classList.remove('hidden');
+    dialog.classList.add('flex');
+  }
+
+  function closePhotoModal() {
+    const dialog = document.getElementById('photoDialog');
+    dialog.classList.add('hidden');
+    dialog.classList.remove('flex');
+  }
+
+  function saveBookmark() {
+    const btn = document.getElementById('saveBtn');
+    btn.innerHTML = '<span class="material-symbols-outlined text-[16px]">bookmark</span><span>Đã lưu</span>';
+    showToast('Đã lưu tác phẩm vào Bộ sưu tập');
+  }
+
+  function showToast(text) {
+    const toast = document.getElementById('toast');
+    const toastMsg = document.getElementById('toastMsg');
+    toastMsg.innerText = text;
+    toast.classList.remove('opacity-0', 'pointer-events-none');
+    toast.classList.add('opacity-100');
+    setTimeout(() => {
+      toast.classList.remove('opacity-100');
+      toast.classList.add('opacity-0', 'pointer-events-none');
+    }, 2400);
+  }
+</script></main></body></html>

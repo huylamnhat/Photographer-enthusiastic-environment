@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+
+<html lang="vi"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;1,400&amp;family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={"darkMode":"class","theme":{"extend":{"colors":{"secondary-fixed-dim":"#abcebe","surface-container-lowest":"#ffffff","on-tertiary-fixed":"#221a11","error-container":"#ffdad6","surface-container":"#f4ede6","inverse-primary":"#ffb691","on-secondary-container":"#4a6b5d","on-surface":"#1e1b17","tertiary":"#5b5045","primary-container":"#a9511c","surface-dim":"#e0d9d2","on-secondary-fixed-variant":"#2d4d40","error":"#ba1a1a","on-primary-container":"#ffe6dc","on-primary-fixed-variant":"#793100","secondary":"#446557","secondary-fixed":"#c6ebd9","on-secondary-fixed":"#002116","surface-variant":"#e9e1da","surface-container-high":"#efe7e0","primary":"#8a3a03","surface-container-highest":"#e9e1da","on-error-container":"#93000a","on-tertiary-fixed-variant":"#4f453a","tertiary-container":"#74685c","primary-fixed-dim":"#ffb691","surface-tint":"#9a4610","on-surface-variant":"#55433a","outline":"#887268","secondary-container":"#c6ebd9","inverse-on-surface":"#f7efe8","inverse-surface":"#33302b","surface":"#fff8f3","on-tertiary":"#ffffff","tertiary-fixed-dim":"#d3c4b6","on-tertiary-container":"#f9e8d9","surface-bright":"#fff8f3","on-primary":"#ffffff","on-error":"#ffffff","primary-fixed":"#ffdbcb","on-secondary":"#ffffff","on-background":"#1e1b17","on-primary-fixed":"#341100","tertiary-fixed":"#f0e0d1","outline-variant":"#dcc1b5","background":"#fff8f3","surface-container-low":"#faf2eb"},"borderRadius":{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},"spacing":{"space-sm":"0.5rem","gutter-lg":"1.25rem","space-xs":"0.25rem","space-2xs":"0.125rem","margin-lg":"1.5rem","margin":"1rem","space-md":"0.75rem","space-lg":"1rem","space-xl":"1.5rem","gutter-md":"1rem","margin-md":"1.25rem","gutter":"0.75rem"},"fontFamily":{"headline-sm":["IBM Plex Sans"],"label-md":["IBM Plex Mono"],"body-md":["IBM Plex Sans"],"headline-xl":["IBM Plex Sans"],"code-md":["IBM Plex Mono"],"headline-md":["IBM Plex Sans"],"label-sm":["IBM Plex Mono"],"headline-lg":["IBM Plex Sans"],"body-sm":["IBM Plex Sans"]},"fontSize":{"headline-sm":["0.875rem",{"lineHeight":"1.25rem","letterSpacing":"0em","fontWeight":"600"}],"label-md":["0.75rem",{"lineHeight":"1rem","letterSpacing":"0.04em","fontWeight":"500"}],"body-md":["0.875rem",{"lineHeight":"1.25rem","letterSpacing":"0em","fontWeight":"400"}],"headline-xl":["1.75rem",{"lineHeight":"2.125rem","letterSpacing":"-0.015em","fontWeight":"600"}],"code-md":["0.8125rem",{"lineHeight":"1.125rem","letterSpacing":"0em","fontWeight":"400"}],"headline-md":["1rem",{"lineHeight":"1.375rem","letterSpacing":"-0.005em","fontWeight":"600"}],"label-sm":["0.6875rem",{"lineHeight":"0.875rem","letterSpacing":"0.06em","fontWeight":"500"}],"headline-lg":["1.25rem",{"lineHeight":"1.625rem","letterSpacing":"-0.01em","fontWeight":"600"}],"body-sm":["0.8125rem",{"lineHeight":"1.125rem","letterSpacing":"0.005em","fontWeight":"400"}]}}}}</script></head><body class="bg-surface font-body-md text-on-surface antialiased"><aside class="fixed left-0 top-0 h-screen w-64 bg-surface-container-low z-50 flex flex-col justify-between shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="flex flex-col"><div class="h-16 px-margin flex items-center justify-between bg-surface-container"><div class="flex items-center gap-space-sm"><div class="w-7 h-7 bg-primary flex items-center justify-center rounded"><span class="material-symbols-outlined text-on-primary text-[18px]">motion_photos_on</span></div><div class="flex flex-col"><span class="font-headline-sm text-headline-sm uppercase tracking-tight text-on-surface">MINILAB ARCHIVE</span><span class="font-label-sm text-label-sm uppercase text-primary">LAB OPS</span></div></div></div><div class="px-space-md pt-space-lg pb-space-xs"><span class="font-label-sm text-label-sm uppercase text-on-surface-variant px-space-xs tracking-wider">VẬN HÀNH TIỆM LAB</span></div><nav class="flex flex-col gap-space-2xs px-space-sm" data-active-classes="bg-primary-container text-on-primary-container font-semibold rounded"><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="bang-kanban-tiep-nhan" href="#"><span class="material-symbols-outlined text-[18px]">view_kanban</span><div class="flex flex-col flex-1 leading-tight"><span class="font-body-sm text-body-sm">1. Tiếp nhận &amp; Phân loại</span><span class="font-label-sm text-label-sm text-outline">WEB-LAB-03</span></div></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="tai-file-scan-qc" href="#"><span class="material-symbols-outlined text-[18px]">cloud_upload</span><div class="flex flex-col flex-1 leading-tight"><span class="font-body-sm text-body-sm">2. Tải file scan &amp; QC</span><span class="font-label-sm text-label-sm text-outline">WEB-LAB-04</span></div></a><a aria-current="page" class="flex items-center gap-space-sm px-space-md py-space-sm transition-colors bg-primary-container text-on-primary-container font-semibold rounded" data-path="dich-vu-bang-gia" href="#"><span class="material-symbols-outlined text-[18px]">price_change</span><div class="flex flex-col flex-1 leading-tight"><span class="font-body-sm text-body-sm">3. Dịch vụ &amp; Bảng giá</span><span class="font-label-sm text-label-sm text-outline">WEB-LAB-05</span></div></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="ho-so-tiem-cong-khai" href="#"><span class="material-symbols-outlined text-[18px]">storefront</span><div class="flex flex-col flex-1 leading-tight"><span class="font-body-sm text-body-sm">4. Hồ sơ tiệm công khai</span><span class="font-label-sm text-label-sm text-outline">WEB-LAB-06</span></div></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="xu-ly-khieu-nai" href="#"><span class="material-symbols-outlined text-[18px]">report_problem</span><div class="flex flex-col flex-1 leading-tight"><span class="font-body-sm text-body-sm">5. Xử lý khiếu nại</span><span class="font-label-sm text-label-sm text-outline">WEB-LAB-07</span></div></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="lich-su-don-sla" href="#"><span class="material-symbols-outlined text-[18px]">history_toggle_off</span><div class="flex flex-col flex-1 leading-tight"><span class="font-body-sm text-body-sm">6. Lịch sử đơn &amp; SLA</span><span class="font-label-sm text-label-sm text-outline">WEB-LAB-08</span></div></a></nav></div><div class="p-space-md bg-surface-container flex flex-col gap-space-xs"><div class="flex items-center justify-between"><span class="font-label-sm text-label-sm text-on-surface-variant uppercase">HỆ THỐNG TRẠM</span><span class="inline-block w-2 h-2 rounded-full bg-secondary"></span></div><span class="font-code-md text-code-md text-on-surface font-semibold">v4.8.2-LAB [ONLINE]</span></div></aside><div class="pl-64"><header class="fixed top-0 left-64 right-0 h-16 bg-surface/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-40 flex items-center justify-between px-gutter-lg"><div class="flex items-center gap-space-md"><div class="flex items-center gap-space-xs bg-surface-container px-space-md py-space-xs rounded"><span class="material-symbols-outlined text-primary text-[18px]">location_on</span><span class="font-body-sm text-body-sm text-on-surface font-medium">Saigon Darkroom - Chi nhánh Q.3</span><span class="material-symbols-outlined text-outline text-[16px]">expand_more</span></div><div class="hidden md:flex items-center gap-space-xs bg-surface-container-lowest px-space-md py-space-xs rounded"><span class="material-symbols-outlined text-outline text-[18px]">search</span><span class="font-body-sm text-body-sm text-on-surface-variant">Tìm roll ID, khách hàng...</span><span class="font-label-sm text-label-sm bg-surface-container-high px-space-xs rounded text-outline font-semibold">⌘K</span></div></div><div class="flex items-center gap-space-lg"><div class="relative flex items-center justify-center p-space-xs text-on-surface-variant hover:text-on-surface cursor-pointer"><span class="material-symbols-outlined text-[20px]">notifications</span><span class="absolute top-1 right-1 w-2 h-2 rounded-full bg-primary"></span></div><div class="flex items-center gap-space-sm pl-space-md"><div class="text-right hidden sm:flex flex-col"><span class="font-body-sm text-body-sm text-on-surface font-semibold leading-tight">Lê Hoài Nam</span><span class="font-label-sm text-label-sm text-primary uppercase font-medium">KỸ THUẬT VIÊN TRƯỞNG</span></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="w-full pt-16 px-gutter-lg bg-surface min-h-screen"><div class="flex flex-col w-full pb-16">
+<!-- Top Bar / Workspace Header -->
+<section class="flex flex-col lg:flex-row lg:items-center justify-between gap-space-md py-space-lg mb-space-md">
+<div class="flex flex-col gap-space-2xs">
+<div class="flex items-center gap-space-xs flex-wrap">
+<span class="font-label-sm text-label-sm uppercase bg-surface-container-high text-on-surface-variant px-space-xs py-0.5 rounded tracking-widest font-semibold">LAB-OPS CATALOG</span>
+<span class="font-label-sm text-label-sm text-outline">•</span>
+<span class="font-label-sm text-label-sm uppercase text-primary font-medium tracking-wide">MÃ CHI NHÁNH: SGN-LAB-01</span>
+<span class="font-label-sm text-label-sm text-outline">•</span>
+<span class="font-label-sm text-label-sm bg-secondary-container text-on-secondary-container px-space-xs py-0.5 rounded uppercase font-semibold">ĐỒNG BỘ CLOUD ĐÃ KÍCH HOẠT</span>
+</div>
+<h1 class="font-headline-xl text-headline-xl text-on-surface tracking-tight flex items-center gap-space-sm">
+        Dịch vụ, Bảng giá &amp; Lịch sử đổi giá
+      </h1>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+        Tiệm: <span class="font-semibold text-on-surface">SAIGON DARKROOM (CHI NHÁNH 01)</span> — Hệ thống định giá, SLA xử lý cuộn và kiểm toán biến động chi phí hóa chất.
+      </p>
+</div>
+<!-- Actions Toolbar -->
+<div class="flex items-center gap-space-sm self-start lg:self-auto flex-wrap">
+<button class="flex items-center gap-space-xs px-space-md py-1.5 bg-surface-container-lowest text-on-surface rounded shadow-sm hover:bg-surface-container-high transition-colors text-body-sm font-medium" type="button">
+<span class="material-symbols-outlined text-[18px] text-tertiary">download</span>
+<span>Xuất biểu phí CSV</span>
+</button>
+<button class="flex items-center gap-space-xs px-space-md py-1.5 bg-surface-container-lowest text-on-surface rounded shadow-sm hover:bg-surface-container-high transition-colors text-body-sm font-medium" type="button">
+<span class="material-symbols-outlined text-[18px] text-tertiary">print</span>
+<span>In bảng niêm yết quầy</span>
+</button>
+<button class="flex items-center gap-space-xs px-space-md py-1.5 bg-primary-container text-on-primary-container rounded shadow-sm hover:bg-primary hover:text-on-primary transition-colors text-body-sm font-semibold" onclick="document.getElementById('service-modal').classList.remove('hidden')" type="button">
+<span class="material-symbols-outlined text-[18px]">add_circle</span>
+<span>Thêm gói dịch vụ mới (+)</span>
+</button>
+</div>
+</section>
+<!-- Metric Overview Banner (Warm Archival Tone) -->
+<section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-space-md mb-space-lg">
+<div class="bg-surface-container-lowest p-space-md rounded shadow-sm flex flex-col justify-between">
+<div class="flex items-center justify-between text-on-surface-variant">
+<span class="font-label-sm text-label-sm uppercase font-semibold">Tổng số gói quy chuẩn</span>
+<span class="material-symbols-outlined text-[18px] text-primary">inventory_2</span>
+</div>
+<div class="mt-space-sm flex items-baseline justify-between">
+<span class="font-code-md text-headline-xl text-on-surface font-semibold tracking-tight">14</span>
+<span class="font-label-sm text-label-sm text-secondary font-medium">11 Đang phục vụ</span>
+</div>
+<div class="mt-space-xs w-full bg-surface-container-high h-1 rounded overflow-hidden">
+<div class="bg-primary h-full w-[78%]"></div>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-space-md rounded shadow-sm flex flex-col justify-between">
+<div class="flex items-center justify-between text-on-surface-variant">
+<span class="font-label-sm text-label-sm uppercase font-semibold">SLA Trung bình cam kết</span>
+<span class="material-symbols-outlined text-[18px] text-secondary">schedule</span>
+</div>
+<div class="mt-space-sm flex items-baseline justify-between">
+<span class="font-code-md text-headline-xl text-on-surface font-semibold tracking-tight">28.5<span class="text-body-sm font-normal text-on-surface-variant">h</span></span>
+<span class="font-label-sm text-label-sm text-on-secondary-container bg-secondary-container px-space-xs py-0.5 rounded">TỐI ƯU</span>
+</div>
+<span class="font-body-sm text-label-sm text-on-surface-variant mt-space-xs">Nhanh nhất: 12h (C-41 Tiêu chuẩn)</span>
+</div>
+<div class="bg-surface-container-lowest p-space-md rounded shadow-sm flex flex-col justify-between">
+<div class="flex items-center justify-between text-on-surface-variant">
+<span class="font-label-sm text-label-sm uppercase font-semibold">Gói tạm ngưng (Cạn hóa chất)</span>
+<span class="material-symbols-outlined text-[18px] text-tertiary">pause_circle</span>
+</div>
+<div class="mt-space-sm flex items-baseline justify-between">
+<span class="font-code-md text-headline-xl text-on-surface font-semibold tracking-tight">03</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant bg-surface-container-high px-space-xs py-0.5 rounded">PAUSED</span>
+</div>
+<span class="font-body-sm text-label-sm text-on-surface-variant mt-space-xs">ECN-2 120 &amp; Cross Process E-6</span>
+</div>
+<div class="bg-surface-container-lowest p-space-md rounded shadow-sm flex flex-col justify-between">
+<div class="flex items-center justify-between text-on-surface-variant">
+<span class="font-label-sm text-label-sm uppercase font-semibold">Lần điều chỉnh giá gần nhất</span>
+<span class="material-symbols-outlined text-[18px] text-primary">history_edu</span>
+</div>
+<div class="mt-space-sm flex items-baseline justify-between">
+<span class="font-code-md text-headline-md text-on-surface font-semibold">24/10/2023</span>
+<span class="font-label-sm text-label-sm text-primary font-medium">Bởi KTV Trưởng</span>
+</div>
+<span class="font-body-sm text-label-sm text-on-surface-variant mt-space-xs">Hóa chất ECN-2 Cine PB-2 (+20k)</span>
+</div>
+</section>
+<!-- Main Dual-Column Operational Layout -->
+<div class="grid grid-cols-1 xl:grid-cols-12 gap-space-lg items-start">
+<!-- LEFT COLUMN: Master Catalog Table (8 Cols) -->
+<div class="xl:col-span-8 flex flex-col gap-space-md">
+<!-- Filter Toolbar & Category Navigation -->
+<div class="bg-surface-container-lowest rounded shadow-sm p-space-sm flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-space-sm">
+<!-- Filter Tabs -->
+<div class="flex items-center gap-space-2xs overflow-x-auto pb-1 sm:pb-0" id="catalog-tabs">
+<button class="tab-btn px-space-md py-1.5 rounded font-headline-sm text-body-sm bg-primary-container text-on-primary-container shadow-sm flex items-center gap-space-xs" data-filter="all" type="button">
+<span>Tất cả</span>
+<span class="font-code-md text-label-sm bg-surface-container-lowest/20 px-space-xs rounded font-semibold">14</span>
+</button>
+<button class="tab-btn px-space-md py-1.5 rounded font-body-sm text-body-sm text-on-surface-variant hover:bg-surface-container-high transition-colors flex items-center gap-space-xs" data-filter="dev-scan" type="button">
+<span>Tráng &amp; Scan</span>
+<span class="font-code-md text-label-sm bg-surface-container px-space-xs rounded text-outline font-medium">8</span>
+</button>
+<button class="tab-btn px-space-md py-1.5 rounded font-body-sm text-body-sm text-on-surface-variant hover:bg-surface-container-high transition-colors flex items-center gap-space-xs" data-filter="dev-only" type="button">
+<span>Chỉ tráng</span>
+<span class="font-code-md text-label-sm bg-surface-container px-space-xs rounded text-outline font-medium">3</span>
+</button>
+<button class="tab-btn px-space-md py-1.5 rounded font-body-sm text-body-sm text-on-surface-variant hover:bg-surface-container-high transition-colors flex items-center gap-space-xs" data-filter="addons" type="button">
+<span>Phụ phí kỹ thuật</span>
+<span class="font-code-md text-label-sm bg-surface-container px-space-xs rounded text-outline font-medium">3</span>
+</button>
+</div>
+<!-- Quick Search Within Table -->
+<div class="flex items-center gap-space-xs bg-surface-container px-space-sm py-1 rounded">
+<span class="material-symbols-outlined text-[16px] text-outline">filter_list</span>
+<input class="bg-transparent border-0 text-body-sm text-on-surface placeholder:text-outline focus:outline-none w-44" id="service-search-input" placeholder="Lọc theo mã / tên gói..." type="text"/>
+</div>
+</div>
+<!-- Service Catalog Ledger Table -->
+<div class="bg-surface-container-lowest rounded shadow-sm overflow-hidden flex flex-col">
+<!-- Table Top Subheader -->
+<div class="px-space-md py-space-sm bg-surface-container flex items-center justify-between text-on-surface">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-[18px] text-tertiary">table_chart</span>
+<span class="font-headline-sm text-headline-sm uppercase tracking-wide">BẢNG DANH MỤC DỊCH VỤ NIÊM YẾT</span>
+</div>
+<span class="font-code-md text-label-sm text-outline">TIÊU CHUẨN ISO 9001 / NORITSU HS-1800</span>
+</div>
+<div class="overflow-x-auto w-full">
+<table class="w-full text-left border-collapse" id="service-catalog-table">
+<thead>
+<tr class="bg-surface-container-high text-tertiary font-label-sm text-label-sm uppercase">
+<th class="py-space-sm px-space-md font-medium">MÃ GÓI</th>
+<th class="py-space-sm px-space-md font-medium">TÊN DỊCH VỤ QUY CHUẨN</th>
+<th class="py-space-sm px-space-md font-medium">KHỔ ÁP DỤNG</th>
+<th class="py-space-sm px-space-md font-medium text-right">GIÁ NIÊM YẾT</th>
+<th class="py-space-sm px-space-md font-medium text-center">CAM KẾT SLA</th>
+<th class="py-space-sm px-space-md font-medium text-center">TRẠNG THÁI</th>
+<th class="py-space-sm px-space-md font-medium text-right">THAO TÁC</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-container font-body-sm text-body-sm text-on-surface">
+<!-- Row 1 -->
+<tr class="service-row hover:bg-surface-container-low transition-colors" data-category="dev-scan">
+<td class="py-space-sm px-space-md font-code-md text-code-md text-primary font-semibold">SRV-ECN2-135</td>
+<td class="py-space-sm px-space-md">
+<div class="flex flex-col">
+<span class="font-semibold text-on-surface">Tráng &amp; Scan ECN-2 Cine 135</span>
+<span class="font-label-sm text-label-sm text-outline">Tẩy lớp than Remjet + Máy Noritsu HS-1800 Hi-Res</span>
+</div>
+</td>
+<td class="py-space-sm px-space-md font-code-md text-label-sm">
+<span class="bg-surface-container px-space-xs py-0.5 rounded text-on-surface-variant font-medium">135 (35mm)</span>
+</td>
+<td class="py-space-sm px-space-md text-right font-code-md text-body-md font-bold text-on-surface tabular-nums">
+                  120.000 đ
+                </td>
+<td class="py-space-sm px-space-md text-center">
+<span class="inline-flex items-center gap-1 font-code-md text-label-sm bg-surface-container-high text-on-surface px-space-xs py-0.5 rounded">
+<span class="material-symbols-outlined text-[14px] text-tertiary">timer</span> 24h
+                  </span>
+</td>
+<td class="py-space-sm px-space-md text-center">
+<span class="inline-block font-label-sm text-label-sm uppercase px-2 py-0.5 rounded bg-secondary-container text-on-secondary-container font-semibold">
+                    Đang phục vụ
+                  </span>
+</td>
+<td class="py-space-sm px-space-md text-right">
+<button class="inline-flex items-center gap-0.5 px-space-xs py-1 rounded bg-surface-container-high text-primary hover:bg-primary-container hover:text-on-primary-container transition-colors text-label-sm font-semibold" onclick="openPriceModal('SRV-ECN2-135', 'Tráng &amp; Scan ECN-2 Cine 135', '120.000 đ', '24h', 'active')" type="button">
+<span class="material-symbols-outlined text-[16px]">edit</span>
+<span>Sửa giá/SLA</span>
+</button>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="service-row hover:bg-surface-container-low transition-colors" data-category="dev-scan">
+<td class="py-space-sm px-space-md font-code-md text-code-md text-primary font-semibold">SRV-C41-135</td>
+<td class="py-space-sm px-space-md">
+<div class="flex flex-col">
+<span class="font-semibold text-on-surface">Tráng C-41 Tiêu chuẩn 135</span>
+<span class="font-label-sm text-label-sm text-outline">Hóa chất Kodak Flexicolor nguyên bản + Scan JPG L</span>
+</div>
+</td>
+<td class="py-space-sm px-space-md font-code-md text-label-sm">
+<span class="bg-surface-container px-space-xs py-0.5 rounded text-on-surface-variant font-medium">135 (35mm)</span>
+</td>
+<td class="py-space-sm px-space-md text-right font-code-md text-body-md font-bold text-on-surface tabular-nums">
+                  90.000 đ
+                </td>
+<td class="py-space-sm px-space-md text-center">
+<span class="inline-flex items-center gap-1 font-code-md text-label-sm bg-surface-container-high text-on-surface px-space-xs py-0.5 rounded">
+<span class="material-symbols-outlined text-[14px] text-tertiary">timer</span> 12h
+                  </span>
+</td>
+<td class="py-space-sm px-space-md text-center">
+<span class="inline-block font-label-sm text-label-sm uppercase px-2 py-0.5 rounded bg-secondary-container text-on-secondary-container font-semibold">
+                    Đang phục vụ
+                  </span>
+</td>
+<td class="py-space-sm px-space-md text-right">
+<button class="inline-flex items-center gap-0.5 px-space-xs py-1 rounded bg-surface-container-high text-primary hover:bg-primary-container hover:text-on-primary-container transition-colors text-label-sm font-semibold" onclick="openPriceModal('SRV-C41-135', 'Tráng C-41 Tiêu chuẩn 135', '90.000 đ', '12h', 'active')" type="button">
+<span class="material-symbols-outlined text-[16px]">edit</span>
+<span>Sửa giá/SLA</span>
+</button>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="service-row hover:bg-surface-container-low transition-colors" data-category="dev-scan">
+<td class="py-space-sm px-space-md font-code-md text-code-md text-primary font-semibold">SRV-BW-120</td>
+<td class="py-space-sm px-space-md">
+<div class="flex flex-col">
+<span class="font-semibold text-on-surface">Tráng B&amp;W Thủ công 120 (Medium Format)</span>
+<span class="font-label-sm text-label-sm text-outline">Bể thủ công Paterson + Thuốc D-76 / Ilford ID-11</span>
+</div>
+</td>
+<td class="py-space-sm px-space-md font-code-md text-label-sm">
+<span class="bg-surface-container px-space-xs py-0.5 rounded text-on-surface-variant font-medium">120 (Medium)</span>
+</td>
+<td class="py-space-sm px-space-md text-right font-code-md text-body-md font-bold text-on-surface tabular-nums">
+                  140.000 đ
+                </td>
+<td class="py-space-sm px-space-md text-center">
+<span class="inline-flex items-center gap-1 font-code-md text-label-sm bg-surface-container-high text-on-surface px-space-xs py-0.5 rounded">
+<span class="material-symbols-outlined text-[14px] text-tertiary">timer</span> 48h
+                  </span>
+</td>
+<td class="py-space-sm px-space-md text-center">
+<span class="inline-block font-label-sm text-label-sm uppercase px-2 py-0.5 rounded bg-secondary-container text-on-secondary-container font-semibold">
+                    Đang phục vụ
+                  </span>
+</td>
+<td class="py-space-sm px-space-md text-right">
+<button class="inline-flex items-center gap-0.5 px-space-xs py-1 rounded bg-surface-container-high text-primary hover:bg-primary-container hover:text-on-primary-container transition-colors text-label-sm font-semibold" onclick="openPriceModal('SRV-BW-120', 'Tráng B&amp;W Thủ công 120', '140.000 đ', '48h', 'active')" type="button">
+<span class="material-symbols-outlined text-[16px]">edit</span>
+<span>Sửa giá/SLA</span>
+</button>
+</td>
+</tr>
+<!-- Row 4 (PAUSED) -->
+<tr class="service-row bg-surface-container-high/40 hover:bg-surface-container-high transition-colors" data-category="dev-scan">
+<td class="py-space-sm px-space-md font-code-md text-code-md text-outline font-semibold">SRV-ECN2-120</td>
+<td class="py-space-sm px-space-md">
+<div class="flex flex-col">
+<span class="font-semibold text-on-surface line-through opacity-75">Tráng &amp; Scan ECN-2 Cine 120 (Medium Format)</span>
+<span class="font-label-sm text-label-sm text-error">Tạm ngưng: Trục trặc bể xoay Remjet khổ rộng 120</span>
+</div>
+</td>
+<td class="py-space-sm px-space-md font-code-md text-label-sm">
+<span class="bg-surface-container-high px-space-xs py-0.5 rounded text-outline font-medium">120 (Medium)</span>
+</td>
+<td class="py-space-sm px-space-md text-right font-code-md text-body-md font-bold text-outline tabular-nums">
+                  160.000 đ
+                </td>
+<td class="py-space-sm px-space-md text-center">
+<span class="inline-flex items-center gap-1 font-code-md text-label-sm bg-surface-container px-space-xs py-0.5 rounded text-outline">
+<span class="material-symbols-outlined text-[14px]">pause</span> --
+                  </span>
+</td>
+<td class="py-space-sm px-space-md text-center">
+<span class="inline-block font-label-sm text-label-sm uppercase px-2 py-0.5 rounded bg-surface-container-highest text-tertiary font-bold tracking-wide">
+                    TẠM NGƯNG PAUSED
+                  </span>
+</td>
+<td class="py-space-sm px-space-md text-right">
+<button class="inline-flex items-center gap-0.5 px-space-xs py-1 rounded bg-surface-container text-tertiary hover:bg-surface-container-high transition-colors text-label-sm font-semibold" onclick="openPriceModal('SRV-ECN2-120', 'Tráng &amp; Scan ECN-2 Cine 120', '160.000 đ', '72h', 'paused')" type="button">
+<span class="material-symbols-outlined text-[16px]">toggle_on</span>
+<span>Mở lại / Sửa</span>
+</button>
+</td>
+</tr>
+<!-- Row 5 (Addon) -->
+<tr class="service-row hover:bg-surface-container-low transition-colors" data-category="addons">
+<td class="py-space-sm px-space-md font-code-md text-code-md text-secondary font-semibold">ADD-PUSH-P2</td>
+<td class="py-space-sm px-space-md">
+<div class="flex flex-col">
+<span class="font-semibold text-on-surface">Phụ phí Kỹ thuật: Push / Pull +2 Stop</span>
+<span class="font-label-sm text-label-sm text-outline">Gia tăng thời gian ngâm bể tráng 1st Dev theo bảng nạp</span>
+</div>
+</td>
+<td class="py-space-sm px-space-md font-code-md text-label-sm">
+<span class="bg-surface-container px-space-xs py-0.5 rounded text-on-surface-variant font-medium">Mọi khổ film</span>
+</td>
+<td class="py-space-sm px-space-md text-right font-code-md text-body-md font-bold text-on-surface tabular-nums">
+                  30.000 đ
+                </td>
+<td class="py-space-sm px-space-md text-center">
+<span class="inline-flex items-center gap-1 font-code-md text-label-sm bg-surface-container-high text-on-surface px-space-xs py-0.5 rounded">
+                    +12h thêm
+                  </span>
+</td>
+<td class="py-space-sm px-space-md text-center">
+<span class="inline-block font-label-sm text-label-sm uppercase px-2 py-0.5 rounded bg-secondary-container text-on-secondary-container font-semibold">
+                    Đang phục vụ
+                  </span>
+</td>
+<td class="py-space-sm px-space-md text-right">
+<button class="inline-flex items-center gap-0.5 px-space-xs py-1 rounded bg-surface-container-high text-primary hover:bg-primary-container hover:text-on-primary-container transition-colors text-label-sm font-semibold" onclick="openPriceModal('ADD-PUSH-P2', 'Phụ phí Push / Pull +2 Stop', '30.000 đ', '+12h', 'active')" type="button">
+<span class="material-symbols-outlined text-[16px]">edit</span>
+<span>Sửa giá/SLA</span>
+</button>
+</td>
+</tr>
+<!-- Row 6 (Addon) -->
+<tr class="service-row hover:bg-surface-container-low transition-colors" data-category="addons">
+<td class="py-space-sm px-space-md font-code-md text-code-md text-secondary font-semibold">ADD-SCAN-TIFF</td>
+<td class="py-space-sm px-space-md">
+<div class="flex flex-col">
+<span class="font-semibold text-on-surface">Phụ phí Scan TIFF 16-bit 50MB (Bản in mỹ thuật)</span>
+<span class="font-label-sm text-label-sm text-outline">Độ phân giải cực cao 6774 x 4492 px, profile màu phẳng</span>
+</div>
+</td>
+<td class="py-space-sm px-space-md font-code-md text-label-sm">
+<span class="bg-surface-container px-space-xs py-0.5 rounded text-on-surface-variant font-medium">135 &amp; 120</span>
+</td>
+<td class="py-space-sm px-space-md text-right font-code-md text-body-md font-bold text-on-surface tabular-nums">
+                  50.000 đ
+                </td>
+<td class="py-space-sm px-space-md text-center">
+<span class="inline-flex items-center gap-1 font-code-md text-label-sm bg-surface-container-high text-on-surface px-space-xs py-0.5 rounded">
+                    +6h scan
+                  </span>
+</td>
+<td class="py-space-sm px-space-md text-center">
+<span class="inline-block font-label-sm text-label-sm uppercase px-2 py-0.5 rounded bg-secondary-container text-on-secondary-container font-semibold">
+                    Đang phục vụ
+                  </span>
+</td>
+<td class="py-space-sm px-space-md text-right">
+<button class="inline-flex items-center gap-0.5 px-space-xs py-1 rounded bg-surface-container-high text-primary hover:bg-primary-container hover:text-on-primary-container transition-colors text-label-sm font-semibold" onclick="openPriceModal('ADD-SCAN-TIFF', 'Phụ phí Scan TIFF 16-bit 50MB', '50.000 đ', '+6h', 'active')" type="button">
+<span class="material-symbols-outlined text-[16px]">edit</span>
+<span>Sửa giá/SLA</span>
+</button>
+</td>
+</tr>
+<!-- Row 7 (Dev Only) -->
+<tr class="service-row hover:bg-surface-container-low transition-colors" data-category="dev-only">
+<td class="py-space-sm px-space-md font-code-md text-code-md text-tertiary font-semibold">DEV-C41-CUT</td>
+<td class="py-space-sm px-space-md">
+<div class="flex flex-col">
+<span class="font-semibold text-on-surface">Chỉ tráng C-41 (Cắt bao Sleeves âm bản)</span>
+<span class="font-label-sm text-label-sm text-outline">Không kèm scan số hóa, đóng bao giấy archival Print File</span>
+</div>
+</td>
+<td class="py-space-sm px-space-md font-code-md text-label-sm">
+<span class="bg-surface-container px-space-xs py-0.5 rounded text-on-surface-variant font-medium">135 (35mm)</span>
+</td>
+<td class="py-space-sm px-space-md text-right font-code-md text-body-md font-bold text-on-surface tabular-nums">
+                  50.000 đ
+                </td>
+<td class="py-space-sm px-space-md text-center">
+<span class="inline-flex items-center gap-1 font-code-md text-label-sm bg-surface-container-high text-on-surface px-space-xs py-0.5 rounded">
+<span class="material-symbols-outlined text-[14px] text-tertiary">timer</span> 8h
+                  </span>
+</td>
+<td class="py-space-sm px-space-md text-center">
+<span class="inline-block font-label-sm text-label-sm uppercase px-2 py-0.5 rounded bg-secondary-container text-on-secondary-container font-semibold">
+                    Đang phục vụ
+                  </span>
+</td>
+<td class="py-space-sm px-space-md text-right">
+<button class="inline-flex items-center gap-0.5 px-space-xs py-1 rounded bg-surface-container-high text-primary hover:bg-primary-container hover:text-on-primary-container transition-colors text-label-sm font-semibold" onclick="openPriceModal('DEV-C41-CUT', 'Chỉ tráng C-41', '50.000 đ', '8h', 'active')" type="button">
+<span class="material-symbols-outlined text-[16px]">edit</span>
+<span>Sửa giá/SLA</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Table Summary / Footer -->
+<div class="px-space-md py-space-sm bg-surface-container flex flex-col sm:flex-row items-center justify-between gap-space-xs text-on-surface-variant font-label-sm text-label-sm">
+<span>HIỂN THỊ 7 TRÊN TỔNG 14 DỊCH VỤ CẤU HÌNH</span>
+<div class="flex items-center gap-space-md">
+<span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-secondary"></span> 11 Hoạt động</span>
+<span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-outline"></span> 3 Tạm ngưng (Hóa chất)</span>
+</div>
+</div>
+</div>
+<!-- Workshop Visual Ledger Feature (Film processing hardware & chem specs) -->
+<div class="bg-surface-container-lowest p-space-md rounded shadow-sm grid grid-cols-1 md:grid-cols-3 gap-space-md">
+<div class="flex items-start gap-space-sm">
+<img class="w-16 h-16 rounded object-cover flex-shrink-0" data-alt="Close up archival film processing reels and metal Paterson tanks on a wooden darkroom counter with warm amber vintage lighting and technical lab calibration sheets" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDGeACRV4SNz6ScTnP8WZIwb4U8iww5h9eSg7XPq9NZcv16XLkbnfSrAddsylZxh4mUVpY2Rg-c61Kivj-ApYxbdociYY_dVY7nBSn4JZPqPEkbwTG8f_qULolY3la0WyJbSLwWXqzXp0_msoYhcejGWQ6ct_LtZh-7A-uASdUFM78cH7hKr2zyHQhG73Ubwu3iv9FFr2v1-y2w34pJ_wiJEVt4lJIWM386FjbwSYw"/>
+<div class="flex flex-col min-w-0">
+<span class="font-headline-sm text-body-sm font-semibold text-on-surface truncate">Chuẩn nhiệt hóa chất</span>
+<span class="font-label-sm text-label-sm text-outline">Bể C-41: 37.8°C ± 0.2°C</span>
+<span class="font-body-sm text-label-sm text-on-surface-variant mt-1">Bể điều hòa liên tục giúp duy trì độ đậm đặc grain film.</span>
+</div>
+</div>
+<div class="flex items-start gap-space-sm">
+<img class="w-16 h-16 rounded object-cover flex-shrink-0" data-alt="Vintage Noritsu high resolution film scanner optical sensor unit in a film developing laboratory workshop with negative carriers and warm incandescent task lights" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAE6vzWDjn7-CidIaH8tYmwkMpuh7_wuzhUTpnglC3oQtVpQOKotTyO9GyCpoJsKwzSUHjywcjiPJW5I6Wmj-JYE91FjJ3lvFp-CZ9GGfhMDenfv0ipi7vKILG31lFhxKPUMr6_ZrrBcwT9YXP-bSacRfVJVDJX62s-oyIHdzdLXdwhdAr87YubCN-78le9B78THfcV0UpVgePes6VpVf1q3qg63fMr0FgNuX9VQIA"/>
+<div class="flex flex-col min-w-0">
+<span class="font-headline-sm text-body-sm font-semibold text-on-surface truncate">Cụm thấu kính Noritsu</span>
+<span class="font-label-sm text-label-sm text-outline">Sensor HS-1800 CCD 16-bit</span>
+<span class="font-body-sm text-label-sm text-on-surface-variant mt-1">Căn chỉnh quang học định kỳ 15 ngày/lần.</span>
+</div>
+</div>
+<div class="flex items-start gap-space-sm">
+<img class="w-16 h-16 rounded object-cover flex-shrink-0" data-alt="Laboratory chemical amber glass bottles containing film developer and fixer with handwritten archival paper tags in a Saigon photography darkroom" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAfrSrWuBDnJ0-PbjEOWlC35g5N74Wcww_NOdBULToEAGMyjdp8Snd0c9sRQpBvZ6Fhd-3xfqTSrRUXoSlAPdWi-_AdIl7iwmMlNUSDmTrR10OipaRMgrbgbN7_j5_pgOnj49hLV5dtGHLUyoV1qcREGaeFo8KzfHfv7bA3j0-9LQJagsoxIfw54X1yk6rFQoAe5XR59fccH1WoMWrnaiQ_unGoOITi4gMrfT8tSHE"/>
+<div class="flex flex-col min-w-0">
+<span class="font-headline-sm text-body-sm font-semibold text-on-surface truncate">Kiểm định đợt tráng</span>
+<span class="font-label-sm text-label-sm text-outline">Densitometer X-Rite 310</span>
+<span class="font-body-sm text-label-sm text-on-surface-variant mt-1">Theo dõi mật độ D-max trên dải strip kiểm chuẩn.</span>
+</div>
+</div>
+</div>
+</div>
+<!-- RIGHT COLUMN: Price Audit Trail & Policy Safeguard (4 Cols) -->
+<div class="xl:col-span-4 flex flex-col gap-space-md">
+<!-- Card: Price Audit Trail (White #FFFFFF, Rounded 12px) -->
+<div class="bg-surface-container-lowest rounded-xl shadow-sm p-space-md flex flex-col">
+<!-- Header -->
+<div class="flex items-start justify-between pb-space-sm mb-space-sm">
+<div class="flex flex-col">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary text-[20px]">history</span>
+<h2 class="font-headline-md text-headline-md text-on-surface tracking-tight">Nhật ký biến động giá &amp; Cam kết</h2>
+</div>
+<span class="font-label-sm text-label-sm text-outline mt-0.5 uppercase tracking-wide">KIỂM TOÁN TÁC VỤ TIỆM (AUDIT TRAIL)</span>
+</div>
+<span class="font-label-sm text-label-sm bg-surface-container px-space-xs py-0.5 rounded text-on-surface-variant font-medium">BẤT BIẾN</span>
+</div>
+<!-- Audit Timeline Entries -->
+<div class="flex flex-col gap-space-md relative">
+<!-- Vertical subtle tracking indicator line -->
+<div class="absolute left-3 top-3 bottom-3 w-0.5 bg-surface-container -z-0"></div>
+<!-- Entry 1: 24/10 -->
+<div class="relative pl-7 flex flex-col gap-space-2xs z-10">
+<div class="absolute left-1.5 top-1.5 w-3.5 h-3.5 rounded-full bg-primary-container flex items-center justify-center">
+<span class="w-1.5 h-1.5 rounded-full bg-on-primary-container"></span>
+</div>
+<div class="flex items-center justify-between">
+<span class="font-code-md text-label-sm font-semibold text-primary">24/10/2023 — 14:32</span>
+<span class="font-label-sm text-label-sm bg-error-container text-on-error-container px-space-xs rounded font-medium">+20.000 đ</span>
+</div>
+<div class="font-body-sm text-body-sm font-semibold text-on-surface">
+              Gói 'Tráng ECN-2 (135)': <span class="line-through text-outline">100.000 đ</span> → <span class="text-primary font-bold">120.000 đ</span>
+</div>
+<div class="bg-surface-container-low p-space-xs rounded text-body-sm text-on-surface-variant flex flex-col gap-1">
+<span class="font-label-sm text-label-sm uppercase text-outline">Lý do điều chỉnh:</span>
+<p class="font-body-sm text-body-sm italic text-on-surface">"Hóa chất Remjet PB-2 nhập khẩu tăng giá từ nhà cung cấp Kodak Motion Picture"</p>
+</div>
+<div class="flex items-center gap-space-xs text-on-surface-variant mt-0.5">
+<span class="material-symbols-outlined text-[14px] text-tertiary">person</span>
+<span class="font-label-sm text-label-sm">Thực hiện: <strong class="text-on-surface">Lê Hoài Nam</strong> (Chủ tiệm)</span>
+</div>
+</div>
+<!-- Entry 2: 15/10 -->
+<div class="relative pl-7 flex flex-col gap-space-2xs z-10">
+<div class="absolute left-1.5 top-1.5 w-3.5 h-3.5 rounded-full bg-secondary-container flex items-center justify-center">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+</div>
+<div class="flex items-center justify-between">
+<span class="font-code-md text-label-sm font-semibold text-secondary">15/10/2023 — 09:15</span>
+<span class="font-label-sm text-label-sm bg-primary-fixed text-on-primary-fixed-variant px-space-xs rounded font-medium">+10.000 đ</span>
+</div>
+<div class="font-body-sm text-body-sm font-semibold text-on-surface">
+              Gói 'Scan TIFF 16-bit': <span class="line-through text-outline">40.000 đ</span> → <span class="text-primary font-bold">50.000 đ</span>
+</div>
+<div class="bg-surface-container-low p-space-xs rounded text-body-sm text-on-surface-variant flex flex-col gap-1">
+<span class="font-label-sm text-label-sm uppercase text-outline">Lý do điều chỉnh:</span>
+<p class="font-body-sm text-body-sm italic text-on-surface">"Nâng cấp cụm thấu kính Noritsu &amp; băng thông lưu trữ máy chủ Cloud 10Gbps"</p>
+</div>
+<div class="flex items-center gap-space-xs text-on-surface-variant mt-0.5">
+<span class="material-symbols-outlined text-[14px] text-tertiary">person</span>
+<span class="font-label-sm text-label-sm">Thực hiện: <strong class="text-on-surface">Trần Minh Quân</strong> (KTV Scan)</span>
+</div>
+</div>
+<!-- Entry 3: 01/10 -->
+<div class="relative pl-7 flex flex-col gap-space-2xs z-10">
+<div class="absolute left-1.5 top-1.5 w-3.5 h-3.5 rounded-full bg-surface-container-high flex items-center justify-center">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span>
+</div>
+<div class="flex items-center justify-between">
+<span class="font-code-md text-label-sm font-semibold text-on-surface-variant">01/10/2023 — 08:00</span>
+<span class="font-label-sm text-label-sm bg-secondary-fixed text-on-secondary-fixed-variant px-space-xs rounded font-medium">SLA TỐI ƯU</span>
+</div>
+<div class="font-body-sm text-body-sm font-semibold text-on-surface">
+              C-41 Tiêu chuẩn: Rút ngắn SLA từ <span class="line-through text-outline">24h</span> → <span class="text-secondary font-bold">12h</span>
+</div>
+<div class="bg-surface-container-low p-space-xs rounded text-body-sm text-on-surface-variant flex flex-col gap-1">
+<span class="font-label-sm text-label-sm uppercase text-outline">Lý do điều chỉnh:</span>
+<p class="font-body-sm text-body-sm italic text-on-surface">"Đưa vào vận hành buồng sấy chân không Film Drying Cabinet công suất cao"</p>
+</div>
+<div class="flex items-center gap-space-xs text-on-surface-variant mt-0.5">
+<span class="material-symbols-outlined text-[14px] text-tertiary">person</span>
+<span class="font-label-sm text-label-sm">Thực hiện: <strong class="text-on-surface">Lê Hoài Nam</strong> (Chủ tiệm)</span>
+</div>
+</div>
+</div>
+<!-- Safeguard Callout Box (Cơ chế Price Snapshotting) -->
+<div class="mt-space-md p-space-md bg-surface-container rounded flex flex-col gap-space-xs">
+<div class="flex items-center gap-space-xs text-primary font-semibold">
+<span class="material-symbols-outlined text-[20px]">verified_user</span>
+<span class="font-headline-sm text-headline-sm">Cơ chế Price Snapshotting</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface leading-relaxed">
+            Đơn hàng đã đặt trước thời điểm đổi giá <strong>luôn giữ nguyên mức giá cũ</strong> theo snapshot hợp đồng ban đầu. Khách gửi film hoặc đặt lịch không bị ảnh hưởng phụ thu phát sinh.
+          </p>
+<div class="flex items-center justify-between text-outline font-label-sm text-label-sm pt-space-xs">
+<span>SNAPSHOT PROTOCOL v2.4</span>
+<span class="text-secondary font-semibold">BẢO VỆ QUYỀN LỢI KHÁCH HÀNG</span>
+</div>
+</div>
+</div>
+<!-- Chemical Bath Cost Tracking Widget (SVG Visualization) -->
+<div class="bg-surface-container-lowest rounded-xl shadow-sm p-space-md flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-tertiary text-[18px]">water_drop</span>
+<span class="font-headline-sm text-body-sm uppercase font-semibold text-on-surface">Ước tính tiêu hao hóa chất / cuộn</span>
+</div>
+<span class="font-label-sm text-label-sm text-outline">THÁNG 10</span>
+</div>
+<!-- Inline SVG Visualization: Horizontal Bar Stack -->
+<div class="flex flex-col gap-space-xs pt-space-2xs">
+<div class="flex items-center justify-between font-label-sm text-label-sm text-on-surface-variant">
+<span>ECN-2 Cine (PB-2 + CD-3)</span>
+<span class="font-code-md text-on-surface font-semibold">42.000 đ/cuộn (35%)</span>
+</div>
+<div class="w-full bg-surface-container-high h-2 rounded overflow-hidden flex">
+<div class="bg-primary h-full w-[35%]"></div>
+<div class="bg-secondary h-full w-[25%]"></div>
+<div class="bg-surface-container-highest h-full w-[40%]"></div>
+</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm text-on-surface-variant pt-space-2xs">
+<span>C-41 Tiêu Chuẩn (Flexicolor)</span>
+<span class="font-code-md text-on-surface font-semibold">18.500 đ/cuộn (20%)</span>
+</div>
+<div class="w-full bg-surface-container-high h-2 rounded overflow-hidden flex">
+<div class="bg-secondary h-full w-[20%]"></div>
+<div class="bg-primary h-full w-[15%]"></div>
+<div class="bg-surface-container-highest h-full w-[65%]"></div>
+</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm text-on-surface-variant pt-space-2xs">
+<span>B&amp;W D-76 / ID-11 Thủ công</span>
+<span class="font-code-md text-on-surface font-semibold">28.000 đ/cuộn (20%)</span>
+</div>
+<div class="w-full bg-surface-container-high h-2 rounded overflow-hidden flex">
+<div class="bg-tertiary h-full w-[20%]"></div>
+<div class="bg-secondary h-full w-[20%]"></div>
+<div class="bg-surface-container-highest h-full w-[60%]"></div>
+</div>
+</div>
+<div class="flex items-center justify-between pt-space-xs text-outline font-label-sm text-label-sm">
+<span>Biên lợi nhuận gộp kỹ thuật: <strong>~58.4%</strong></span>
+<a class="text-primary hover:underline" href="#">Chi tiết định mức →</a>
+</div>
+</div>
+</div>
+</div>
+<!-- MODAL: Chỉnh sửa giá & Cam kết SLA (Hidden by Default) -->
+<div class="hidden fixed inset-0 z-50 flex items-center justify-center p-space-md bg-on-surface/40 backdrop-blur-sm" id="service-modal">
+<div class="bg-surface-container-lowest rounded-xl max-w-lg w-full p-space-lg shadow-2xl flex flex-col gap-space-md">
+<!-- Modal Header -->
+<div class="flex items-start justify-between pb-space-xs">
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-primary uppercase font-semibold">CẬP NHẬT BIỂU PHÍ &amp; CAM KẾT</span>
+<h3 class="font-headline-lg text-headline-lg text-on-surface" id="modal-service-name">Tráng &amp; Scan ECN-2 Cine 135</h3>
+<span class="font-code-md text-label-sm text-outline" id="modal-service-id">MÃ: SRV-ECN2-135</span>
+</div>
+<button class="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center text-outline hover:text-on-surface transition-colors" onclick="closePriceModal()" type="button">
+<span class="material-symbols-outlined text-[18px]">close</span>
+</button>
+</div>
+<!-- Notice: Snapshot policy reminder -->
+<div class="p-space-sm bg-surface-container rounded text-body-sm text-on-surface-variant flex items-start gap-space-xs">
+<span class="material-symbols-outlined text-primary text-[18px] flex-shrink-0 mt-0.5">info</span>
+<span>Mức giá mới sẽ áp dụng ngay cho các đơn hàng tạo sau thời điểm này. Đơn hàng đang trong quy trình tiếp nhận giữ nguyên giá cũ.</span>
+</div>
+<!-- Form Inputs -->
+<form class="flex flex-col gap-space-md" id="price-update-form" onsubmit="handlePriceSave(event)">
+<div class="grid grid-cols-2 gap-space-md">
+<div class="flex flex-col gap-space-2xs">
+<label class="font-label-sm text-label-sm uppercase text-outline font-medium">Giá niêm yết mới (VNĐ)</label>
+<div class="relative">
+<input class="w-full bg-surface-container-low px-space-md py-1.5 rounded text-on-surface font-code-md text-body-md font-semibold focus:bg-surface-container-lowest focus:ring-1 focus:ring-primary focus:outline-none" id="modal-input-price" required="" type="text" value="120.000"/>
+<span class="absolute right-3 top-2 text-label-sm text-outline font-medium">đ</span>
+</div>
+</div>
+<div class="flex flex-col gap-space-2xs">
+<label class="font-label-sm text-label-sm uppercase text-outline font-medium">Cam kết thời gian (SLA)</label>
+<select class="w-full bg-surface-container-low px-space-md py-1.5 rounded text-on-surface font-code-md text-body-sm focus:bg-surface-container-lowest focus:ring-1 focus:ring-primary focus:outline-none" id="modal-input-sla">
+<option value="6h">06 giờ (Giao cấp tốc)</option>
+<option value="12h">12 giờ (Trong ngày)</option>
+<option selected="" value="24h">24 giờ (Tiêu chuẩn)</option>
+<option value="48h">48 giờ (B&amp;W / Thủ công)</option>
+<option value="72h">72 giờ (Xử lý đặc biệt)</option>
+</select>
+</div>
+</div>
+<div class="flex flex-col gap-space-2xs">
+<label class="font-label-sm text-label-sm uppercase text-outline font-medium">Trạng thái nhận đơn</label>
+<div class="grid grid-cols-2 gap-space-sm">
+<label class="flex items-center gap-space-xs p-space-xs bg-surface-container-low rounded cursor-pointer hover:bg-surface-container">
+<input checked="" class="text-primary focus:ring-primary" name="modal-status" type="radio" value="active"/>
+<span class="font-body-sm text-body-sm font-medium text-on-surface">Đang phục vụ</span>
+</label>
+<label class="flex items-center gap-space-xs p-space-xs bg-surface-container-low rounded cursor-pointer hover:bg-surface-container">
+<input class="text-primary focus:ring-primary" name="modal-status" type="radio" value="paused"/>
+<span class="font-body-sm text-body-sm font-medium text-tertiary">Tạm ngưng (PAUSED)</span>
+</label>
+</div>
+</div>
+<div class="flex flex-col gap-space-2xs">
+<label class="font-label-sm text-label-sm uppercase text-outline font-medium">Lý do điều chỉnh (Bắt buộc ghi vào Audit Log)</label>
+<textarea class="w-full bg-surface-container-low p-space-sm rounded text-body-sm text-on-surface placeholder:text-outline focus:bg-surface-container-lowest focus:ring-1 focus:ring-primary focus:outline-none" id="modal-input-reason" placeholder="VD: Nhà cung ứng hóa chất tăng giá, điều chỉnh thấu kính scanner..." required="" rows="2"></textarea>
+</div>
+<div class="flex items-center justify-end gap-space-sm pt-space-xs">
+<button class="px-space-md py-1.5 rounded bg-surface-container-high text-on-surface hover:bg-surface-dim transition-colors text-body-sm font-medium" onclick="closePriceModal()" type="button">
+            Hủy bỏ
+          </button>
+<button class="px-space-md py-1.5 rounded bg-primary-container text-on-primary-container hover:bg-primary hover:text-on-primary transition-colors text-body-sm font-semibold flex items-center gap-space-xs shadow-sm" type="submit">
+<span class="material-symbols-outlined text-[16px]">check_circle</span>
+<span>Xác nhận &amp; Lưu biến động</span>
+</button>
+</div>
+</form>
+</div>
+</div>
+</div>
+<script>
+  // Tab Filter Handling
+  const tabButtons = document.querySelectorAll('.tab-btn');
+  const serviceRows = document.querySelectorAll('.service-row');
+  const searchInput = document.getElementById('service-search-input');
+
+  tabButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      // Toggle Tab Style
+      tabButtons.forEach(b => {
+        b.className = 'tab-btn px-space-md py-1.5 rounded font-body-sm text-body-sm text-on-surface-variant hover:bg-surface-container-high transition-colors flex items-center gap-space-xs';
+      });
+      btn.className = 'tab-btn px-space-md py-1.5 rounded font-headline-sm text-body-sm bg-primary-container text-on-primary-container shadow-sm flex items-center gap-space-xs';
+
+      const filter = btn.getAttribute('data-filter');
+      filterRows(filter, searchInput.value.toLowerCase());
+    });
+  });
+
+  searchInput.addEventListener('input', (e) => {
+    const activeTab = document.querySelector('.tab-btn.bg-primary-container').getAttribute('data-filter');
+    filterRows(activeTab, e.target.value.toLowerCase());
+  });
+
+  function filterRows(category, query) {
+    serviceRows.forEach(row => {
+      const rowCat = row.getAttribute('data-category');
+      const text = row.innerText.toLowerCase();
+
+      const matchCategory = (category === 'all' || rowCat === category);
+      const matchQuery = (!query || text.includes(query));
+
+      if (matchCategory && matchQuery) {
+        row.style.display = '';
+      } else {
+        row.style.display = 'none';
+      }
+    });
+  }
+
+  // Modal Price & SLA Editing Interaction
+  function openPriceModal(id, name, price, sla, status) {
+    document.getElementById('modal-service-id').innerText = 'MÃ: ' + id;
+    document.getElementById('modal-service-name').innerText = name;
+    document.getElementById('modal-input-price').value = price.replace(/[^\d.]/g, '');
+    document.getElementById('modal-input-reason').value = '';
+    
+    // Set SLA
+    const slaSelect = document.getElementById('modal-input-sla');
+    for (let i = 0; i < slaSelect.options.length; i++) {
+      if (slaSelect.options[i].value === sla) {
+        slaSelect.selectedIndex = i;
+        break;
+      }
+    }
+
+    // Set Status Radio
+    const radios = document.getElementsByName('modal-status');
+    for (const r of radios) {
+      if (r.value === status) r.checked = true;
+    }
+
+    document.getElementById('service-modal').classList.remove('hidden');
+  }
+
+  function closePriceModal() {
+    document.getElementById('service-modal').classList.add('hidden');
+  }
+
+  function handlePriceSave(event) {
+    event.preventDefault();
+    const serviceName = document.getElementById('modal-service-name').innerText;
+    const newPrice = document.getElementById('modal-input-price').value;
+    const reason = document.getElementById('modal-input-reason').value;
+
+    // Toast/Alert simulation for archival log record
+    alert(`Đã lưu thay đổi cho [${serviceName}]!\nGiá mới: ${newPrice} đ\nLý do ghi nhật ký: "${reason}"\nSnapshot hợp đồng đã được lưu vào hệ thống.`);
+    closePriceModal();
+  }
+</script></main></div></body></html>

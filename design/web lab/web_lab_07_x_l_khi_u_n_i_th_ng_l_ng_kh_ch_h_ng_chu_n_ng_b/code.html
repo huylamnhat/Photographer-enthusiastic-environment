@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+
+<html lang="vi"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;1,400&amp;family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={"darkMode":"class","theme":{"extend":{"colors":{"secondary-fixed-dim":"#abcebe","surface-container-lowest":"#ffffff","on-tertiary-fixed":"#221a11","error-container":"#ffdad6","surface-container":"#f4ede6","inverse-primary":"#ffb691","on-secondary-container":"#4a6b5d","on-surface":"#1e1b17","tertiary":"#5b5045","primary-container":"#a9511c","surface-dim":"#e0d9d2","on-secondary-fixed-variant":"#2d4d40","error":"#ba1a1a","on-primary-container":"#ffe6dc","on-primary-fixed-variant":"#793100","secondary":"#446557","secondary-fixed":"#c6ebd9","on-secondary-fixed":"#002116","surface-variant":"#e9e1da","surface-container-high":"#efe7e0","primary":"#8a3a03","surface-container-highest":"#e9e1da","on-error-container":"#93000a","on-tertiary-fixed-variant":"#4f453a","tertiary-container":"#74685c","primary-fixed-dim":"#ffb691","surface-tint":"#9a4610","on-surface-variant":"#55433a","outline":"#887268","secondary-container":"#c6ebd9","inverse-on-surface":"#f7efe8","inverse-surface":"#33302b","surface":"#fff8f3","on-tertiary":"#ffffff","tertiary-fixed-dim":"#d3c4b6","on-tertiary-container":"#f9e8d9","surface-bright":"#fff8f3","on-primary":"#ffffff","on-error":"#ffffff","primary-fixed":"#ffdbcb","on-secondary":"#ffffff","on-background":"#1e1b17","on-primary-fixed":"#341100","tertiary-fixed":"#f0e0d1","outline-variant":"#dcc1b5","background":"#fff8f3","surface-container-low":"#faf2eb"},"borderRadius":{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},"spacing":{"space-sm":"0.5rem","gutter-lg":"1.25rem","space-xs":"0.25rem","space-2xs":"0.125rem","margin-lg":"1.5rem","margin":"1rem","space-md":"0.75rem","space-lg":"1rem","space-xl":"1.5rem","gutter-md":"1rem","margin-md":"1.25rem","gutter":"0.75rem"},"fontFamily":{"headline-sm":["IBM Plex Sans"],"label-md":["IBM Plex Mono"],"body-md":["IBM Plex Sans"],"headline-xl":["IBM Plex Sans"],"code-md":["IBM Plex Mono"],"headline-md":["IBM Plex Sans"],"label-sm":["IBM Plex Mono"],"headline-lg":["IBM Plex Sans"],"body-sm":["IBM Plex Sans"]},"fontSize":{"headline-sm":["0.875rem",{"lineHeight":"1.25rem","letterSpacing":"0em","fontWeight":"600"}],"label-md":["0.75rem",{"lineHeight":"1rem","letterSpacing":"0.04em","fontWeight":"500"}],"body-md":["0.875rem",{"lineHeight":"1.25rem","letterSpacing":"0em","fontWeight":"400"}],"headline-xl":["1.75rem",{"lineHeight":"2.125rem","letterSpacing":"-0.015em","fontWeight":"600"}],"code-md":["0.8125rem",{"lineHeight":"1.125rem","letterSpacing":"0em","fontWeight":"400"}],"headline-md":["1rem",{"lineHeight":"1.375rem","letterSpacing":"-0.005em","fontWeight":"600"}],"label-sm":["0.6875rem",{"lineHeight":"0.875rem","letterSpacing":"0.06em","fontWeight":"500"}],"headline-lg":["1.25rem",{"lineHeight":"1.625rem","letterSpacing":"-0.01em","fontWeight":"600"}],"body-sm":["0.8125rem",{"lineHeight":"1.125rem","letterSpacing":"0.005em","fontWeight":"400"}]}}}}</script></head><body class="bg-surface font-body-md text-on-surface antialiased"><aside class="fixed left-0 top-0 h-screen w-64 bg-surface-container-low z-50 flex flex-col justify-between shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="flex flex-col"><div class="h-16 px-margin flex items-center justify-between bg-surface-container"><div class="flex items-center gap-space-sm"><div class="w-7 h-7 bg-primary flex items-center justify-center rounded"><span class="material-symbols-outlined text-on-primary text-[18px]">motion_photos_on</span></div><div class="flex flex-col"><span class="font-headline-sm text-headline-sm uppercase tracking-tight text-on-surface">MINILAB ARCHIVE</span><span class="font-label-sm text-label-sm uppercase text-primary">LAB OPS</span></div></div></div><div class="px-space-md pt-space-lg pb-space-xs"><span class="font-label-sm text-label-sm uppercase text-on-surface-variant px-space-xs tracking-wider">VẬN HÀNH TIỆM LAB</span></div><nav class="flex flex-col gap-space-2xs px-space-sm" data-active-classes="bg-primary-container text-on-primary-container font-semibold rounded"><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="bang-kanban-tiep-nhan" href="#"><span class="material-symbols-outlined text-[18px]">view_kanban</span><div class="flex flex-col flex-1 leading-tight"><span class="font-body-sm text-body-sm">1. Tiếp nhận &amp; Phân loại</span><span class="font-label-sm text-label-sm text-outline">WEB-LAB-03</span></div></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="tai-file-scan-qc" href="#"><span class="material-symbols-outlined text-[18px]">cloud_upload</span><div class="flex flex-col flex-1 leading-tight"><span class="font-body-sm text-body-sm">2. Tải file scan &amp; QC</span><span class="font-label-sm text-label-sm text-outline">WEB-LAB-04</span></div></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="dich-vu-bang-gia" href="#"><span class="material-symbols-outlined text-[18px]">price_change</span><div class="flex flex-col flex-1 leading-tight"><span class="font-body-sm text-body-sm">3. Dịch vụ &amp; Bảng giá</span><span class="font-label-sm text-label-sm text-outline">WEB-LAB-05</span></div></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="ho-so-tiem-cong-khai" href="#"><span class="material-symbols-outlined text-[18px]">storefront</span><div class="flex flex-col flex-1 leading-tight"><span class="font-body-sm text-body-sm">4. Hồ sơ tiệm công khai</span><span class="font-label-sm text-label-sm text-outline">WEB-LAB-06</span></div></a><a aria-current="page" class="flex items-center gap-space-sm px-space-md py-space-sm transition-colors bg-primary-container text-on-primary-container font-semibold rounded" data-path="xu-ly-khieu-nai" href="#"><span class="material-symbols-outlined text-[18px]">report_problem</span><div class="flex flex-col flex-1 leading-tight"><span class="font-body-sm text-body-sm">5. Xử lý khiếu nại</span><span class="font-label-sm text-label-sm text-outline">WEB-LAB-07</span></div></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="lich-su-don-sla" href="#"><span class="material-symbols-outlined text-[18px]">history_toggle_off</span><div class="flex flex-col flex-1 leading-tight"><span class="font-body-sm text-body-sm">6. Lịch sử đơn &amp; SLA</span><span class="font-label-sm text-label-sm text-outline">WEB-LAB-08</span></div></a></nav></div><div class="p-space-md bg-surface-container flex flex-col gap-space-xs"><div class="flex items-center justify-between"><span class="font-label-sm text-label-sm text-on-surface-variant uppercase">HỆ THỐNG TRẠM</span><span class="inline-block w-2 h-2 rounded-full bg-secondary"></span></div><span class="font-code-md text-code-md text-on-surface font-semibold">v4.8.2-LAB [ONLINE]</span></div></aside><div class="pl-64"><header class="fixed top-0 left-64 right-0 h-16 bg-surface/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-40 flex items-center justify-between px-gutter-lg"><div class="flex items-center gap-space-md"><div class="flex items-center gap-space-xs bg-surface-container px-space-md py-space-xs rounded"><span class="material-symbols-outlined text-primary text-[18px]">location_on</span><span class="font-body-sm text-body-sm text-on-surface font-medium">Saigon Darkroom - Chi nhánh Q.3</span><span class="material-symbols-outlined text-outline text-[16px]">expand_more</span></div><div class="hidden md:flex items-center gap-space-xs bg-surface-container-lowest px-space-md py-space-xs rounded"><span class="material-symbols-outlined text-outline text-[18px]">search</span><span class="font-body-sm text-body-sm text-on-surface-variant">Tìm roll ID, khách hàng...</span><span class="font-label-sm text-label-sm bg-surface-container-high px-space-xs rounded text-outline font-semibold">⌘K</span></div></div><div class="flex items-center gap-space-lg"><div class="relative flex items-center justify-center p-space-xs text-on-surface-variant hover:text-on-surface cursor-pointer"><span class="material-symbols-outlined text-[20px]">notifications</span><span class="absolute top-1 right-1 w-2 h-2 rounded-full bg-primary"></span></div><div class="flex items-center gap-space-sm pl-space-md"><div class="text-right hidden sm:flex flex-col"><span class="font-body-sm text-body-sm text-on-surface font-semibold leading-tight">Lê Hoài Nam</span><span class="font-label-sm text-label-sm text-primary uppercase font-medium">KỸ THUẬT VIÊN TRƯỞNG</span></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="w-full pt-16 px-gutter-lg bg-surface min-h-screen"><div class="flex flex-col w-full pb-margin-lg">
+<div class="flex flex-col gap-space-md py-space-lg mb-space-lg">
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-space-md">
+<div>
+<div class="flex items-center gap-space-xs mb-space-2xs">
+<span class="font-label-sm text-label-sm text-primary uppercase font-semibold">WEB-LAB-07 // QUY TRÌNH TỰ CHỦ ĐỀN BÙ</span>
+<span class="text-outline-variant">•</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">SOP-DISPUTE-V2</span>
+</div>
+<h1 class="font-headline-xl text-headline-xl text-on-surface tracking-tight">Xử lý Khiếu nại &amp; Thương lượng Đền bù</h1>
+</div>
+<div class="flex flex-wrap items-center gap-space-sm">
+<div class="flex items-center gap-space-xs bg-error-container text-on-error-container px-space-md py-space-xs rounded shadow-sm">
+<span class="material-symbols-outlined text-[16px]">hourglass_top</span>
+<span class="font-label-md text-label-md font-semibold tracking-wide">02 CA ĐANG THƯƠNG LƯỢNG</span>
+</div>
+<div class="flex items-center gap-space-xs bg-secondary-container text-on-secondary-container px-space-md py-space-xs rounded shadow-sm">
+<span class="material-symbols-outlined text-[16px]">verified</span>
+<span class="font-label-md text-label-md font-semibold">TỶ LỆ TỰ THƯƠNG LƯỢNG THÀNH CÔNG: 92%</span>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-4 gap-space-md">
+<div class="bg-surface-container-low p-space-md rounded shadow-sm flex flex-col justify-between">
+<span class="font-label-sm text-label-sm uppercase text-on-surface-variant">Tổng khiếu nại tháng</span>
+<div class="flex items-baseline justify-between mt-space-xs">
+<span class="font-headline-lg text-headline-lg font-bold text-on-surface">14 ca</span>
+<span class="font-label-sm text-label-sm text-secondary font-semibold">-30% MoM</span>
+</div>
+</div>
+<div class="bg-surface-container-low p-space-md rounded shadow-sm flex flex-col justify-between">
+<span class="font-label-sm text-label-sm uppercase text-on-surface-variant">Quỹ đền bù tự quản</span>
+<div class="flex items-baseline justify-between mt-space-xs">
+<span class="font-headline-lg text-headline-lg font-bold text-on-surface">4.850.000 đ</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Hạn mức 10M</span>
+</div>
+</div>
+<div class="bg-surface-container-low p-space-md rounded shadow-sm flex flex-col justify-between">
+<span class="font-label-sm text-label-sm uppercase text-on-surface-variant">SLA phản hồi trung bình</span>
+<div class="flex items-baseline justify-between mt-space-xs">
+<span class="font-headline-lg text-headline-lg font-bold text-on-surface">3.4 giờ</span>
+<span class="font-label-sm text-label-sm text-secondary font-semibold">Chuẩn &lt; 6h</span>
+</div>
+</div>
+<div class="bg-surface-container-low p-space-md rounded shadow-sm flex flex-col justify-between">
+<span class="font-label-sm text-label-sm uppercase text-on-surface-variant">Admin can thiệp (Tháng)</span>
+<div class="flex items-baseline justify-between mt-space-xs">
+<span class="font-headline-lg text-headline-lg font-bold text-on-surface">01 ca</span>
+<span class="font-label-sm text-label-sm text-primary font-semibold">Mức kiểm soát an toàn</span>
+</div>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-lg items-start">
+<div class="lg:col-span-4 flex flex-col gap-space-md">
+<div class="flex items-center justify-between px-space-xs">
+<span class="font-label-md text-label-md text-on-surface font-semibold uppercase tracking-wider">HÀNG ĐỢI KHIẾU NẠI TIỆM (02)</span>
+<span class="font-label-sm text-label-sm text-outline">LỌC: TẤT CẢ</span>
+</div>
+<div class="bg-surface-container-lowest p-space-md rounded shadow-md relative overflow-hidden transition-all cursor-pointer">
+<div class="absolute left-0 top-0 bottom-0 w-1.5 bg-primary-container"></div>
+<div class="flex items-center justify-between mb-space-xs pl-space-xs">
+<div class="flex items-center gap-space-xs">
+<span class="font-code-md text-code-md text-primary font-bold">#DISP-2481</span>
+<span class="bg-error-container text-on-error-container font-label-sm text-label-sm px-space-xs py-0.5 rounded font-semibold uppercase">Cần giải quyết</span>
+</div>
+<span class="font-label-sm text-label-sm text-outline">14:20 Hôm nay</span>
+</div>
+<div class="pl-space-xs mb-space-sm">
+<div class="flex items-baseline gap-space-xs mb-space-2xs">
+<span class="font-label-sm text-label-sm text-outline uppercase">ĐƠN:</span>
+<span class="font-code-md text-code-md text-on-surface font-medium">#ORD-2024-88412</span>
+<span class="text-outline-variant">•</span>
+<span class="font-body-sm text-body-sm text-on-surface font-semibold">Lê Hoàng Nam</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface line-clamp-2">
+            Khách báo xuất hiện vệt xước nhũ tương dọc frame (2 cuộn Kodak Portra 400).
+          </p>
+</div>
+<div class="pl-space-xs pt-space-xs mt-space-xs bg-surface-container-low rounded p-space-xs flex items-center justify-between text-on-surface-variant">
+<div class="flex items-center gap-space-2xs">
+<span class="material-symbols-outlined text-[16px] text-primary">schedule</span>
+<span class="font-label-sm text-label-sm">Thời hạn tự thương lượng:</span>
+</div>
+<span class="font-code-md text-code-md text-primary font-bold">28 giờ còn lại</span>
+</div>
+<div class="mt-space-xs pl-space-xs">
+<span class="font-label-sm text-label-sm text-outline">Sau 28h hồ sơ tự động chuyển Ban quản trị Admin</span>
+</div>
+</div>
+<div class="bg-surface-container-low p-space-md rounded shadow-sm opacity-90 hover:opacity-100 transition-all cursor-pointer">
+<div class="flex items-center justify-between mb-space-xs">
+<div class="flex items-center gap-space-xs">
+<span class="font-code-md text-code-md text-on-surface-variant font-bold">#DISP-2485</span>
+<span class="bg-secondary-container text-on-secondary-container font-label-sm text-label-sm px-space-xs py-0.5 rounded font-semibold uppercase">ĐÃ XỬ LÝ</span>
+</div>
+<span class="font-label-sm text-label-sm text-outline">Hôm qua</span>
+</div>
+<div class="mb-space-sm">
+<div class="flex items-baseline gap-space-xs mb-space-2xs">
+<span class="font-label-sm text-label-sm text-outline uppercase">ĐƠN:</span>
+<span class="font-code-md text-code-md text-on-surface font-medium">#ORD-2024-88302</span>
+<span class="text-outline-variant">•</span>
+<span class="font-body-sm text-body-sm text-on-surface font-semibold">Trần Mai Anh</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2">
+            Khách báo tải nhầm tệp (Đã giải quyết bằng công cụ ghi đè trong 24h).
+          </p>
+</div>
+<div class="flex items-center justify-between text-on-surface-variant bg-surface-container px-space-xs py-space-2xs rounded">
+<span class="font-label-sm text-label-sm text-secondary font-medium">Khách đã xác nhận nhận tệp quét mới</span>
+<span class="material-symbols-outlined text-[16px] text-secondary">check_circle</span>
+</div>
+</div>
+<div class="bg-surface-container-low p-space-md rounded shadow-sm">
+<div class="flex items-center gap-space-xs text-on-surface-variant mb-space-xs">
+<span class="material-symbols-outlined text-[18px]">info</span>
+<span class="font-headline-sm text-headline-sm uppercase">Quy tắc tự chủ thương lượng</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-space-sm">
+          Tiệm được quyền chủ động thương lượng trực tiếp tối đa 48 giờ kể từ lúc nhận khiếu nại. Nếu không đạt thỏa thuận, hệ thống sẽ mở quyền điều phối cho Admin và khấu trừ tiền phạt theo chỉ số tín nhiệm.
+        </p>
+<div class="flex items-center justify-between text-on-surface-variant pt-space-xs">
+<span class="font-label-sm text-label-sm">Hạn mức bồi thường độc lập:</span>
+<span class="font-code-md text-code-md font-bold text-on-surface">1.200.000 đ/đơn</span>
+</div>
+</div>
+</div>
+<div class="lg:col-span-8 flex flex-col gap-space-md">
+<div class="bg-surface-container-lowest p-margin-lg rounded-xl shadow-md">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm pb-space-md mb-space-lg bg-surface-container-low -mx-margin-lg -mt-margin-lg px-margin-lg pt-space-lg rounded-t-xl">
+<div class="flex flex-col">
+<div class="flex items-center gap-space-xs">
+<span class="font-code-md text-code-md font-bold text-primary">#DISP-2481</span>
+<span class="text-outline-variant">•</span>
+<span class="font-headline-md text-headline-md text-on-surface font-bold">Hồ sơ đối chiếu &amp; Thương lượng đền bù</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">Khách hàng: Lê Hoàng Nam (0918.xxx.902) — Đơn dịch vụ #ORD-2024-88412</span>
+</div>
+<div class="flex items-center gap-space-xs">
+<span class="font-label-sm text-label-sm text-outline">TIẾN ĐỘ THỜI GIAN:</span>
+<span class="font-code-md text-code-md bg-error-container text-on-error-container px-space-xs py-0.5 rounded font-semibold">28:14:02 CÒN LẠI</span>
+</div>
+</div>
+<div class="mb-space-lg">
+<div class="flex items-center justify-between mb-space-sm">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[18px] text-primary">compare</span>
+<span class="font-headline-sm text-headline-sm uppercase text-on-surface tracking-wider">ĐỐI CHIẾU CHỨNG CỨ ẢNH (DUAL EVIDENCE)</span>
+</div>
+<span class="font-label-sm text-label-sm text-outline">HỆ THỐNG SCAN NORITSU HS-1800</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-space-md">
+<div class="bg-surface-container-low p-space-sm rounded flex flex-col gap-space-xs">
+<div class="flex items-center justify-between px-space-xs">
+<span class="font-label-sm text-label-sm text-error font-semibold uppercase">Ảnh 1: Khách hàng cung cấp</span>
+<span class="font-label-sm text-label-sm text-outline">Frame 18 &amp; 19</span>
+</div>
+<div class="relative w-full h-56 bg-surface-container rounded overflow-hidden shadow-inner flex items-center justify-center">
+<img class="w-full h-full object-cover" data-alt="Close up archival scan of 35mm film negative showing a sharp continuous vertical scratch down the emulsion layer on Kodak Portra 400 with technical scan frame borders, warm earthy lab lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBSrNazbGMxv0hLfrQH3qssqk2HQ3P4QdvBXot3uTD0BNT_PeegJT-fk4d7n7frVT1UDRGRcWpj4dp-bdGoZ3zsZ5j2d006lgKvrUuj-RYz5OejQsQQv1nBGNwf7GSVsOfh7bDcyGjmaW6_zjBpxLZ825n3DUNeiO8OGpb5gFfdyCglpYL0S9vOdNeKSUCIiWZkdtm1Y-tDTBy3qmHeM07a_gfz7YLccMvy_735w4s"/>
+<div class="absolute bottom-2 left-2 bg-inverse-surface/85 text-inverse-on-surface px-space-xs py-0.5 rounded font-label-sm text-label-sm">
+                  Vệt xước nhũ tương dọc frame
+                </div>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant px-space-xs">
+                Khách phản ánh đường xước xuyên suốt cả 2 cuộn film sau khi nhận link file số hóa từ hệ thống.
+              </p>
+</div>
+<div class="bg-surface-container-low p-space-sm rounded flex flex-col gap-space-xs">
+<div class="flex items-center justify-between px-space-xs">
+<span class="font-label-sm text-label-sm text-secondary font-semibold uppercase">Ảnh 2: Tiệm chụp khi tiếp nhận</span>
+<span class="font-label-sm text-label-sm text-outline">10:15 - 24/10</span>
+</div>
+<div class="relative w-full h-56 bg-surface-container rounded overflow-hidden shadow-inner flex items-center justify-center">
+<img class="w-full h-full object-cover" data-alt="Technical tabletop photo of two Kodak Portra 400 35mm metal film canisters lying flat on a darkroom receipt pad showing mint intact metal housings and flawless felt light seals under neutral bench lights" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDg-XMPQjB_VkBHazGtYhQXC13gmGZXddp4k59ibaRz97pHDAQwYoAG2h3o8cxyMRG2vavR_j5ofeGu4QVZWxRJO_BS-PzIqGfG4xatjyQS8oJF79iaP_0s2mt5-65EX5wB40APbKlnwW6NyGSxpMyP9pMgLRSPTrsZIPm86vkW8MTHB_5TjVdX576-E3RkejH4UWlRK7iB1JUGKpeH9J3nyDBx2lJ9la4j0Yaz98o"/>
+<div class="absolute bottom-2 left-2 bg-inverse-surface/85 text-inverse-on-surface px-space-xs py-0.5 rounded font-label-sm text-label-sm">
+                  Vỏ film kim loại nguyên vẹn
+                </div>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant px-space-xs">
+                Lúc nhận đơn tại quầy: Vỏ kim loại không móp méo, lớp nhung chống lọt sáng nguyên vẹn.
+              </p>
+</div>
+</div>
+</div>
+<div class="bg-surface-container p-space-md rounded mb-space-lg shadow-sm">
+<div class="flex items-start gap-space-sm">
+<div class="w-7 h-7 rounded bg-primary-container text-on-primary-container flex items-center justify-center shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[18px]">build_circle</span>
+</div>
+<div class="flex flex-col gap-space-2xs w-full">
+<div class="flex items-center justify-between">
+<span class="font-headline-sm text-headline-sm text-on-surface uppercase">Ý KIẾN PHÂN TÍCH KỸ THUẬT VIÊN (QC LOG)</span>
+<span class="font-label-sm text-label-sm text-primary font-medium">KTV: Lê Hoài Nam</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface">
+                “Kiểm tra con lăn máy Noritsu vừa bảo trì phát hiện dính một hạt cát nhỏ ở roller nạp film. Lỗi thuộc về công đoạn tráng của tiệm.”
+              </p>
+<div class="flex items-center gap-space-xs mt-space-2xs text-on-surface-variant">
+<span class="material-symbols-outlined text-[16px] text-secondary">check_circle</span>
+<span class="font-label-sm text-label-sm">Đã lập biên bản kỹ thuật bảo dưỡng khẩn cấp máy #NOR-02 lúc 15:30.</span>
+</div>
+</div>
+</div>
+</div>
+<div class="mb-space-lg">
+<div class="flex items-center justify-between mb-space-sm">
+<span class="font-headline-sm text-headline-sm uppercase text-on-surface tracking-wider">KHUNG ĐỀ XUẤT THƯƠNG LƯỢNG VỚI KHÁCH HÀNG</span>
+<span class="font-label-sm text-label-sm text-outline">CHỌN 1 TRONG 3 PHƯƠNG ÁN HOẶC KẾT HỢP</span>
+</div>
+<div class="flex flex-col gap-space-xs" id="compensation-options">
+<label class="flex items-start gap-space-sm p-space-md rounded bg-surface-container-low hover:bg-surface-container cursor-pointer transition-colors">
+<input checked="" class="mt-1 accent-primary-container h-4 w-4" name="compensation_plan" type="radio" value="option_1"/>
+<div class="flex flex-col flex-1">
+<div class="flex items-center justify-between">
+<span class="font-body-sm text-body-sm font-semibold text-on-surface">Tùy chọn 1: Bù cuộn film mới &amp; Miễn phí tráng lần sau</span>
+<span class="font-code-md text-code-md text-primary font-bold">Ưu tiên đề xuất</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
+                  Đền bù 02 cuộn film mới Kodak Portra 400 135/36 tương đương + Miễn phí tráng lần sau (Giao tận nhà miễn phí).
+                </p>
+<div class="flex items-center gap-space-md mt-space-xs">
+<span class="font-label-sm text-label-sm text-outline">Giá trị vật phẩm quy đổi: 840.000 đ</span>
+<span class="font-label-sm text-label-sm text-secondary font-medium">Kho tiệm: Sẵn 08 cuộn date 2026</span>
+</div>
+</div>
+</label>
+<label class="flex items-start gap-space-sm p-space-md rounded bg-surface-container-low hover:bg-surface-container cursor-pointer transition-colors">
+<input class="mt-1 accent-primary-container h-4 w-4" name="compensation_plan" type="radio" value="option_2"/>
+<div class="flex flex-col flex-1">
+<div class="flex items-center justify-between">
+<span class="font-body-sm text-body-sm font-semibold text-on-surface">Tùy chọn 2: Hoàn tiền dịch vụ vào ví khách</span>
+<span class="font-code-md text-code-md text-on-surface">540.000 đ</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
+                  Hoàn tiền 100% phí dịch vụ tráng scan (540.000 đ) vào ví của khách trong tài khoản ứng dụng Minilab.
+                </p>
+<div class="flex items-center gap-space-md mt-space-xs">
+<span class="font-label-sm text-label-sm text-outline">Thao tác cộng số dư tự động qua cổng tích hợp</span>
+</div>
+</div>
+</label>
+<label class="flex items-start gap-space-sm p-space-md rounded bg-surface-container-low hover:bg-surface-container cursor-pointer transition-colors">
+<input class="mt-1 accent-primary-container h-4 w-4" name="compensation_plan" type="radio" value="option_3"/>
+<div class="flex flex-col flex-1">
+<div class="flex items-center justify-between">
+<span class="font-body-sm text-body-sm font-semibold text-on-surface">Tùy chọn 3: Tặng voucher ưu đãi dài hạn</span>
+<span class="font-code-md text-code-md text-on-surface">5 mã giảm 50%</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
+                  Tặng voucher giảm giá 50% cho 5 đơn tráng tiếp theo (áp dụng cho mọi định dạng film màu và B&amp;W).
+                </p>
+<div class="flex items-center gap-space-md mt-space-xs">
+<span class="font-label-sm text-label-sm text-outline">Hạn dùng voucher: 12 tháng kể từ ngày kích hoạt</span>
+</div>
+</div>
+</label>
+</div>
+</div>
+<div class="mb-space-lg">
+<div class="flex items-center justify-between mb-space-2xs">
+<span class="font-label-sm text-label-sm uppercase text-on-surface-variant font-semibold">TIN NHẮN THƯƠNG LƯỢNG GỬI TRỰC TIẾP CHO KHÁCH (IN-APP PUSH &amp; CHAT)</span>
+<span class="font-label-sm text-label-sm text-outline">HỖ TRỢ MẪU VIỆT HÓA CHUẨN</span>
+</div>
+<div class="bg-surface-container-lowest rounded p-space-xs">
+<textarea class="w-full bg-surface-container-low text-on-surface font-body-sm text-body-sm p-space-md rounded outline-none resize-none placeholder:text-outline focus:bg-surface-container-lowest transition-colors" id="negotiation-msg" placeholder="Nhập lời xin lỗi chân thành từ tiệm và diễn giải phương án đền bù đã chọn..." rows="4">Chào anh Nam, Saigon Darkroom rất lấy làm tiếc về sự cố xước nhũ tương trên 02 cuộn Portra 400 của anh do trục trặc con lăn máy tráng. KTV trưởng đã xử lý thiết bị và tiệm xin gửi đề xuất đền bù: 02 cuộn film mới Kodak Portra 400 nguyên seal chuyển phát tận nơi, đồng thời miễn phí toàn bộ dịch vụ tráng scan cho lần gửi tiếp theo của anh. Rất mong anh thông cảm và tạo điều kiện để tiệm phục vụ anh tốt hơn.</textarea>
+</div>
+<div class="flex items-center justify-between mt-space-xs px-space-xs">
+<span class="font-label-sm text-label-sm text-outline">Khách sẽ nhận thông báo lập tức trên app với 2 nút: [Đồng ý] hoặc [Từ chối đề xuất]</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">426 / 1000 ký tự</span>
+</div>
+</div>
+<div class="flex flex-col sm:flex-row items-center justify-between gap-space-md pt-space-md bg-surface-container-low -mx-margin-lg -mb-margin-lg px-margin-lg pb-space-lg rounded-b-xl">
+<button class="w-full sm:w-auto px-space-md py-space-xs bg-surface-container-lowest hover:bg-surface-container-high text-error rounded font-body-sm text-body-sm font-medium flex items-center justify-center gap-space-xs shadow-sm transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">gavel</span>
+<span>Gửi yêu cầu Admin hỗ trợ phán quyết</span>
+</button>
+<div class="flex items-center gap-space-sm w-full sm:w-auto">
+<button class="w-full sm:w-auto px-space-md py-space-xs bg-surface-container-lowest hover:bg-surface-container text-on-surface rounded font-body-sm text-body-sm font-medium transition-colors" type="button">
+              Lưu nháp
+            </button>
+<button class="w-full sm:w-auto px-space-lg py-space-xs bg-primary-container hover:bg-primary text-on-primary font-body-sm text-body-sm font-semibold rounded shadow-md flex items-center justify-center gap-space-xs transition-colors" id="send-compensation-btn" type="button">
+<span class="material-symbols-outlined text-[18px]">send</span>
+<span>Gửi đề xuất đền bù cho khách hàng</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="fixed bottom-6 right-6 bg-inverse-surface text-inverse-on-surface px-space-lg py-space-md rounded-xl shadow-xl flex items-center gap-space-sm translate-y-24 opacity-0 pointer-events-none transition-all duration-300 z-50" id="toast-notify">
+<span class="material-symbols-outlined text-secondary text-[20px]">check_circle</span>
+<div class="flex flex-col">
+<span class="font-headline-sm text-headline-sm text-inverse-on-surface">Đã gửi đề xuất thương lượng!</span>
+<span class="font-label-sm text-label-sm text-inverse-on-surface/80">Khách hàng Lê Hoàng Nam đã nhận thông báo qua ứng dụng.</span>
+</div>
+</div>
+</div>
+<script>
+  (function() {
+    const sendBtn = document.getElementById('send-compensation-btn');
+    const toast = document.getElementById('toast-notify');
+    const msgText = document.getElementById('negotiation-msg');
+
+    if (sendBtn && toast) {
+      sendBtn.addEventListener('click', function() {
+        sendBtn.disabled = true;
+        sendBtn.classList.add('opacity-75');
+        sendBtn.innerHTML = '<span class="material-symbols-outlined text-[18px] animate-spin">refresh</span><span>Đang truyền phát thông báo...</span>';
+
+        setTimeout(() => {
+          toast.classList.remove('translate-y-24', 'opacity-0', 'pointer-events-none');
+          sendBtn.innerHTML = '<span class="material-symbols-outlined text-[18px]">done_all</span><span>Đã gửi đề xuất thành công</span>';
+          sendBtn.classList.remove('bg-primary-container', 'hover:bg-primary');
+          sendBtn.classList.add('bg-secondary', 'hover:bg-secondary');
+
+          setTimeout(() => {
+            toast.classList.add('translate-y-24', 'opacity-0', 'pointer-events-none');
+          }, 4000);
+        }, 800);
+      });
+    }
+
+    const radios = document.querySelectorAll('input[name="compensation_plan"]');
+    radios.forEach(radio => {
+      radio.addEventListener('change', (e) => {
+        if (!msgText) return;
+        if (e.target.value === 'option_1') {
+          msgText.value = 'Chào anh Nam, Saigon Darkroom rất lấy làm tiếc về sự cố xước nhũ tương trên 02 cuộn Portra 400 của anh do trục trặc con lăn máy tráng. KTV trưởng đã xử lý thiết bị và tiệm xin gửi đề xuất đền bù: 02 cuộn film mới Kodak Portra 400 nguyên seal chuyển phát tận nơi, đồng thời miễn phí toàn bộ dịch vụ tráng scan cho lần gửi tiếp theo của anh. Rất mong anh thông cảm và tạo điều kiện để tiệm phục vụ anh tốt hơn.';
+        } else if (e.target.value === 'option_2') {
+          msgText.value = 'Chào anh Nam, đại diện Saigon Darkroom xin chân thành nhận lỗi kỹ thuật khiến film bị vệt xước. Tiệm xin được hoàn lại 100% chi phí dịch vụ tráng scan (540.000 đ) trực tiếp vào ví Minilab của anh để anh có thể sử dụng bất kỳ lúc nào.';
+        } else if (e.target.value === 'option_3') {
+          msgText.value = 'Chào anh Nam, để bù đắp sự cố tráng xước film, tiệm xin gửi tặng anh bộ 05 mã voucher giảm giá 50% áp dụng cho tất cả dịch vụ tráng scan trong vòng 1 năm tới. Rất mong nhận được sự lượng thứ từ anh.';
+        }
+      });
+    });
+  })();
+</script></main></div></body></html>

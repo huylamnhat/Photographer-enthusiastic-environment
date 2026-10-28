@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+
+<html lang="vi"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_stack" name="shell-type"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "secondary-fixed": "#c6ebd9", "surface-container": "#f4ede6", "tertiary-fixed-dim": "#d3c4b6", "secondary-container": "#c6ebd9", "surface-bright": "#fff8f3", "on-tertiary-container": "#f9e8d9", "inverse-on-surface": "#f7efe8", "inverse-surface": "#33302b", "tertiary-fixed": "#f0e0d1", "surface-container-high": "#efe7e0", "secondary-fixed-dim": "#abcebe", "surface-variant": "#e9e1da", "on-primary": "#ffffff", "on-surface": "#1e1b17", "outline": "#887268", "on-tertiary": "#ffffff", "surface-container-highest": "#e9e1da", "surface": "#fff8f3", "on-primary-fixed": "#341100", "outline-variant": "#dcc1b5", "on-primary-container": "#ffe6dc", "on-secondary-fixed-variant": "#2d4d40", "on-error": "#ffffff", "primary": "#8a3a03", "on-background": "#1e1b17", "error": "#ba1a1a", "on-secondary-fixed": "#002116", "surface-container-lowest": "#ffffff", "primary-fixed": "#ffdbcb", "surface-container-low": "#faf2eb", "on-secondary": "#ffffff", "inverse-primary": "#ffb691", "on-surface-variant": "#55433a", "tertiary": "#5b5045", "on-secondary-container": "#4a6b5d", "error-container": "#ffdad6", "primary-fixed-dim": "#ffb691", "primary-container": "#a9511c", "surface-dim": "#e0d9d2", "surface-tint": "#9a4610", "background": "#fff8f3", "on-error-container": "#93000a", "on-tertiary-fixed": "#221a11", "tertiary-container": "#74685c", "on-primary-fixed-variant": "#793100", "secondary": "#446557", "on-tertiary-fixed-variant": "#4f453a" }, borderRadius: { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" }, spacing: { "margin-md": "1.25rem", "margin-lg": "1.5rem", "space-2xs": "0.125rem", "space-xs": "0.25rem", "margin": "1rem", "gutter-md": "1rem", "space-xl": "1.5rem", "space-md": "0.75rem", "gutter-lg": "1.25rem", "gutter": "0.75rem", "space-sm": "0.5rem", "space-lg": "1rem" }, fontFamily: { "code-md": ["IBM Plex Mono"], "headline-lg": ["IBM Plex Sans"], "body-md": ["IBM Plex Sans"], "headline-xl": ["IBM Plex Sans"], "headline-md": ["IBM Plex Sans"], "body-sm": ["IBM Plex Sans"], "headline-sm": ["IBM Plex Sans"], "label-md": ["IBM Plex Mono"], "label-sm": ["IBM Plex Mono"] }, fontSize: { "code-md": ["0.8125rem", { lineHeight: "1.125rem", letterSpacing: "0em", fontWeight: "400" }], "headline-lg": ["1.25rem", { lineHeight: "1.625rem", letterSpacing: "-0.01em", fontWeight: "600" }], "body-md": ["0.875rem", { lineHeight: "1.25rem", letterSpacing: "0em", fontWeight: "400" }], "headline-xl": ["1.75rem", { lineHeight: "2.125rem", letterSpacing: "-0.015em", fontWeight: "600" }], "headline-md": ["1rem", { lineHeight: "1.375rem", letterSpacing: "-0.005em", fontWeight: "600" }], "body-sm": ["0.8125rem", { lineHeight: "1.125rem", letterSpacing: "0.005em", fontWeight: "400" }], "headline-sm": ["0.875rem", { lineHeight: "1.25rem", letterSpacing: "0em", fontWeight: "600" }], "label-md": ["0.75rem", { lineHeight: "1rem", letterSpacing: "0.04em", fontWeight: "500" }], "label-sm": ["0.6875rem", { lineHeight: "0.875rem", letterSpacing: "0.06em", fontWeight: "500" }] } } } };</script><style>@layer base{html,body{width:100vw;margin:0;padding:0;}body{overscroll-behavior:none;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-surface font-body-md text-body-md text-on-surface flex flex-col min-h-screen antialiased"><header class="fixed top-0 w-full z-50 pt-safe bg-surface/80 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-14 px-space-sm flex items-center justify-between"><div class="flex items-center gap-space-xs"><button aria-label="Quay lại" class="min-w-[44px] min-h-[44px] flex items-center justify-center text-on-surface hover:text-primary-container transition-colors" onclick="history.back()"><span class="material-symbols-outlined text-[22px]">arrow_back</span></button><h1 class="font-headline-md text-headline-md text-on-surface truncate">Tạo Đơn Tráng Phim</h1></div><div class="flex items-center gap-space-sm pr-space-xs"><button aria-label="Tác vụ" class="w-11 h-11 flex items-center justify-center text-on-surface-variant hover:text-on-surface transition-colors"><span class="material-symbols-outlined text-[20px]">more_vert</span></button><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="flex-1 flex flex-col relative w-full pt-14 pb-safe bg-surface"><div class="flex flex-col w-full pb-28">
+<div class="px-margin pt-space-md pb-space-sm flex flex-col gap-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-outline tracking-wider uppercase">ĐƠN TRÁNG #DKR-2024-8841</span>
+<span class="font-label-sm text-label-sm text-secondary px-space-xs py-space-2xs bg-secondary-container/60 rounded">ĐANG XÁC NHẬN</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Kiểm tra thông tin chi tiết bảng kê, địa chỉ lấy film và phương thức thanh toán an toàn.</p>
+</div>
+<div class="px-margin flex flex-col gap-space-md">
+<div class="relative bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden">
+<div class="absolute -top-3 left-1/2 -translate-x-1/2 w-6 h-6 rounded-full bg-surface"></div>
+<div class="p-space-lg flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary text-[20px]">receipt_long</span>
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Bảng kê chi phí minh bạch</h2>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant bg-surface-container px-space-xs py-space-2xs rounded">02 CUỘN FILM</span>
+</div>
+<div class="flex flex-col gap-space-sm font-body-sm text-body-sm text-on-surface-variant">
+<div class="flex items-start justify-between">
+<div class="flex flex-col pr-space-sm">
+<span class="text-on-surface font-headline-sm text-body-md">Tráng &amp; Scan C-41 Tiêu chuẩn</span>
+<span class="font-code-md text-code-md text-outline">2 cuộn × 70.000đ (Độ phân giải L)</span>
+</div>
+<span class="font-code-md text-code-md text-on-surface font-semibold text-right">140.000đ</span>
+</div>
+<div class="flex items-start justify-between">
+<div class="flex flex-col pr-space-sm">
+<span class="text-on-surface">Phụ phí Push +1 Stop</span>
+<span class="font-code-md text-code-md text-outline">1 cuộn Kodak Ultramax 400 → 800</span>
+</div>
+<span class="font-code-md text-code-md text-on-surface font-semibold text-right">20.000đ</span>
+</div>
+<div class="flex items-start justify-between">
+<div class="flex flex-col pr-space-sm">
+<span class="text-on-surface">Phí lấy film tận nơi</span>
+<span class="font-code-md text-code-md text-outline">Ahamove Pickup 4H (Bảo quản râm mát)</span>
+</div>
+<span class="font-code-md text-code-md text-on-surface font-semibold text-right">25.000đ</span>
+</div>
+<div class="flex items-start justify-between">
+<div class="flex flex-col pr-space-sm">
+<span class="text-primary font-medium flex items-center gap-space-2xs">
+<span class="material-symbols-outlined text-[16px]">sell</span>
+                Mã ưu đãi (WELCOME_FILM)
+              </span>
+<span class="font-code-md text-code-md text-outline">Đặc quyền hội viên chụp film mới</span>
+</div>
+<span class="font-code-md text-code-md text-primary font-semibold text-right">-15.000đ</span>
+</div>
+</div>
+<div class="h-px w-full bg-surface-variant"></div>
+<div class="flex items-baseline justify-between pt-space-2xs">
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-outline uppercase tracking-wider">TỔNG THANH TOÁN</span>
+<span class="font-body-sm text-body-sm text-outline">Đã bao gồm VAT &amp; bảo hiểm film</span>
+</div>
+<div class="flex items-baseline gap-space-2xs">
+<span class="font-headline-xl text-headline-xl text-primary font-bold tracking-tight">170.000</span>
+<span class="font-headline-sm text-headline-sm text-primary">đ</span>
+</div>
+</div>
+</div>
+<div class="bg-surface-container-low px-space-lg py-space-sm flex items-center gap-space-xs text-on-surface-variant">
+<span class="material-symbols-outlined text-secondary text-[18px]">verified</span>
+<span class="font-label-sm text-label-sm">Định lượng hóa chất hóa nghiệm Kodak Flexicolor kiểm tra định kỳ mỗi 8h.</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest rounded-xl shadow-sm p-space-lg flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary text-[20px]">local_shipping</span>
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Thông tin lấy film (Ahamove)</h2>
+</div>
+<button class="font-label-sm text-label-sm text-primary px-space-xs py-space-2xs bg-surface-container hover:bg-surface-variant rounded transition-colors">
+          THAY ĐỔI
+        </button>
+</div>
+<div class="flex flex-col gap-space-xs bg-surface-container-low p-space-md rounded-lg">
+<div class="flex items-center justify-between">
+<span class="font-headline-sm text-headline-sm text-on-surface">Nguyễn Hoàng Anh</span>
+<span class="font-code-md text-code-md text-on-surface-variant">0912 345 889</span>
+</div>
+<div class="flex items-start gap-space-xs text-on-surface-variant mt-space-2xs">
+<span class="material-symbols-outlined text-[18px] text-outline shrink-0 mt-0.5">pin_drop</span>
+<span class="font-body-sm text-body-sm">48 Tràng Thi, Phường Hàng Trống, Quận Hoàn Kiếm, Hà Nội</span>
+</div>
+</div>
+<div class="flex items-center gap-space-md p-space-sm bg-surface-container rounded-lg">
+<div class="w-10 h-10 rounded-full bg-surface-container-lowest flex items-center justify-center text-primary shrink-0">
+<span class="material-symbols-outlined text-[22px]">schedule</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-outline uppercase">KHUNG GIỜ TÀI XẾ QUA LẤY</span>
+<span class="font-headline-sm text-headline-sm text-on-surface">Hôm nay, 14:00 – 15:00</span>
+</div>
+</div>
+<div class="flex items-center gap-space-md">
+<div class="w-14 h-14 rounded-lg bg-surface-container overflow-hidden shrink-0">
+<img class="w-full h-full object-cover" data-alt="A vintage metal film canister container safe-padded inside a darkroom linen envelope under soft warm tungsten ambient light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBEvs1nMTSe7jG5Lpjdl7uaMNR7VZtqVQzpH0rHdf-fFKHU_K6ahnVpEQyEQ19mjz9moPxXjVmJYBVvwu4ULwxMdnFd7uOgObgn9acqj3BGuWRgRuITnocapInN3sR1kscw0HOP6VvnVFFHAlyre3lmM7SdBnT86ypv0TELRAeEX_vvjEUFg_crXe1TM_VdozGNB_YWYQJMTMArq4ZH5mDdwOJ2fhe1hbBJ3GkdEIU"/>
+</div>
+<div class="flex flex-col text-on-surface-variant">
+<span class="font-body-sm text-body-sm text-on-surface font-medium">Bảo quản film trước bàn giao</span>
+<span class="font-label-sm text-label-sm text-outline">Bọc kín trong túi zip hoặc hộp nhựa chống tia cực tím và nhiệt độ cao.</span>
+</div>
+</div>
+</div>
+<div class="bg-surface-container-lowest rounded-xl shadow-sm p-space-lg flex flex-col gap-space-md">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary text-[20px]">payments</span>
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Phương thức thanh toán</h2>
+</div>
+<div class="flex flex-col gap-space-sm" id="payment-options">
+<label class="cursor-pointer flex items-center justify-between p-space-md rounded-lg bg-surface-container-high transition-colors payment-item">
+<div class="flex items-center gap-space-md">
+<div class="w-9 h-9 rounded-lg bg-surface-container-lowest flex items-center justify-center text-primary shrink-0 shadow-sm">
+<span class="material-symbols-outlined text-[20px]">qr_code_scanner</span>
+</div>
+<div class="flex flex-col">
+<span class="font-headline-sm text-headline-sm text-on-surface">Cổng Online (VNPAY / QR Napas)</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Thẻ ATM nội địa, Thẻ Visa/Mastercard</span>
+</div>
+</div>
+<input checked="" class="w-5 h-5 text-primary accent-primary cursor-pointer" name="payment_method" type="radio" value="online"/>
+</label>
+<label class="cursor-pointer flex items-center justify-between p-space-md rounded-lg bg-surface-container-low transition-colors payment-item hover:bg-surface-container">
+<div class="flex items-center gap-space-md">
+<div class="w-9 h-9 rounded-lg bg-surface-container-lowest flex items-center justify-center text-primary shrink-0 shadow-sm">
+<span class="material-symbols-outlined text-[20px]">account_balance_wallet</span>
+</div>
+<div class="flex flex-col">
+<span class="font-headline-sm text-headline-sm text-on-surface">Ví điện tử MoMo</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Xác thực tức thời qua app MoMo</span>
+</div>
+</div>
+<input class="w-5 h-5 text-primary accent-primary cursor-pointer" name="payment_method" type="radio" value="momo"/>
+</label>
+<label class="cursor-not-allowed opacity-60 flex items-center justify-between p-space-md rounded-lg bg-surface-container-low payment-item">
+<div class="flex items-center gap-space-md">
+<div class="w-9 h-9 rounded-lg bg-surface-container-lowest flex items-center justify-center text-outline shrink-0">
+<span class="material-symbols-outlined text-[20px]">local_atm</span>
+</div>
+<div class="flex flex-col">
+<div class="flex items-center gap-space-xs">
+<span class="font-headline-sm text-headline-sm text-on-surface">Tiền mặt (COD)</span>
+<span class="font-label-sm text-label-sm bg-surface-variant px-space-xs py-space-2xs rounded text-outline">CHƯA KHẢ DỤNG</span>
+</div>
+<span class="font-body-sm text-body-sm text-outline">Chỉ áp dụng khi tự mang film tới tiệm Lab</span>
+</div>
+</div>
+<input class="w-5 h-5 text-outline cursor-not-allowed" disabled="" name="payment_method" type="radio" value="cod"/>
+</label>
+</div>
+</div>
+<div class="bg-surface-container-lowest rounded-xl shadow-sm p-space-lg flex flex-col gap-space-sm">
+<div class="flex items-start gap-space-md">
+<div class="w-10 h-10 rounded-full bg-secondary-container/60 text-secondary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[22px]">policy</span>
+</div>
+<div class="flex flex-col gap-space-2xs">
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Chính sách bảo trợ ảnh Darkroom</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+            Hoàn tiền 100% nếu phim bị trắng (Blank Film) phí scan, bảo hiểm hỏng hóc 1 đổi 1 cuộn phim mới tương đương.
+          </p>
+</div>
+</div>
+<div class="h-px w-full bg-surface-variant my-space-2xs"></div>
+<label class="flex items-start gap-space-sm cursor-pointer select-none">
+<input checked="" class="w-5 h-5 rounded text-primary accent-primary mt-0.5 cursor-pointer" id="policy-checkbox" type="checkbox"/>
+<span class="font-body-sm text-body-sm text-on-surface">
+          Tôi đã kiểm tra kỹ thông tin đơn hàng và đồng ý với <span class="text-primary underline">Điều khoản dịch vụ tráng rọi</span> của Lab.
+        </span>
+</label>
+</div>
+<div class="flex items-center justify-center gap-space-sm py-space-xs text-outline font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[16px]">lock</span>
+<span>GIAO DỊCH BẢO MẬT THEO TIÊU CHUẨN SSL 256-BIT</span>
+</div>
+</div>
+<div class="fixed bottom-0 left-0 right-0 z-40 bg-surface/95 backdrop-blur-md px-margin py-space-sm shadow-xl flex flex-col gap-space-xs">
+<div class="flex items-center justify-between text-on-surface-variant">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-secondary text-[16px]">task_alt</span>
+<span class="font-label-sm text-label-sm">ĐÃ ÁP DỤNG MÃ: WELCOME_FILM</span>
+</div>
+<span class="font-code-md text-code-md font-semibold text-primary">TIẾT KIỆM 15.000đ</span>
+</div>
+<button class="w-full h-12 bg-primary-container hover:bg-primary active:bg-primary-container text-on-primary font-headline-sm text-headline-sm rounded-lg flex items-center justify-between px-space-lg shadow-md transition-all" id="checkout-submit-btn">
+<span class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[20px]">check_circle</span>
+<span>Xác nhận &amp; Thanh toán</span>
+</span>
+<span class="font-code-md text-code-md font-bold tracking-wide">170.000đ</span>
+</button>
+</div>
+</div>
+<script>
+  (function() {
+    const radioInputs = document.querySelectorAll('input[name="payment_method"]');
+    const policyCheck = document.getElementById('policy-checkbox');
+    const submitBtn = document.getElementById('checkout-submit-btn');
+
+    radioInputs.forEach(radio => {
+      radio.addEventListener('change', () => {
+        document.querySelectorAll('.payment-item').forEach(item => {
+          if (!item.classList.contains('cursor-not-allowed')) {
+            item.classList.remove('bg-surface-container-high');
+            item.classList.add('bg-surface-container-low');
+          }
+        });
+        if (radio.checked) {
+          const parent = radio.closest('.payment-item');
+          if (parent) {
+            parent.classList.remove('bg-surface-container-low');
+            parent.classList.add('bg-surface-container-high');
+          }
+        }
+      });
+    });
+
+    if (policyCheck && submitBtn) {
+      policyCheck.addEventListener('change', (e) => {
+        if (!e.target.checked) {
+          submitBtn.classList.add('opacity-50', 'pointer-events-none');
+        } else {
+          submitBtn.classList.remove('opacity-50', 'pointer-events-none');
+        }
+      });
+    }
+
+    if (submitBtn) {
+      submitBtn.addEventListener('click', () => {
+        submitBtn.innerHTML = '<span class="flex items-center gap-2 mx-auto"><span class="material-symbols-outlined text-[20px] animate-spin">refresh</span> Đang chuyển cổng thanh toán...</span>';
+        setTimeout(() => {
+          alert('Đang kết nối đến cổng thanh toán VNPAY / Napas 247 an toàn.');
+        }, 300);
+      });
+    }
+  })();
+</script></main></body></html>

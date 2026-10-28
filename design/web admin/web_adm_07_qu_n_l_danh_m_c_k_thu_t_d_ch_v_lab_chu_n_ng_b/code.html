@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+
+<html lang="vi"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{colors:{"surface-container-high":"#efe7e0","inverse-primary":"#ffb691","on-primary":"#ffffff","on-secondary-container":"#4a6b5d","surface":"#fff8f3","on-tertiary-fixed-variant":"#4f453a","primary-fixed":"#ffdbcb","error-container":"#ffdad6","surface-container-highest":"#e9e1da","secondary-fixed-dim":"#abcebe","surface-container-low":"#faf2eb","primary-fixed-dim":"#ffb691","background":"#fff8f3","secondary":"#446557","on-tertiary":"#ffffff","surface-dim":"#e0d9d2","secondary-fixed":"#c6ebd9","tertiary-container":"#74685c","outline-variant":"#dcc1b5","tertiary":"#5b5045","surface-variant":"#e9e1da","on-secondary":"#ffffff","on-primary-container":"#ffe6dc","tertiary-fixed":"#f0e0d1","surface-container-lowest":"#ffffff","surface-container":"#f4ede6","on-secondary-fixed-variant":"#2d4d40","secondary-container":"#c6ebd9","inverse-surface":"#33302b","inverse-on-surface":"#f7efe8","on-error-container":"#93000a","primary-container":"#a9511c","on-tertiary-container":"#f9e8d9","on-error":"#ffffff","on-primary-fixed":"#341100","on-surface":"#1e1b17","surface-bright":"#fff8f3","primary":"#8a3a03","on-surface-variant":"#55433a","error":"#ba1a1a","on-background":"#1e1b17","on-primary-fixed-variant":"#793100","surface-tint":"#9a4610","on-tertiary-fixed":"#221a11","tertiary-fixed-dim":"#d3c4b6","on-secondary-fixed":"#002116","outline":"#887268"},borderRadius:{DEFAULT:"0.125rem",lg:"0.25rem",xl:"0.5rem",full:"0.75rem"},spacing:{"space-2xs":"0.125rem","space-md":"0.75rem","gutter-lg":"1.25rem","margin-lg":"1.5rem",gutter:"0.75rem","margin-md":"1.25rem","space-lg":"1rem",margin:"1rem","gutter-md":"1rem","space-sm":"0.5rem","space-xs":"0.25rem","space-xl":"1.5rem"},fontFamily:{"headline-xl":["IBM Plex Sans"],"headline-md":["IBM Plex Sans"],"headline-lg":["IBM Plex Sans"],"body-md":["IBM Plex Sans"],"label-md":["IBM Plex Mono"],"headline-sm":["IBM Plex Sans"],"label-sm":["IBM Plex Mono"],"body-sm":["IBM Plex Sans"],"code-md":["IBM Plex Mono"]},fontSize:{"headline-xl":["1.75rem",{lineHeight:"2.125rem",letterSpacing:"-0.015em",fontWeight:"600"}],"headline-md":["1rem",{lineHeight:"1.375rem",letterSpacing:"-0.005em",fontWeight:"600"}],"headline-lg":["1.25rem",{lineHeight:"1.625rem",letterSpacing:"-0.01em",fontWeight:"600"}],"body-md":["0.875rem",{lineHeight:"1.25rem",letterSpacing:"0em",fontWeight:"400"}],"label-md":["0.75rem",{lineHeight:"1rem",letterSpacing:"0.04em",fontWeight:"500"}],"headline-sm":["0.875rem",{lineHeight:"1.25rem",letterSpacing:"0em",fontWeight:"600"}],"label-sm":["0.6875rem",{lineHeight:"0.875rem",letterSpacing:"0.06em",fontWeight:"500"}],"body-sm":["0.8125rem",{lineHeight:"1.125rem",letterSpacing:"0.005em",fontWeight:"400"}],"code-md":["0.8125rem",{lineHeight:"1.125rem",letterSpacing:"0em",fontWeight:"400"}]}}}};</script></head><body class="bg-surface font-body-md text-body-md text-on-surface"><aside class="fixed left-0 top-0 h-full w-64 bg-surface-container-lowest border-r border-outline-variant z-50 flex flex-col justify-between select-none"><div class="flex flex-col"><div class="px-space-lg py-space-lg border-b border-outline-variant bg-surface-container-lowest"><div class="flex items-center justify-between"><span class="font-headline-md text-headline-md font-bold tracking-tight text-on-surface">MINILAB ARCHIVE</span><span class="font-label-sm text-label-sm px-space-xs py-space-2xs bg-primary-container text-on-primary rounded">SYS.ADM</span></div><p class="font-label-sm text-label-sm text-tertiary mt-space-2xs uppercase tracking-wider">HỆ THỐNG VẬN HÀNH</p></div><div class="px-space-lg pt-space-lg pb-space-xs"><span class="font-label-sm text-label-sm text-tertiary uppercase tracking-wider block">SỔ QUẢN TRỊ &amp; ĐIỀU HÀNH</span></div><nav class="px-space-sm space-y-space-2xs" data-active-classes="bg-primary-container text-on-primary font-medium rounded-lg"><a class="flex items-center justify-between px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="tong-quan-van-hanh" href="#"><span class="font-body-sm text-body-sm">1. Tổng quan vận hành</span><span class="font-label-sm text-label-sm opacity-60">ADM-02</span></a><a class="flex items-center justify-between px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="tai-khoan-phan-quyen" href="#"><span class="font-body-sm text-body-sm">2. Tài khoản &amp; Phân quyền</span><span class="font-label-sm text-label-sm opacity-60">ADM-03</span></a><a class="flex items-center justify-between px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="tham-dinh-doi-tac" href="#"><span class="font-body-sm text-body-sm">3. Thẩm định đối tác</span><span class="font-label-sm text-label-sm opacity-60">ADM-04</span></a><a class="flex items-center justify-between px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="kiem-duyet-san-mua-ban" href="#"><span class="font-body-sm text-body-sm">4. Kiểm duyệt sàn mua bán</span><span class="font-label-sm text-label-sm opacity-60">ADM-05</span></a><a class="flex items-center justify-between px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="hau-kiem-cong-dong" href="#"><span class="font-body-sm text-body-sm">5. Hậu kiểm cộng đồng</span><span class="font-label-sm text-label-sm opacity-60">ADM-06</span></a><a class="flex items-center justify-between px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="danh-muc-ky-thuat-lab" href="#"><span class="font-body-sm text-body-sm">6. Danh mục kỹ thuật &amp; Lab</span><span class="font-label-sm text-label-sm opacity-60">ADM-07</span></a><a class="flex items-center justify-between px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="khieu-nai-hoan-tien" href="#"><span class="font-body-sm text-body-sm">7. Khiếu nại &amp; Hoàn tiền</span><span class="font-label-sm text-label-sm opacity-60">ADM-08</span></a><a class="flex items-center justify-between px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="nhat-ky-kiem-toan" href="#"><span class="font-body-sm text-body-sm">8. Nhật ký kiểm toán</span><span class="font-label-sm text-label-sm opacity-60">ADM-09</span></a></nav></div><div class="p-space-lg border-t border-outline-variant bg-surface-container-low"><div class="flex items-center justify-between"><span class="font-label-sm text-label-sm text-tertiary">v4.8.2-PROD</span><div class="flex items-center gap-space-xs"><span class="w-2 h-2 rounded-full bg-secondary inline-block"></span><span class="font-label-sm text-label-sm text-secondary font-medium">ONLINE</span></div></div><p class="font-label-sm text-label-sm text-outline mt-space-2xs">BẢN PHÁT HÀNH ĐỘC QUYỀN</p></div></aside><div class="pl-64"><header class="fixed top-0 left-64 right-0 h-16 bg-surface-container-lowest border-b border-outline-variant z-40 flex items-center justify-between px-margin-lg"><div class="flex items-center gap-space-md"><span class="font-label-sm text-label-sm text-tertiary tracking-wider uppercase">HỆ THỐNG / VẬN HÀNH TRUNG TÂM</span></div><div class="flex items-center gap-space-lg"><div class="relative flex items-center"><span class="material-symbols-outlined absolute left-space-md text-outline text-[18px]">search</span><input class="w-80 h-8 pl-9 pr-12 bg-surface-container-low border border-outline-variant rounded-lg font-body-sm text-body-sm text-on-surface placeholder:text-outline focus:outline-none focus:border-primary" placeholder="Tra cứu mã phiếu, lab, đơn hàng..." type="text"/><kbd class="absolute right-space-sm px-space-xs py-space-2xs bg-surface-container-highest border border-outline-variant rounded font-label-sm text-label-sm text-tertiary">⌘ K</kbd></div><div class="flex items-center gap-space-md border-l border-outline-variant pl-space-lg"><button class="relative p-space-xs text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors rounded" type="button"><span class="material-symbols-outlined text-[20px]">notifications</span><span class="absolute 0 top-0 -right-1 min-w-[16px] h-4 px-1 rounded-full bg-primary text-on-primary font-label-sm text-label-sm flex items-center justify-center leading-none">7</span></button><div class="flex items-center gap-space-sm pl-space-xs"><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-on-primary font-label-md text-label-md font-bold">VT</div><div class="flex flex-col text-left"><span class="font-headline-sm text-headline-sm text-on-surface leading-tight">Vũ Minh Tuấn</span><span class="font-label-sm text-label-sm text-tertiary uppercase leading-none">CHỈ HUY HỆ THỐNG</span></div></div></div></div></header><main class="relative pt-16 bg-surface min-h-screen"><div class="w-full max-w-[1440px] px-margin-lg py-margin"><div class="w-8 h-8 rounded-full bg-primary hidden items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div><div class="flex flex-col w-full">
+<!-- PAGE HEADER -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-space-md pb-space-lg">
+<div class="flex flex-col gap-space-2xs">
+<div class="flex items-center gap-space-sm flex-wrap">
+<span class="font-headline-lg text-headline-lg text-on-surface tracking-tight font-bold">Danh mục Kỹ thuật &amp; Dịch vụ Lab</span>
+<span class="font-label-sm text-label-sm px-space-xs py-space-2xs rounded bg-secondary-container text-on-secondary-container font-medium tracking-wide">AN TOÀN HỆ THỐNG</span>
+<span class="font-label-sm text-label-sm px-space-xs py-space-2xs rounded bg-surface-container text-tertiary font-mono">SYS-CATALOG-07</span>
+</div>
+<p class="font-body-sm text-body-sm text-tertiary">
+        Quy chuẩn định dạng vật tư, kiểm soát dung sai hóa tráng và giám sát niêm yết biểu phí dịch vụ trên toàn mạng lưới đối tác.
+      </p>
+</div>
+<div class="flex items-center gap-space-md self-start md:self-auto">
+<div class="flex items-center gap-space-xs px-space-md py-space-xs rounded-lg bg-surface-container-high text-tertiary">
+<span class="material-symbols-outlined text-[16px] text-tertiary">verified</span>
+<span class="font-label-sm text-label-sm font-semibold tracking-wider">REV-2024.11 / ISO-1007</span>
+</div>
+<button class="flex items-center gap-space-xs h-8 px-space-md bg-primary text-on-primary rounded font-body-sm text-body-sm font-medium hover:bg-primary-container transition-colors shadow-sm" type="button">
+<span class="material-symbols-outlined text-[16px]">add</span>
+<span>Thêm chuẩn định dạng</span>
+</button>
+</div>
+</div>
+<!-- METRIC SUMMARY STRIP -->
+<div class="grid grid-cols-2 md:grid-cols-4 gap-space-md mb-space-lg">
+<div class="p-space-md rounded-xl bg-surface-container-lowest shadow-sm flex flex-col justify-between">
+<div class="flex items-center justify-between text-tertiary mb-space-xs">
+<span class="font-label-sm text-label-sm uppercase tracking-wider">Tổng dịch vụ hoạt động</span>
+<span class="material-symbols-outlined text-[18px]">photo_library</span>
+</div>
+<div class="flex items-baseline gap-space-xs">
+<span class="font-headline-xl text-headline-xl font-bold text-on-surface">342</span>
+<span class="font-label-sm text-label-sm text-secondary font-medium">+12 tuần này</span>
+</div>
+</div>
+<div class="p-space-md rounded-xl bg-surface-container-lowest shadow-sm flex flex-col justify-between">
+<div class="flex items-center justify-between text-tertiary mb-space-xs">
+<span class="font-label-sm text-label-sm uppercase tracking-wider">Lab đạt chuẩn quy trình</span>
+<span class="material-symbols-outlined text-[18px]">science</span>
+</div>
+<div class="flex items-baseline gap-space-xs">
+<span class="font-headline-xl text-headline-xl font-bold text-on-surface">27/28</span>
+<span class="font-label-sm text-label-sm text-secondary font-medium">96.4% tuân thủ</span>
+</div>
+</div>
+<div class="p-space-md rounded-xl bg-surface-container-lowest shadow-sm flex flex-col justify-between">
+<div class="flex items-center justify-between text-tertiary mb-space-xs">
+<span class="font-label-sm text-label-sm uppercase tracking-wider">Vi phạm niêm yết</span>
+<span class="material-symbols-outlined text-[18px] text-error">flag</span>
+</div>
+<div class="flex items-baseline gap-space-xs">
+<span class="font-headline-xl text-headline-xl font-bold text-error">03</span>
+<span class="font-label-sm text-label-sm text-tertiary">Đã cưỡng chế ẩn</span>
+</div>
+</div>
+<div class="p-space-md rounded-xl bg-surface-container-lowest shadow-sm flex flex-col justify-between">
+<div class="flex items-center justify-between text-tertiary mb-space-xs">
+<span class="font-label-sm text-label-sm uppercase tracking-wider">Máy scan kiểm định</span>
+<span class="material-symbols-outlined text-[18px]">scanner</span>
+</div>
+<div class="flex items-baseline gap-space-xs">
+<span class="font-headline-xl text-headline-xl font-bold text-on-surface">64</span>
+<span class="font-label-sm text-label-sm text-tertiary">Noritsu &amp; Frontier</span>
+</div>
+</div>
+</div>
+<!-- KHỐI 1: QUY CHUẨN KỸ THUẬT TOÀN SÀN -->
+<section class="bg-surface-container-lowest rounded-xl p-space-lg mb-space-lg shadow-sm">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-xs pb-space-md mb-space-md">
+<div class="flex items-center gap-space-sm">
+<div class="w-2 h-4 bg-primary rounded-full"></div>
+<div>
+<h2 class="font-headline-md text-headline-md font-bold text-on-surface tracking-tight">QUY CHUẨN KỸ THUẬT TOÀN SÀN</h2>
+<span class="font-label-sm text-label-sm text-tertiary uppercase">BẢNG THÔNG SỐ VẬT TƯ &amp; QUY TRÌNH HÓA TRÁNG ÁP DỤNG BẮT BUỘC</span>
+</div>
+</div>
+<div class="flex items-center gap-space-xs text-tertiary font-label-sm text-label-sm">
+<span class="inline-block w-2 h-2 rounded-full bg-secondary"></span>
+<span>ĐANG ĐỒNG BỘ REALTIME VỚI IOT SENSOR LABS</span>
+</div>
+</div>
+<!-- 2 Sub-columns: Khổ phim vs Quy trình hóa chất -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-space-lg">
+<!-- Cột 1: Khổ film -->
+<div class="flex flex-col gap-space-sm p-space-md rounded-lg bg-surface-container-low">
+<div class="flex items-center justify-between pb-space-xs">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary text-[20px]">filter_center_focus</span>
+<span class="font-headline-sm text-headline-sm text-on-surface uppercase tracking-wide">1. QUY CHUẨN KHỔ FILM (FORMATS)</span>
+</div>
+<span class="font-label-sm text-label-sm text-tertiary font-mono">4 HẠNG MỤC</span>
+</div>
+<div class="space-y-space-sm">
+<!-- Item 1: 135 -->
+<div class="flex items-start justify-between p-space-sm bg-surface-container-lowest rounded-lg shadow-sm">
+<div class="flex flex-col">
+<div class="flex items-center gap-space-xs mb-space-2xs">
+<span class="font-headline-sm text-headline-sm text-on-surface font-semibold">135 (35mm Standard)</span>
+<span class="font-label-sm text-label-sm px-space-xs py-space-2xs bg-secondary-container text-on-secondary-container rounded font-medium">PHỔ THÔNG</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Phim cuộn đục lỗ 36x24mm tiêu chuẩn. Yêu cầu cuộn nạp cassette nguyên bản hoặc vỏ nhựa có mã DX.</p>
+<span class="font-label-sm text-label-sm text-tertiary font-mono mt-space-2xs">Độ phân giải scan tối thiểu: 3000 x 2000 px</span>
+</div>
+<span class="font-label-sm text-label-sm font-mono text-tertiary bg-surface-container px-space-xs py-space-2xs rounded">FMT-135</span>
+</div>
+<!-- Item 2: 120 -->
+<div class="flex items-start justify-between p-space-sm bg-surface-container-lowest rounded-lg shadow-sm">
+<div class="flex flex-col">
+<div class="flex items-center gap-space-xs mb-space-2xs">
+<span class="font-headline-sm text-headline-sm text-on-surface font-semibold">120 (Medium Format)</span>
+<span class="font-label-sm text-label-sm px-space-xs py-space-2xs bg-secondary-container text-on-secondary-container rounded font-medium">PHỔ THÔNG</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Khổ 6x4.5, 6x6, 6x7, 6x9 với giấy lót cuộn bảo vệ. Bắt buộc kiểm tra độ phẳng phim trước khi cho qua scan kính.</p>
+<span class="font-label-sm text-label-sm text-tertiary font-mono mt-space-2xs">Độ phân giải scan tối thiểu: 4800 x 4800 px</span>
+</div>
+<span class="font-label-sm text-label-sm font-mono text-tertiary bg-surface-container px-space-xs py-space-2xs rounded">FMT-120</span>
+</div>
+<!-- Item 3: 110 -->
+<div class="flex items-start justify-between p-space-sm bg-surface-container-lowest rounded-lg shadow-sm">
+<div class="flex flex-col">
+<div class="flex items-center gap-space-xs mb-space-2xs">
+<span class="font-headline-sm text-headline-sm text-on-surface font-semibold">110 Pocket Film</span>
+<span class="font-label-sm text-label-sm px-space-xs py-space-2xs bg-surface-container-highest text-tertiary rounded font-medium">CHUYÊN BIỆT</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Hộp cartridge mini 13x17mm. Chỉ các lab sở hữu adapter khung gá chuyên dụng mới được cấp quyền nhận đơn.</p>
+<span class="font-label-sm text-label-sm text-tertiary font-mono mt-space-2xs">Adapter gá: Noritsu Carrier 110-V / SP-3000</span>
+</div>
+<span class="font-label-sm text-label-sm font-mono text-tertiary bg-surface-container px-space-xs py-space-2xs rounded">FMT-110</span>
+</div>
+<!-- Item 4: 4x5 -->
+<div class="flex items-start justify-between p-space-sm bg-surface-container-lowest rounded-lg shadow-sm">
+<div class="flex flex-col">
+<div class="flex items-center gap-space-xs mb-space-2xs">
+<span class="font-headline-sm text-headline-sm text-on-surface font-semibold">4x5 Large Format (Sheet Film)</span>
+<span class="font-label-sm text-label-sm px-space-xs py-space-2xs bg-primary-fixed text-on-primary-fixed rounded font-medium">KỸ THUẬT CAO</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Phim lá tấm rời xử lý từng lá trong tank quay Jobo hoặc tray tối. Yêu cầu scan phẳng thấu kính khô hoặc máy quét Epson V850 Pro.</p>
+<span class="font-label-sm text-label-sm text-tertiary font-mono mt-space-2xs">Mật độ quang học yêu cầu: D-Max &gt; 3.6</span>
+</div>
+<span class="font-label-sm text-label-sm font-mono text-tertiary bg-surface-container px-space-xs py-space-2xs rounded">FMT-4X5</span>
+</div>
+</div>
+</div>
+<!-- Cột 2: Quy trình hóa chất & Giám sát nhiệt độ -->
+<div class="flex flex-col gap-space-sm p-space-md rounded-lg bg-surface-container-low">
+<div class="flex items-center justify-between pb-space-xs">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary text-[20px]">thermostat</span>
+<span class="font-headline-sm text-headline-sm text-on-surface uppercase tracking-wide">2. QUY TRÌNH HÓA CHẤT &amp; DUNG SAI NHIỆT ĐỘ</span>
+</div>
+<span class="font-label-sm text-label-sm text-tertiary font-mono">BẮT BUỘC TEST STRIP HẰNG NGÀY</span>
+</div>
+<div class="space-y-space-sm">
+<!-- C-41 -->
+<div class="p-space-sm bg-surface-container-lowest rounded-lg shadow-sm">
+<div class="flex items-center justify-between mb-space-2xs">
+<div class="flex items-center gap-space-xs">
+<span class="font-headline-sm text-headline-sm font-semibold text-on-surface">C-41 Tiêu Chuẩn (Color Negative)</span>
+<span class="font-label-sm text-label-sm px-space-xs py-space-2xs bg-primary-fixed-dim text-on-primary-fixed rounded font-mono">ISO-DEV-01</span>
+</div>
+<div class="flex items-center gap-space-xs bg-surface-container px-space-sm py-space-2xs rounded">
+<span class="material-symbols-outlined text-[16px] text-primary">device_thermostat</span>
+<span class="font-label-md text-label-md font-bold text-primary">38.0°C ±0.2</span>
+</div>
+</div>
+<div class="flex items-center justify-between text-body-sm text-on-surface-variant">
+<span>Hóa chất kiểm định: Fuji Hunt EnviroNeg / Champion SP</span>
+<span class="font-label-sm text-label-sm text-secondary font-mono font-medium">BỂ ỔN ĐỊNH: ĐẠT CHUẨN</span>
+</div>
+</div>
+<!-- B&W -->
+<div class="p-space-sm bg-surface-container-lowest rounded-lg shadow-sm">
+<div class="flex items-center justify-between mb-space-2xs">
+<div class="flex items-center gap-space-xs">
+<span class="font-headline-sm text-headline-sm font-semibold text-on-surface">B&amp;W Thủ Công (Đen Trắng Cổ Điển)</span>
+<span class="font-label-sm text-label-sm px-space-xs py-space-2xs bg-surface-container-highest text-tertiary rounded font-mono">ISO-DEV-02</span>
+</div>
+<div class="flex items-center gap-space-xs bg-surface-container px-space-sm py-space-2xs rounded">
+<span class="material-symbols-outlined text-[16px] text-tertiary">device_thermostat</span>
+<span class="font-label-md text-label-md font-bold text-on-surface">20.0°C ±0.5</span>
+</div>
+</div>
+<div class="flex items-center justify-between text-body-sm text-on-surface-variant">
+<span>Thuốc hiện: Kodak D-76, X-Tol hoặc Ilford ID-11 tùy nhũ tương</span>
+<span class="font-label-sm text-label-sm text-secondary font-mono font-medium">BỂ ỔN ĐỊNH: ĐẠT CHUẨN</span>
+</div>
+</div>
+<!-- ECN-2 -->
+<div class="p-space-sm bg-surface-container-lowest rounded-lg shadow-sm">
+<div class="flex items-center justify-between mb-space-2xs">
+<div class="flex items-center gap-space-xs">
+<span class="font-headline-sm text-headline-sm font-semibold text-on-surface">ECN-2 Điện Ảnh (Remjet Removal)</span>
+<span class="font-label-sm text-label-sm px-space-xs py-space-2xs bg-primary-fixed-dim text-on-primary-fixed rounded font-mono">ISO-DEV-03</span>
+</div>
+<div class="flex items-center gap-space-xs bg-surface-container px-space-sm py-space-2xs rounded">
+<span class="material-symbols-outlined text-[16px] text-primary">device_thermostat</span>
+<span class="font-label-md text-label-md font-bold text-primary">41.1°C ±0.1</span>
+</div>
+</div>
+<div class="flex items-center justify-between text-body-sm text-on-surface-variant">
+<span>Bắt buộc bể sục Pre-bath tẩy sạch muội than carbon 100% trước CD</span>
+<span class="font-label-sm text-label-sm text-secondary font-mono font-medium">GIÁM SÁT NGHIÊM NGẶT</span>
+</div>
+</div>
+<!-- E-6 -->
+<div class="p-space-sm bg-surface-container-lowest rounded-lg shadow-sm">
+<div class="flex items-center justify-between mb-space-2xs">
+<div class="flex items-center gap-space-xs">
+<span class="font-headline-sm text-headline-sm font-semibold text-on-surface">E-6 Dương Bản (Color Reversal Slide)</span>
+<span class="font-label-sm text-label-sm px-space-xs py-space-2xs bg-primary-fixed-dim text-on-primary-fixed rounded font-mono">ISO-DEV-04</span>
+</div>
+<div class="flex items-center gap-space-xs bg-surface-container px-space-sm py-space-2xs rounded">
+<span class="material-symbols-outlined text-[16px] text-primary">device_thermostat</span>
+<span class="font-label-md text-label-md font-bold text-primary">38.0°C ±0.1</span>
+</div>
+</div>
+<div class="flex items-center justify-between text-body-sm text-on-surface-variant">
+<span>Quy trình 6 bước (FD, Rev, CD, Cond, Bleach, Fix). Kiểm soát pH tự động</span>
+<span class="font-label-sm text-label-sm text-secondary font-mono font-medium">BỂ ỔN ĐỊNH: ĐẠT CHUẨN</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- KHỐI 2: BẢNG DỊCH VỤ FILM LAB ĐỐI TÁC -->
+<section class="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm">
+<!-- Header Khối 2 -->
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-space-md mb-space-lg">
+<div class="flex items-center gap-space-sm">
+<div class="w-2 h-4 bg-primary rounded-full"></div>
+<div>
+<h2 class="font-headline-md text-headline-md font-bold text-on-surface tracking-tight">BẢNG DỊCH VỤ FILM LAB ĐỐI TÁC</h2>
+<span class="font-label-sm text-label-sm text-tertiary uppercase">DANH SÁCH MENU DỊCH VỤ ĐANG NIÊM YẾT VÀ PHÊ DUYỆT TRÊN SÀN</span>
+</div>
+</div>
+<div class="flex items-center gap-space-sm">
+<button class="flex items-center gap-space-xs h-8 px-space-md bg-surface-container text-on-surface rounded font-body-sm text-body-sm hover:bg-surface-container-high transition-colors" type="button">
+<span class="material-symbols-outlined text-[16px]">file_download</span>
+<span>Xuất bảng CSV</span>
+</button>
+<button class="flex items-center gap-space-xs h-8 px-space-md bg-surface-container text-on-surface rounded font-body-sm text-body-sm hover:bg-surface-container-high transition-colors" type="button">
+<span class="material-symbols-outlined text-[16px]">sync</span>
+<span>Cập nhật bảng giá</span>
+</button>
+</div>
+</div>
+<!-- Thanh lọc & tìm kiếm -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-space-sm p-space-sm rounded-lg bg-surface-container-low mb-space-md">
+<!-- Dropdown Lab -->
+<div class="md:col-span-4 relative">
+<label class="block font-label-sm text-label-sm text-tertiary uppercase mb-space-2xs">LỌC THEO PHÒNG TRÁNG (LAB)</label>
+<div class="relative">
+<select class="w-full h-8 pl-space-sm pr-8 bg-surface-container-lowest rounded font-body-sm text-body-sm text-on-surface focus:outline-none focus:ring-1 focus:ring-primary appearance-none cursor-pointer" id="filterLab">
+<option value="all">Tất cả tiệm Lab (28 đối tác)</option>
+<option value="LAB-SGN-004">Saigon Darkroom (LAB-SGN-004)</option>
+<option value="LAB-HAN-001">Llab Darkroom (LAB-HAN-001)</option>
+<option value="LAB-X-999">Tiệm Film X (LAB-X-999)</option>
+<option value="LAB-DNG-008">Cropped Lab (LAB-DNG-008)</option>
+</select>
+<span class="material-symbols-outlined pointer-events-none absolute right-2 top-2 text-[18px] text-tertiary">arrow_drop_down</span>
+</div>
+</div>
+<!-- Dropdown Hóa chất -->
+<div class="md:col-span-3 relative">
+<label class="block font-label-sm text-label-sm text-tertiary uppercase mb-space-2xs">QUY TRÌNH HÓA CHẤT</label>
+<div class="relative">
+<select class="w-full h-8 pl-space-sm pr-8 bg-surface-container-lowest rounded font-body-sm text-body-sm text-on-surface focus:outline-none focus:ring-1 focus:ring-primary appearance-none cursor-pointer" id="filterProcess">
+<option value="all">Tất cả quy trình hóa chất</option>
+<option value="C-41">C-41 Tiêu chuẩn</option>
+<option value="B&amp;W">B&amp;W Đen trắng</option>
+<option value="ECN-2">ECN-2 Remjet</option>
+<option value="E-6">E-6 Slide</option>
+<option value="INVALID">Sai quy chuẩn sàn</option>
+</select>
+<span class="material-symbols-outlined pointer-events-none absolute right-2 top-2 text-[18px] text-tertiary">arrow_drop_down</span>
+</div>
+</div>
+<!-- Ô tìm kiếm -->
+<div class="md:col-span-5">
+<label class="block font-label-sm text-label-sm text-tertiary uppercase mb-space-2xs">TÌM KIẾM THEO TÊN HOẶC THIẾT BỊ</label>
+<div class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-space-sm text-tertiary text-[18px]">search</span>
+<input class="w-full h-8 pl-8 pr- space-md bg-surface-container-lowest rounded font-body-sm text-body-sm text-on-surface placeholder:text-outline focus:outline-none focus:ring-1 focus:ring-primary" id="searchInput" placeholder="Tìm kiếm tên dịch vụ, máy scan, mã vạch..." type="text"/>
+</div>
+</div>
+</div>
+<!-- BẢNG DỮ LIỆU DỊCH VỤ CHUẨN -->
+<div class="overflow-x-auto rounded-lg">
+<table class="w-full text-left" id="servicesTable">
+<thead>
+<tr class="bg-surface-container-high text-tertiary">
+<th class="py-space-sm px-space-md font-label-sm text-label-sm uppercase font-medium">TIỆM LAB / MÃ ĐỐI TÁC</th>
+<th class="py-space-sm px-space-md font-label-sm text-label-sm uppercase font-medium">TÊN DỊCH VỤ NIÊM YẾT</th>
+<th class="py-space-sm px-space-md font-label-sm text-label-sm uppercase font-medium">KHỔ &amp; QUY TRÌNH</th>
+<th class="py-space-sm px-space-md font-label-sm text-label-sm uppercase font-medium text-right">ĐƠN GIÁ (VND)</th>
+<th class="py-space-sm px-space-md font-label-sm text-label-sm uppercase font-medium text-center">TRẠNG THÁI</th>
+<th class="py-space-sm px-space-md font-label-sm text-label-sm uppercase font-medium text-right">THAO TÁC ADMIN</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-container bg-surface-container-lowest">
+<!-- Dòng 1: Saigon Darkroom -->
+<tr class="hover:bg-surface-container transition-colors service-row" data-lab="LAB-SGN-004" data-process="ECN-2">
+<td class="py-space-sm px-space-md">
+<div class="flex flex-col">
+<span class="font-headline-sm text-headline-sm font-semibold text-on-surface">Saigon Darkroom</span>
+<span class="font-label-sm text-label-sm text-tertiary font-mono">LAB-SGN-004</span>
+</div>
+</td>
+<td class="py-space-sm px-space-md">
+<div class="flex flex-col">
+<span class="font-body-sm text-body-sm font-semibold text-on-surface">Tráng &amp; Scan ECN-2 Hi-Res (135)</span>
+<span class="font-label-sm text-label-sm text-tertiary">Máy quét: Noritsu HS-1800 | Format TIFF 16-bit</span>
+</div>
+</td>
+<td class="py-space-sm px-space-md">
+<span class="inline-flex items-center gap-space-2xs px-space-xs py-space-2xs rounded bg-surface-container font-mono font-label-sm text-label-sm text-on-surface">
+<span class="font-bold">135</span>
+<span class="text-tertiary">/</span>
+<span class="text-primary font-semibold">ECN-2</span>
+</span>
+</td>
+<td class="py-space-sm px-space-md text-right font-mono font-label-md text-label-md font-semibold text-on-surface">
+              120.000 đ
+            </td>
+<td class="py-space-sm px-space-md text-center">
+<span class="inline-block px-space-xs py-space-2xs rounded bg-secondary-container text-on-secondary-container font-label-sm text-label-sm font-semibold tracking-wide uppercase status-badge">
+                ĐANG BÁN
+              </span>
+</td>
+<td class="py-space-sm px-space-md text-right">
+<button class="toggle-btn h-7 px-space-sm rounded bg-surface-container hover:bg-surface-container-high text-error font-body-sm text-body-sm font-medium transition-colors" onclick="toggleService(this, 'Saigon Darkroom')" type="button">
+                Ẩn dịch vụ
+              </button>
+</td>
+</tr>
+<!-- Dòng 2: Llab Darkroom -->
+<tr class="hover:bg-surface-container transition-colors service-row" data-lab="LAB-HAN-001" data-process="C-41">
+<td class="py-space-sm px-space-md">
+<div class="flex flex-col">
+<span class="font-headline-sm text-headline-sm font-semibold text-on-surface">Llab Darkroom</span>
+<span class="font-label-sm text-label-sm text-tertiary font-mono">LAB-HAN-001</span>
+</div>
+</td>
+<td class="py-space-sm px-space-md">
+<div class="flex flex-col">
+<span class="font-body-sm text-body-sm font-semibold text-on-surface">Tráng &amp; Scan C-41 Tiêu Chuẩn (135)</span>
+<span class="font-label-sm text-label-sm text-tertiary">Máy quét: Fuji Frontier SP-3000 | Màu tự nhiên</span>
+</div>
+</td>
+<td class="py-space-sm px-space-md">
+<span class="inline-flex items-center gap-space-2xs px-space-xs py-space-2xs rounded bg-surface-container font-mono font-label-sm text-label-sm text-on-surface">
+<span class="font-bold">135</span>
+<span class="text-tertiary">/</span>
+<span class="text-primary font-semibold">C-41</span>
+</span>
+</td>
+<td class="py-space-sm px-space-md text-right font-mono font-label-md text-label-md font-semibold text-on-surface">
+              70.000 đ
+            </td>
+<td class="py-space-sm px-space-md text-center">
+<span class="inline-block px-space-xs py-space-2xs rounded bg-secondary-container text-on-secondary-container font-label-sm text-label-sm font-semibold tracking-wide uppercase status-badge">
+                ĐANG BÁN
+              </span>
+</td>
+<td class="py-space-sm px-space-md text-right">
+<button class="toggle-btn h-7 px-space-sm rounded bg-surface-container hover:bg-surface-container-high text-error font-body-sm text-body-sm font-medium transition-colors" onclick="toggleService(this, 'Llab Darkroom')" type="button">
+                Ẩn dịch vụ
+              </button>
+</td>
+</tr>
+<!-- Dòng 3: Tiệm Film X (Vi phạm tiêu chuẩn) -->
+<tr class="hover:bg-surface-container transition-colors service-row bg-error-container/20" data-lab="LAB-X-999" data-process="INVALID">
+<td class="py-space-sm px-space-md">
+<div class="flex flex-col">
+<span class="font-headline-sm text-headline-sm font-semibold text-error">Tiệm Film X</span>
+<span class="font-label-sm text-label-sm text-error font-mono">LAB-X-999 (Cảnh cáo)</span>
+</div>
+</td>
+<td class="py-space-sm px-space-md">
+<div class="flex flex-col">
+<span class="font-body-sm text-body-sm font-semibold text-on-surface line-through decoration-error">Rửa film tự chế siêu tốc 15k</span>
+<span class="font-label-sm text-label-sm text-error">Vi phạm: Sử dụng xà phòng &amp; thuốc tráng quá hạn</span>
+</div>
+</td>
+<td class="py-space-sm px-space-md">
+<span class="inline-flex items-center gap-space-2xs px-space-xs py-space-2xs rounded bg-error-container font-mono font-label-sm text-label-sm text-on-error-container font-bold">
+                135 - SAI CHUẨN
+              </span>
+</td>
+<td class="py-space-sm px-space-md text-right font-mono font-label-md text-label-md font-semibold text-outline line-through">
+              15.000 đ
+            </td>
+<td class="py-space-sm px-space-md text-center">
+<span class="inline-block px-space-xs py-space-2xs rounded bg-error text-on-error font-label-sm text-label-sm font-semibold tracking-wide uppercase status-badge">
+                ĐÃ BỊ ADMIN ẨN
+              </span>
+</td>
+<td class="py-space-sm px-space-md text-right">
+<button class="toggle-btn h-7 px-space-sm rounded bg-surface-container-high hover:bg-surface-container-highest text-secondary font-body-sm text-body-sm font-semibold transition-colors" onclick="toggleService(this, 'Tiệm Film X')" type="button">
+                Mở lại
+              </button>
+</td>
+</tr>
+<!-- Dòng 4: Cropped Lab -->
+<tr class="hover:bg-surface-container transition-colors service-row" data-lab="LAB-DNG-008" data-process="B&amp;W">
+<td class="py-space-sm px-space-md">
+<div class="flex flex-col">
+<span class="font-headline-sm text-headline-sm font-semibold text-on-surface">Cropped Lab</span>
+<span class="font-label-sm text-label-sm text-tertiary font-mono">LAB-DNG-008</span>
+</div>
+</td>
+<td class="py-space-sm px-space-md">
+<div class="flex flex-col">
+<span class="font-body-sm text-body-sm font-semibold text-on-surface">Tráng &amp; Scan B&amp;W Thủ Công Ilford (120)</span>
+<span class="font-label-sm text-label-sm text-tertiary">Máy quét: Epson Perfection V850 Pro | Flatbed film</span>
+</div>
+</td>
+<td class="py-space-sm px-space-md">
+<span class="inline-flex items-center gap-space-2xs px-space-xs py-space-2xs rounded bg-surface-container font-mono font-label-sm text-label-sm text-on-surface">
+<span class="font-bold">120</span>
+<span class="text-tertiary">/</span>
+<span class="text-tertiary font-semibold">B&amp;W</span>
+</span>
+</td>
+<td class="py-space-sm px-space-md text-right font-mono font-label-md text-label-md font-semibold text-on-surface">
+              110.000 đ
+            </td>
+<td class="py-space-sm px-space-md text-center">
+<span class="inline-block px-space-xs py-space-2xs rounded bg-secondary-container text-on-secondary-container font-label-sm text-label-sm font-semibold tracking-wide uppercase status-badge">
+                ĐANG BÁN
+              </span>
+</td>
+<td class="py-space-sm px-space-md text-right">
+<button class="toggle-btn h-7 px-space-sm rounded bg-surface-container hover:bg-surface-container-high text-error font-body-sm text-body-sm font-medium transition-colors" onclick="toggleService(this, 'Cropped Lab')" type="button">
+                Ẩn dịch vụ
+              </button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Phân trang chuẩn -->
+<div class="flex flex-col sm:flex-row items-center justify-between gap-space-sm pt-space-md mt-space-md">
+<span class="font-body-sm text-body-sm text-tertiary">
+        Hiển thị <strong class="text-on-surface">1 - 4</strong> trong tổng số <strong class="text-on-surface">342</strong> mục dịch vụ
+      </span>
+<div class="flex items-center gap-space-xs">
+<button class="h-8 px-space-sm rounded bg-surface-container text-tertiary opacity-50 cursor-not-allowed font-body-sm text-body-sm" disabled="" type="button">
+          Trước
+        </button>
+<button class="w-8 h-8 rounded bg-primary text-on-primary font-label-sm text-label-sm font-semibold" type="button">
+          1
+        </button>
+<button class="w-8 h-8 rounded bg-surface-container text-on-surface hover:bg-surface-container-high font-label-sm text-label-sm transition-colors" type="button">
+          2
+        </button>
+<button class="w-8 h-8 rounded bg-surface-container text-on-surface hover:bg-surface-container-high font-label-sm text-label-sm transition-colors" type="button">
+          3
+        </button>
+<span class="px-space-xs text-tertiary font-label-sm text-label-sm">...</span>
+<button class="w-8 h-8 rounded bg-surface-container text-on-surface hover:bg-surface-container-high font-label-sm text-label-sm transition-colors" type="button">
+          29
+        </button>
+<button class="h-8 px-space-sm rounded bg-surface-container text-on-surface hover:bg-surface-container-high font-body-sm text-body-sm transition-colors" type="button">
+          Sau
+        </button>
+</div>
+</div>
+</section>
+<!-- AUDIT FOOTER NOTE -->
+<div class="mt-space-lg p-space-md rounded-xl bg-surface-container-low flex flex-col md:flex-row items-start md:items-center justify-between gap-space-sm text-tertiary">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[18px]">verified_user</span>
+<span class="font-body-sm text-body-sm">
+        Mọi thao tác can thiệp, ẩn/hiện dịch vụ được tự động ghi lại vào <strong>Nhật ký kiểm toán (ADM-09)</strong>.
+      </span>
+</div>
+<span class="font-label-sm text-label-sm font-mono text-outline">KÝ SỐ: 0x9AF8...4C21 (VT)</span>
+</div>
+</div>
+<script>
+  function toggleService(btn, labName) {
+    const row = btn.closest('tr');
+    const badge = row.querySelector('.status-badge');
+    const isHidden = badge.textContent.trim().includes('ĐÃ BỊ ADMIN ẨN');
+
+    if (isHidden) {
+      // Restore
+      badge.textContent = 'ĐANG BÁN';
+      badge.className = 'inline-block px-space-xs py-space-2xs rounded bg-secondary-container text-on-secondary-container font-label-sm text-label-sm font-semibold tracking-wide uppercase status-badge';
+      btn.textContent = 'Ẩn dịch vụ';
+      btn.className = 'toggle-btn h-7 px-space-sm rounded bg-surface-container hover:bg-surface-container-high text-error font-body-sm text-body-sm font-medium transition-colors';
+      row.classList.remove('bg-error-container/20');
+    } else {
+      // Hide
+      badge.textContent = 'ĐÃ BỊ ADMIN ẨN';
+      badge.className = 'inline-block px-space-xs py-space-2xs rounded bg-error text-on-error font-label-sm text-label-sm font-semibold tracking-wide uppercase status-badge';
+      btn.textContent = 'Mở lại';
+      btn.className = 'toggle-btn h-7 px-space-sm rounded bg-surface-container-high hover:bg-surface-container-highest text-secondary font-body-sm text-body-sm font-semibold transition-colors';
+      row.classList.add('bg-error-container/20');
+    }
+  }
+
+  // Client-side search and filters
+  const searchInput = document.getElementById('searchInput');
+  const filterLab = document.getElementById('filterLab');
+  const filterProcess = document.getElementById('filterProcess');
+  const rows = document.querySelectorAll('.service-row');
+
+  function filterTable() {
+    const query = (searchInput.value || '').toLowerCase().trim();
+    const lab = filterLab.value;
+    const process = filterProcess.value;
+
+    rows.forEach(row => {
+      const text = row.textContent.toLowerCase();
+      const rowLab = row.getAttribute('data-lab');
+      const rowProcess = row.getAttribute('data-process');
+
+      const matchesQuery = query === '' || text.includes(query);
+      const matchesLab = lab === 'all' || rowLab === lab;
+      const matchesProcess = process === 'all' || rowProcess === process;
+
+      if (matchesQuery && matchesLab && matchesProcess) {
+        row.style.display = '';
+      } else {
+        row.style.display = 'none';
+      }
+    });
+  }
+
+  searchInput.addEventListener('input', filterTable);
+  filterLab.addEventListener('change', filterTable);
+  filterProcess.addEventListener('change', filterTable);
+</script></div></main></div></body></html>

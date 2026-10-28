@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+
+<html lang="vi"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;1,400&amp;family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={"darkMode":"class","theme":{"extend":{"colors":{"secondary-fixed-dim":"#abcebe","surface-container-lowest":"#ffffff","on-tertiary-fixed":"#221a11","error-container":"#ffdad6","surface-container":"#f4ede6","inverse-primary":"#ffb691","on-secondary-container":"#4a6b5d","on-surface":"#1e1b17","tertiary":"#5b5045","primary-container":"#a9511c","surface-dim":"#e0d9d2","on-secondary-fixed-variant":"#2d4d40","error":"#ba1a1a","on-primary-container":"#ffe6dc","on-primary-fixed-variant":"#793100","secondary":"#446557","secondary-fixed":"#c6ebd9","on-secondary-fixed":"#002116","surface-variant":"#e9e1da","surface-container-high":"#efe7e0","primary":"#8a3a03","surface-container-highest":"#e9e1da","on-error-container":"#93000a","on-tertiary-fixed-variant":"#4f453a","tertiary-container":"#74685c","primary-fixed-dim":"#ffb691","surface-tint":"#9a4610","on-surface-variant":"#55433a","outline":"#887268","secondary-container":"#c6ebd9","inverse-on-surface":"#f7efe8","inverse-surface":"#33302b","surface":"#fff8f3","on-tertiary":"#ffffff","tertiary-fixed-dim":"#d3c4b6","on-tertiary-container":"#f9e8d9","surface-bright":"#fff8f3","on-primary":"#ffffff","on-error":"#ffffff","primary-fixed":"#ffdbcb","on-secondary":"#ffffff","on-background":"#1e1b17","on-primary-fixed":"#341100","tertiary-fixed":"#f0e0d1","outline-variant":"#dcc1b5","background":"#fff8f3","surface-container-low":"#faf2eb"},"borderRadius":{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},"spacing":{"space-sm":"0.5rem","gutter-lg":"1.25rem","space-xs":"0.25rem","space-2xs":"0.125rem","margin-lg":"1.5rem","margin":"1rem","space-md":"0.75rem","space-lg":"1rem","space-xl":"1.5rem","gutter-md":"1rem","margin-md":"1.25rem","gutter":"0.75rem"},"fontFamily":{"headline-sm":["IBM Plex Sans"],"label-md":["IBM Plex Mono"],"body-md":["IBM Plex Sans"],"headline-xl":["IBM Plex Sans"],"code-md":["IBM Plex Mono"],"headline-md":["IBM Plex Sans"],"label-sm":["IBM Plex Mono"],"headline-lg":["IBM Plex Sans"],"body-sm":["IBM Plex Sans"]},"fontSize":{"headline-sm":["0.875rem",{"lineHeight":"1.25rem","letterSpacing":"0em","fontWeight":"600"}],"label-md":["0.75rem",{"lineHeight":"1rem","letterSpacing":"0.04em","fontWeight":"500"}],"body-md":["0.875rem",{"lineHeight":"1.25rem","letterSpacing":"0em","fontWeight":"400"}],"headline-xl":["1.75rem",{"lineHeight":"2.125rem","letterSpacing":"-0.015em","fontWeight":"600"}],"code-md":["0.8125rem",{"lineHeight":"1.125rem","letterSpacing":"0em","fontWeight":"400"}],"headline-md":["1rem",{"lineHeight":"1.375rem","letterSpacing":"-0.005em","fontWeight":"600"}],"label-sm":["0.6875rem",{"lineHeight":"0.875rem","letterSpacing":"0.06em","fontWeight":"500"}],"headline-lg":["1.25rem",{"lineHeight":"1.625rem","letterSpacing":"-0.01em","fontWeight":"600"}],"body-sm":["0.8125rem",{"lineHeight":"1.125rem","letterSpacing":"0.005em","fontWeight":"400"}]}}}}</script></head><body class="bg-surface font-body-md text-on-surface antialiased"><aside class="fixed left-0 top-0 h-screen w-64 bg-surface-container-low z-50 flex flex-col justify-between shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="flex flex-col"><div class="h-16 px-margin flex items-center justify-between bg-surface-container"><div class="flex items-center gap-space-sm"><div class="w-7 h-7 bg-primary flex items-center justify-center rounded"><span class="material-symbols-outlined text-on-primary text-[18px]">motion_photos_on</span></div><div class="flex flex-col"><span class="font-headline-sm text-headline-sm uppercase tracking-tight text-on-surface">MINILAB ARCHIVE</span><span class="font-label-sm text-label-sm uppercase text-primary">LAB OPS</span></div></div></div><div class="px-space-md pt-space-lg pb-space-xs"><span class="font-label-sm text-label-sm uppercase text-on-surface-variant px-space-xs tracking-wider">VẬN HÀNH TIỆM LAB</span></div><nav class="flex flex-col gap-space-2xs px-space-sm" data-active-classes="bg-primary-container text-on-primary-container font-semibold rounded"><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="bang-kanban-tiep-nhan" href="#"><span class="material-symbols-outlined text-[18px]">view_kanban</span><div class="flex flex-col flex-1 leading-tight"><span class="font-body-sm text-body-sm">1. Tiếp nhận &amp; Phân loại</span><span class="font-label-sm text-label-sm text-outline">WEB-LAB-03</span></div></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="tai-file-scan-qc" href="#"><span class="material-symbols-outlined text-[18px]">cloud_upload</span><div class="flex flex-col flex-1 leading-tight"><span class="font-body-sm text-body-sm">2. Tải file scan &amp; QC</span><span class="font-label-sm text-label-sm text-outline">WEB-LAB-04</span></div></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="dich-vu-bang-gia" href="#"><span class="material-symbols-outlined text-[18px]">price_change</span><div class="flex flex-col flex-1 leading-tight"><span class="font-body-sm text-body-sm">3. Dịch vụ &amp; Bảng giá</span><span class="font-label-sm text-label-sm text-outline">WEB-LAB-05</span></div></a><a aria-current="page" class="flex items-center gap-space-sm px-space-md py-space-sm transition-colors bg-primary-container text-on-primary-container font-semibold rounded" data-path="ho-so-tiem-cong-khai" href="#"><span class="material-symbols-outlined text-[18px]">storefront</span><div class="flex flex-col flex-1 leading-tight"><span class="font-body-sm text-body-sm">4. Hồ sơ tiệm công khai</span><span class="font-label-sm text-label-sm text-outline">WEB-LAB-06</span></div></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="xu-ly-khieu-nai" href="#"><span class="material-symbols-outlined text-[18px]">report_problem</span><div class="flex flex-col flex-1 leading-tight"><span class="font-body-sm text-body-sm">5. Xử lý khiếu nại</span><span class="font-label-sm text-label-sm text-outline">WEB-LAB-07</span></div></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="lich-su-don-sla" href="#"><span class="material-symbols-outlined text-[18px]">history_toggle_off</span><div class="flex flex-col flex-1 leading-tight"><span class="font-body-sm text-body-sm">6. Lịch sử đơn &amp; SLA</span><span class="font-label-sm text-label-sm text-outline">WEB-LAB-08</span></div></a></nav></div><div class="p-space-md bg-surface-container flex flex-col gap-space-xs"><div class="flex items-center justify-between"><span class="font-label-sm text-label-sm text-on-surface-variant uppercase">HỆ THỐNG TRẠM</span><span class="inline-block w-2 h-2 rounded-full bg-secondary"></span></div><span class="font-code-md text-code-md text-on-surface font-semibold">v4.8.2-LAB [ONLINE]</span></div></aside><div class="pl-64"><header class="fixed top-0 left-64 right-0 h-16 bg-surface/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-40 flex items-center justify-between px-gutter-lg"><div class="flex items-center gap-space-md"><div class="flex items-center gap-space-xs bg-surface-container px-space-md py-space-xs rounded"><span class="material-symbols-outlined text-primary text-[18px]">location_on</span><span class="font-body-sm text-body-sm text-on-surface font-medium">Saigon Darkroom - Chi nhánh Q.3</span><span class="material-symbols-outlined text-outline text-[16px]">expand_more</span></div><div class="hidden md:flex items-center gap-space-xs bg-surface-container-lowest px-space-md py-space-xs rounded"><span class="material-symbols-outlined text-outline text-[18px]">search</span><span class="font-body-sm text-body-sm text-on-surface-variant">Tìm roll ID, khách hàng...</span><span class="font-label-sm text-label-sm bg-surface-container-high px-space-xs rounded text-outline font-semibold">⌘K</span></div></div><div class="flex items-center gap-space-lg"><div class="relative flex items-center justify-center p-space-xs text-on-surface-variant hover:text-on-surface cursor-pointer"><span class="material-symbols-outlined text-[20px]">notifications</span><span class="absolute top-1 right-1 w-2 h-2 rounded-full bg-primary"></span></div><div class="flex items-center gap-space-sm pl-space-md"><div class="text-right hidden sm:flex flex-col"><span class="font-body-sm text-body-sm text-on-surface font-semibold leading-tight">Lê Hoài Nam</span><span class="font-label-sm text-label-sm text-primary uppercase font-medium">KỸ THUẬT VIÊN TRƯỞNG</span></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="w-full pt-16 px-gutter-lg bg-surface min-h-screen"><div class="flex flex-col w-full pb-16">
+<!-- Top Navigation & Action Banner -->
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-space-md py-space-lg mb-space-lg">
+<div class="flex flex-col gap-space-2xs">
+<div class="flex items-center gap-space-xs">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-primary font-semibold">CẤU HÌNH THƯƠNG HIỆU</span>
+<span class="text-outline text-label-sm">•</span>
+<span class="font-label-sm text-label-sm text-outline uppercase">WEB-LAB-06</span>
+</div>
+<h1 class="font-headline-xl text-headline-xl text-on-surface tracking-tight">Hồ sơ Tiệm Lab Công khai</h1>
+<p class="font-body-sm text-body-sm text-on-surface-variant max-w-2xl">
+        Cấu hình thông tin xuất hiện trên ứng dụng khách hàng và hồ sơ thương hiệu. Dữ liệu sẽ đồng bộ thời gian thực đến bản đồ tìm kiếm tiệm và trang tiếp nhận film.
+      </p>
+</div>
+<div class="flex items-center gap-space-md shrink-0">
+<button class="inline-flex items-center gap-space-xs px-space-md py-space-xs rounded bg-surface-container-high text-on-surface hover:bg-surface-dim transition-colors font-body-sm text-body-sm" type="button">
+<span class="material-symbols-outlined text-[18px] text-tertiary">history</span>
+<span>Lịch sử sửa đổi</span>
+</button>
+<button class="inline-flex items-center gap-space-xs px-space-lg py-space-xs rounded bg-primary-container text-on-primary-container hover:bg-primary transition-colors font-headline-sm text-headline-sm shadow-sm" id="save-profile-btn" type="button">
+<span class="material-symbols-outlined text-[18px]">verified</span>
+<span>Lưu thay đổi hồ sơ</span>
+</button>
+</div>
+</div>
+<!-- Operational Notice Bar -->
+<div class="flex items-center justify-between bg-surface-container-low p-space-md rounded mb-space-xl">
+<div class="flex items-center gap-space-md">
+<div class="w-8 h-8 rounded bg-secondary-container text-on-secondary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">cloud_done</span>
+</div>
+<div class="flex flex-col">
+<span class="font-headline-sm text-headline-sm text-on-surface">Đồng bộ tự động kích hoạt</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Mọi thay đổi thông tin giờ mở cửa hoặc vị trí hộp drop-box sẽ phản ánh ngay trên app khách sau 60 giây.</span>
+</div>
+</div>
+<div class="flex items-center gap-space-xs font-label-sm text-label-sm text-secondary bg-surface-container-lowest px-space-sm py-space-2xs rounded">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+<span>HỒ SƠ ĐANG CÔNG KHAI</span>
+</div>
+</div>
+<!-- Two-Column Workbench Layout -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter-lg items-start">
+<!-- LEFT COLUMN: Profile Settings Form (7 Columns) -->
+<div class="lg:col-span-7 flex flex-col gap-space-lg">
+<!-- Section 1: Media & Branding Identity -->
+<div class="bg-surface-container-lowest p-space-xl rounded flex flex-col gap-space-lg shadow-sm">
+<div class="flex items-center justify-between pb-space-sm">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-primary text-[20px]">photo_camera_back</span>
+<span class="font-headline-md text-headline-md text-on-surface">Nhận diện hình ảnh tiệm</span>
+</div>
+<span class="font-label-sm text-label-sm text-outline">ARCHIVAL VISUAL ASSETS</span>
+</div>
+<!-- Cover Photo Upload Field -->
+<div class="flex flex-col gap-space-xs">
+<label class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wide">ẢNH BÌA ĐẠI DIỆN TIỆM (COVER BANNER • 16:9)</label>
+<div class="relative w-full h-48 rounded overflow-hidden group bg-surface-container">
+<div class="w-full h-full bg-cover bg-center transition-transform duration-500 group-hover:scale-105" data-alt="A warm, tactile film processing darkroom in Saigon with amber safe lights, amber chemical bottles on shelves, stainless steel developing tanks, hanging 35mm film negatives drying, warm ambient wooden counter, cinematic analog tone." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAIqeBzRm1g_eZXTNkm8ry4ir-IJfyGxpu3dgWuzf3vyLiJqunh08ecDt90NatFT-v_zR0lxtGHSLKaIVVGs9BI4XMEbNePM09gp4NbiqTcgrkwzrEsu6fSz6ejhXmRNcyiaXT_IHkITrVpYTQTijIiBa3KP3kUI1jwCGDRfEVq6x6jv6SQsttrytDg0JzkN4oxAY_DriXM9VngnniuNTM5Wd5KzvWmN6PE9NDIRLY')"></div>
+<div class="absolute inset-0 bg-inverse-surface/40 flex flex-col items-center justify-center gap-space-xs text-on-primary opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-xs">
+<span class="material-symbols-outlined text-[28px]">add_photo_alternate</span>
+<span class="font-headline-sm text-headline-sm">Thay đổi ảnh bìa tiệm</span>
+<span class="font-label-sm text-label-sm text-surface-container">Khuyến nghị: 1920x1080px (Tối đa 5MB)</span>
+</div>
+<span class="absolute bottom-2 right-2 bg-inverse-surface/75 text-on-primary font-label-sm text-label-sm px-space-xs py-space-2xs rounded">
+              HS-1800_DARKROOM_01.JPG
+            </span>
+</div>
+</div>
+<!-- Logo & Avatar Placement -->
+<div class="flex flex-col sm:flex-row items-start sm:items-center gap-space-lg pt-space-xs">
+<div class="relative shrink-0 w-24 h-24 rounded bg-surface-container flex items-center justify-center overflow-hidden shadow-sm">
+<img class="w-full h-full object-cover" data-alt="Minimalist vintage darkroom laboratory logo badge featuring an analog film sprocket motif with amber orange and raw cream warm tones, crisp vector geometric emblem." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDsI6BHFOIJCSfG5eZUOBcPHvSdyIRPQRI2HjOaIhPRfm4pXR0A2SANxk7RtXkNS7MXDNdk171InEi7piR2ImTdXcu7Tt30AkEPBV2L0hWXk7zSbOFEd48mdF2ej5WLTI4FRjn1bvVP4yvb133GbYgrtV--p-G92-7mfJOTXoNIrMebIwEVJ7FN6yxfUsZw1l2GhuHTTS9V6ZSd3O5xGDS0BRRAgB4NkoK9Y2d8jaE"/>
+<div class="absolute inset-0 bg-on-surface/50 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer text-on-primary">
+<span class="material-symbols-outlined text-[20px]">edit</span>
+</div>
+</div>
+<div class="flex flex-col gap-space-xs flex-1">
+<label class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wide">BIỂU TRƯNG / LOGO TIỆM</label>
+<div class="flex flex-wrap items-center gap-space-sm">
+<button class="inline-flex items-center gap-space-xs px-space-md py-space-xs rounded bg-surface-container text-on-surface font-body-sm text-body-sm hover:bg-surface-container-high transition-colors" type="button">
+<span class="material-symbols-outlined text-[16px]">upload_file</span>
+<span>Tải ảnh logo vuông</span>
+</button>
+<button class="text-error font-label-sm text-label-sm hover:underline px-space-xs" type="button">Xóa logo hiện tại</button>
+</div>
+<p class="font-label-sm text-label-sm text-outline">Định dạng PNG/SVG nền trong suốt hoặc JPG tỉ lệ 1:1, tối thiểu 400x400px.</p>
+</div>
+</div>
+<!-- Brand Name Input -->
+<div class="flex flex-col gap-space-2xs">
+<div class="flex justify-between items-center">
+<label class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wide" for="brand-name">TÊN THƯƠNG HIỆU LAB CÔNG KHAI</label>
+<span class="font-label-sm text-label-sm text-outline">22/50 KÝ TỰ</span>
+</div>
+<input class="w-full px-space-md py-space-xs bg-surface-container-lowest text-on-surface rounded font-headline-sm text-headline-sm focus:outline-none focus:ring-1 focus:ring-primary" id="brand-name" type="text" value="Saigon Darkroom &amp; Lab"/>
+</div>
+<!-- Bio / Introduction -->
+<div class="flex flex-col gap-space-2xs">
+<div class="flex justify-between items-center">
+<label class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wide" for="brand-desc">GIỚI THIỆU TIỆM &amp; NĂNG LỰC XỬ LÝ</label>
+<span class="font-label-sm text-label-sm text-outline">189/300 KÝ TỰ</span>
+</div>
+<textarea class="w-full p-space-md bg-surface-container-lowest text-on-surface rounded font-body-sm text-body-sm leading-relaxed focus:outline-none focus:ring-1 focus:ring-primary resize-none" id="brand-desc" rows="3">Phòng tráng film thủ công tiêu chuẩn studio tại Sài Gòn, chuyên sâu các dòng phim cine ECN-2, tráng đen trắng tay nghệ nhân và scan máy Noritsu HS-1800 độ nét cao.</textarea>
+<span class="font-label-sm text-label-sm text-outline">Đoạn mô tả ngắn hiển thị ngay dưới thẻ tiêu đề của ứng dụng di động MiniLab.</span>
+</div>
+</div>
+<!-- Section 2: Addresses & Physical Drops -->
+<div class="bg-surface-container-lowest p-space-xl rounded flex flex-col gap-space-lg shadow-sm">
+<div class="flex items-center justify-between pb-space-sm">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-primary text-[20px]">store</span>
+<span class="font-headline-md text-headline-md text-on-surface">Địa chỉ tiếp nhận &amp; Thùng nhận Drop-box</span>
+</div>
+<button class="inline-flex items-center gap-space-2xs font-label-sm text-label-sm text-primary uppercase font-semibold hover:underline" type="button">
+<span class="material-symbols-outlined text-[16px]">add_location_alt</span>
+<span>+ THÊM ĐIỂM TIẾP NHẬN</span>
+</button>
+</div>
+<!-- HQ Branch Card -->
+<div class="bg-surface-container-low p-space-md rounded flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="font-label-sm text-label-sm bg-primary-fixed text-on-primary-fixed px-space-xs py-space-2xs rounded font-semibold uppercase">TRỤ SỞ CHÍNH</span>
+<span class="font-headline-sm text-headline-sm text-on-surface">Chi nhánh Võ Thị Sáu (Q.3)</span>
+</div>
+<span class="font-label-sm text-label-sm text-secondary bg-surface-container px-space-xs py-space-2xs rounded font-medium">TIẾP NHẬN TRỰC TIẾP</span>
+</div>
+<div class="flex flex-col gap-space-2xs">
+<label class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wide">ĐỊA CHỈ ĐẦY ĐỦ</label>
+<input class="w-full px-space-md py-space-xs bg-surface-container-lowest text-on-surface rounded font-body-sm text-body-sm focus:outline-none focus:ring-1 focus:ring-primary" type="text" value="145/3 Bis Đường Nguyễn Đình Chiểu, Phường Võ Thị Sáu, Quận 3, TP.HCM"/>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-space-md">
+<div class="flex flex-col gap-space-2xs">
+<label class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wide">HOTLINE KỸ THUẬT / BÀN GIAO</label>
+<div class="flex items-center gap-space-xs bg-surface-container-lowest px-space-md py-space-xs rounded">
+<span class="material-symbols-outlined text-[16px] text-outline">call</span>
+<input class="w-full bg-transparent text-on-surface font-code-md text-code-md focus:outline-none" type="text" value="0918.245.890"/>
+</div>
+</div>
+<div class="flex flex-col gap-space-2xs">
+<label class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wide">TỌA ĐỘ GPS BẢN ĐỒ</label>
+<div class="flex items-center gap-space-xs bg-surface-container-lowest px-space-md py-space-xs rounded">
+<span class="material-symbols-outlined text-[16px] text-outline">pin_drop</span>
+<input class="w-full bg-transparent text-on-surface font-code-md text-code-md focus:outline-none" type="text" value="10.7769° N, 106.6908° E"/>
+</div>
+</div>
+</div>
+<!-- Mini Map Trigger Preview -->
+<div class="w-full h-28 rounded overflow-hidden relative shadow-xs" data-location="145/3 Bis Nguyen Dinh Chieu, District 3, Ho Chi Minh City" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuD5jfDmKsa0JGrFAHv1Z84IMfk7WJtoTxHscMsbkoMTycIMWVO22cwYCuYmBTYvmR6Q6iOlx0FktR7960A0KhZx7TFWJrx8p_VJdyomaU1GCFY04lVJ4keZAvp7BQ1pBVw3d35ZmQ7AoyBmRzi1_QGKqz9-KWZCLgUHu5rUNVWCuWovLctQ-o5ZJ2sKZa-RmuMr3NrGSlSHLPTDBb0RR5FjskplS0u1RsRY7aXXuRQ')">
+<div class="absolute inset-0 bg-on-surface/10 flex items-end p-space-sm pointer-events-none">
+<div class="bg-surface-container-lowest/90 backdrop-blur-sm px-space-sm py-space-2xs rounded flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary text-[14px]">my_location</span>
+<span class="font-label-sm text-label-sm text-on-surface font-semibold">Tọa độ đã xác thực trên OpenStreetMap &amp; Apple Maps</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Drop-box 24/7 Config -->
+<div class="p-space-md rounded bg-surface-container flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<div class="w-7 h-7 rounded bg-surface-container-lowest flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[18px]">inventory_2</span>
+</div>
+<div class="flex flex-col">
+<span class="font-headline-sm text-headline-sm text-on-surface">Thùng hòm nhận phim Drop-box 24/7</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Cho phép khách bỏ cuộn phim ngoài giờ làm việc kèm mã QR trên túi zip</span>
+</div>
+</div>
+<!-- Toggle Switch -->
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-surface-dim peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-surface-dim after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-secondary"></div>
+</label>
+</div>
+<div class="flex items-center justify-between text-label-sm font-label-sm pt-space-xs text-on-surface-variant">
+<span class="flex items-center gap-space-2xs text-secondary font-medium">
+<span class="inline-block w-2 h-2 rounded-full bg-secondary"></span>
+              Đang bật hoạt động - Khách được chỉ đường đến hòm cửa cuốn
+            </span>
+<span class="font-code-md text-code-md">Mã khóa hòm: <strong class="text-on-surface font-semibold">BOX-03-OPEN</strong></span>
+</div>
+</div>
+<!-- Hours of Operation -->
+<div class="flex flex-col gap-space-xs pt-space-xs">
+<label class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wide">GIỜ MỞ CỬA PHỤC VỤ TRỰC TIẾP</label>
+<div class="flex items-center gap-space-md">
+<div class="flex-1 flex items-center gap-space-xs bg-surface-container-low px-space-md py-space-xs rounded">
+<span class="material-symbols-outlined text-[18px] text-tertiary">schedule</span>
+<input class="w-full bg-transparent text-on-surface font-body-sm text-body-sm font-medium focus:outline-none" type="text" value="08:30 - 20:30 (Thứ 2 đến Chủ nhật)"/>
+</div>
+<button class="shrink-0 px-space-md py-space-xs rounded bg-surface-container text-on-surface font-label-sm text-label-sm hover:bg-surface-dim transition-colors uppercase" type="button">
+              Cài giờ ngày lễ
+            </button>
+</div>
+</div>
+</div>
+<!-- Section 3: Archival Physical & Digital Retention Policies -->
+<div class="bg-surface-container-lowest p-space-xl rounded flex flex-col gap-space-lg shadow-sm">
+<div class="flex items-center justify-between pb-space-sm">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-primary text-[20px]">policy</span>
+<span class="font-headline-md text-headline-md text-on-surface">Chính sách lưu trữ vật lý &amp; File số</span>
+</div>
+<span class="font-label-sm text-label-sm text-outline">SLA TIÊU CHUẨN</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-space-md">
+<!-- Physical Film Negative Storage -->
+<div class="p-space-md rounded bg-surface-container-low flex flex-col gap-space-sm">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-tertiary text-[18px]">filter_frames</span>
+<span class="font-headline-sm text-headline-sm text-on-surface">Giữ cuộn film gốc (Âm bản)</span>
+</div>
+<div class="flex flex-col gap-space-2xs">
+<label class="font-label-sm text-label-sm text-on-surface-variant uppercase">THỜI HẠN LƯU VẬT LÝ</label>
+<div class="flex items-center gap-space-xs">
+<input class="w-20 px-space-sm py-space-2xs bg-surface-container-lowest text-on-surface rounded font-code-md text-code-md font-semibold text-center focus:outline-none" type="number" value="15"/>
+<span class="font-body-sm text-body-sm text-on-surface font-medium">ngày kể từ khi có file scan</span>
+</div>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+              Sau 15 ngày, nếu khách không đăng ký gửi ship về nhà hoặc tự đến lấy tại quầy, tiệm chuyển vào hộp lưu trữ chung trước khi hủy định kỳ.
+            </p>
+<div class="mt-auto pt-space-xs">
+<span class="inline-flex items-center gap-space-2xs font-label-sm text-label-sm text-primary">
+<span class="material-symbols-outlined text-[14px]">local_shipping</span>
+                Tích hợp Ahamove / GHTK trả âm bản tự động
+              </span>
+</div>
+</div>
+<!-- Digital Cloud Archive -->
+<div class="p-space-md rounded bg-surface-container-low flex flex-col gap-space-sm">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-secondary text-[18px]">cloud_sync</span>
+<span class="font-headline-sm text-headline-sm text-on-surface">Bảo lưu file scan gốc (Cloud)</span>
+</div>
+<div class="flex flex-col gap-space-2xs">
+<label class="font-label-sm text-label-sm text-on-surface-variant uppercase">THỜI HẠN CLOUD ARCHIVE</label>
+<div class="flex items-center gap-space-xs">
+<input class="w-20 px-space-sm py-space-2xs bg-surface-container-lowest text-on-surface rounded font-code-md text-code-md font-semibold text-center focus:outline-none" type="number" value="60"/>
+<span class="font-body-sm text-body-sm text-on-surface font-medium">ngày bảo đảm nguyên vẹn</span>
+</div>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+              File scan TIFF / JPG độ phân giải đầy đủ được lưu trên máy chủ lưu trữ lạnh. Khách có thể tải lại không giới hạn trong 60 ngày.
+            </p>
+<div class="mt-auto pt-space-xs">
+<span class="inline-flex items-center gap-space-2xs font-label-sm text-label-sm text-secondary font-medium">
+<span class="material-symbols-outlined text-[14px]">lock_reset</span>
+                Tự động gửi cảnh báo 3 ngày trước khi xóa
+              </span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- RIGHT COLUMN: Live Mobile Preview Card (5 Columns) -->
+<div class="lg:col-span-5 sticky top-20 flex flex-col gap-space-md">
+<!-- Preview Header Indicator -->
+<div class="flex items-center justify-between px-space-sm">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary text-[18px]">smartphone</span>
+<span class="font-headline-sm text-headline-sm uppercase text-on-surface tracking-wide">Xem trước trên Mobile App</span>
+</div>
+<div class="flex items-center gap-space-xs">
+<span class="font-label-sm text-label-sm text-outline">KHÁCH HÀNG VIEW</span>
+<span class="inline-block w-2 h-2 rounded-full bg-secondary"></span>
+</div>
+</div>
+<!-- Smartphone Frame Simulation Container -->
+<div class="w-full max-w-sm mx-auto bg-inverse-surface p-space-sm rounded-xl shadow-xl">
+<!-- Screen Content Interior -->
+<div class="bg-surface rounded overflow-hidden flex flex-col">
+<!-- Mock Phone Status Bar -->
+<div class="flex items-center justify-between px-space-md py-space-2xs bg-surface text-on-surface text-label-sm font-label-sm">
+<span>09:41</span>
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[14px]">signal_cellular_4_bar</span>
+<span class="material-symbols-outlined text-[14px]">wifi</span>
+<span class="material-symbols-outlined text-[14px]">battery_full</span>
+</div>
+</div>
+<!-- App Header Over Cover Photo -->
+<div class="relative h-44 w-full bg-surface-container">
+<div class="w-full h-full bg-cover bg-center" data-alt="Cozy ambient film processing lab interior with darkroom trays and film reels hanging, soft warm illumination in Saigon." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBxhblBqFcUzzwZwQQ9Ch6FiISE8iU_inf3OvpHOZzfs-J6YVV0RbqUSgcs0k0WVg66DRQTlZ2r2SJIl5cHp9ZK8R37P6bvTyXM2er3wzOlJsvN2B7L5ADJRFkhDW-yZP_qjxIUQ_BQJJlsP7FxWhVCku-tiu1qqbT54-QbOp1LXmQW6lcr85rri9VZI9RasBMQRSFpDNRLahlkIyCfnhTpX4an6seGj4SUqmAVHuw')"></div>
+<div class="absolute inset-0 bg-gradient-to-t from-surface via-transparent to-black/30"></div>
+<!-- Back & Share Floating Buttons -->
+<div class="absolute top-space-sm left-space-sm right-space-sm flex justify-between items-center text-on-primary">
+<div class="w-7 h-7 rounded-full bg-on-surface/40 backdrop-blur-md flex items-center justify-center">
+<span class="material-symbols-outlined text-[16px]">arrow_back</span>
+</div>
+<div class="flex items-center gap-space-xs">
+<div class="w-7 h-7 rounded-full bg-on-surface/40 backdrop-blur-md flex items-center justify-center">
+<span class="material-symbols-outlined text-[16px]">bookmark_border</span>
+</div>
+<div class="w-7 h-7 rounded-full bg-on-surface/40 backdrop-blur-md flex items-center justify-center">
+<span class="material-symbols-outlined text-[16px]">share</span>
+</div>
+</div>
+</div>
+<!-- Overlapping Profile Avatar -->
+<div class="absolute -bottom-5 left-space-md w-16 h-16 rounded overflow-hidden shadow-md bg-surface p-space-2xs">
+<img class="w-full h-full object-cover rounded" data-alt="Miniature circular film lab camera logo with orange sprocket accent." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAs-UTjILxQIrAzKc5yVV_AMsAO-m8oD322UF9ykRCP5P3t43xqXz8StgmmcxkFnOr7Q4fqNpfMA68UEcMCgRHjPjLT4zv51XB77DC6PRSQz6VjiQx0RaT90Qk4qnINQLg9AgGQ0MM27_9EQHDqtsdF42CoY2Y7b4c9Y68VTVlLwzb_VsaQM4IckNh2ALCUMLndz1B0NeR6rQZ-7ER4AgxGNeR-BwpXU4wHQlyLsz0"/>
+</div>
+</div>
+<!-- Profile Header Section -->
+<div class="pt-7 px-space-md pb-space-sm flex flex-col gap-space-xs">
+<div class="flex items-start justify-between">
+<div class="flex flex-col">
+<div class="flex items-center gap-space-xs">
+<h3 class="font-headline-lg text-headline-lg text-on-surface leading-tight" id="preview-brand-name">Saigon Darkroom &amp; Lab</h3>
+<span class="material-symbols-outlined text-primary text-[18px]" style="font-variation-settings: 'FILL' 1;" title="Verified Lab">verified</span>
+</div>
+<div class="flex items-center gap-space-sm mt-space-2xs">
+<div class="flex items-center gap-space-2xs font-label-sm text-label-sm text-primary font-bold">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span>4.9</span>
+<span class="text-outline font-normal">(1,280 đánh giá)</span>
+</div>
+<span class="text-outline text-label-sm">•</span>
+<div class="flex items-center gap-space-2xs font-label-sm text-label-sm text-secondary font-medium">
+<span class="material-symbols-outlined text-[14px]">near_me</span>
+<span>1.2 km</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Bio Preview -->
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-3 mt-space-2xs" id="preview-brand-desc">
+              Phòng tráng film thủ công tiêu chuẩn studio tại Sài Gòn, chuyên sâu các dòng phim cine ECN-2, tráng đen trắng tay nghệ nhân và scan máy Noritsu HS-1800 độ nét cao.
+            </p>
+</div>
+<!-- Quick Tags / Highlights -->
+<div class="px-space-md py-space-xs flex items-center gap-space-xs overflow-x-auto no-scrollbar">
+<span class="shrink-0 bg-secondary-container text-on-secondary-container font-label-sm text-label-sm px-space-xs py-space-2xs rounded">
+              ✓ Drop-box 24/7 Bật
+            </span>
+<span class="shrink-0 bg-surface-container text-on-surface font-label-sm text-label-sm px-space-xs py-space-2xs rounded">
+              Lưu âm bản 15 ngày
+            </span>
+<span class="shrink-0 bg-surface-container text-on-surface font-label-sm text-label-sm px-space-xs py-space-2xs rounded">
+              Cloud 60 ngày
+            </span>
+</div>
+<!-- Address & Operational Status Card in Preview -->
+<div class="mx-space-md my-space-xs p-space-sm rounded bg-surface-container-low flex flex-col gap-space-2xs">
+<div class="flex items-start gap-space-xs">
+<span class="material-symbols-outlined text-primary text-[16px] shrink-0 mt-0.5">location_on</span>
+<div class="flex flex-col">
+<span class="font-body-sm text-body-sm text-on-surface font-semibold leading-tight">145/3 Bis Nguyễn Đình Chiểu, P. Võ Thị Sáu, Q.3</span>
+<span class="font-label-sm text-label-sm text-outline">Đang mở cửa • 08:30 - 20:30</span>
+</div>
+</div>
+</div>
+<!-- Popular Services Preview (Gói tráng tiêu biểu) -->
+<div class="px-space-md pt-space-xs pb-space-md flex flex-col gap-space-xs">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-outline font-semibold">GÓI TRÁNG SCAN TIÊU BIỂU</span>
+<div class="flex flex-col gap-space-xs">
+<!-- Item 1 -->
+<div class="flex items-center justify-between p-space-xs rounded bg-surface-container-lowest shadow-2xs">
+<div class="flex items-center gap-space-xs">
+<div class="w-8 h-8 rounded bg-primary-fixed text-on-primary-fixed flex items-center justify-center font-code-md text-code-md font-bold">
+                    C41
+                  </div>
+<div class="flex flex-col">
+<span class="font-headline-sm text-headline-sm text-on-surface">Color Negative C-41 (Scan JPG)</span>
+<span class="font-label-sm text-label-sm text-outline">SLA: 4-6 giờ làm việc</span>
+</div>
+</div>
+<span class="font-code-md text-code-md text-primary font-semibold">65.000₫</span>
+</div>
+<!-- Item 2 -->
+<div class="flex items-center justify-between p-space-xs rounded bg-surface-container-lowest shadow-2xs">
+<div class="flex items-center gap-space-xs">
+<div class="w-8 h-8 rounded bg-secondary-fixed text-on-secondary-fixed flex items-center justify-center font-code-md text-code-md font-bold">
+                    ECN
+                  </div>
+<div class="flex flex-col">
+<span class="font-headline-sm text-headline-sm text-on-surface">Cine ECN-2 (Tẩy than thủ công)</span>
+<span class="font-label-sm text-label-sm text-outline">SLA: 24 giờ • Noritsu HS-1800</span>
+</div>
+</div>
+<span class="font-code-md text-code-md text-primary font-semibold">95.000₫</span>
+</div>
+<!-- Item 3 -->
+<div class="flex items-center justify-between p-space-xs rounded bg-surface-container-lowest shadow-2xs">
+<div class="flex items-center gap-space-xs">
+<div class="w-8 h-8 rounded bg-surface-container-high text-on-surface flex items-center justify-center font-code-md text-code-md font-bold">
+                    BW
+                  </div>
+<div class="flex flex-col">
+<span class="font-headline-sm text-headline-sm text-on-surface">Đen Trắng Nghệ Nhân (D-76 / Xtol)</span>
+<span class="font-label-sm text-label-sm text-outline">SLA: 48 giờ • Đảo tank tay</span>
+</div>
+</div>
+<span class="font-code-md text-code-md text-primary font-semibold">85.000₫</span>
+</div>
+</div>
+</div>
+<!-- Bottom Action in Preview -->
+<div class="p-space-sm bg-surface-container border-t border-surface-container-high flex items-center gap-space-xs">
+<button class="w-full py-space-xs bg-primary text-on-primary rounded font-headline-sm text-headline-sm flex items-center justify-center gap-space-xs shadow-xs" type="button">
+<span class="material-symbols-outlined text-[16px]">qr_code_scanner</span>
+<span>Tạo đơn gửi cuộn phim ngay</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Preview Helper Footnote -->
+<div class="flex items-center justify-center gap-space-xs text-outline font-label-sm text-label-sm text-center">
+<span class="material-symbols-outlined text-[16px]">touch_app</span>
+<span>Thẻ hiển thị mẫu tương thích màn hình iOS và Android Client App v4.8</span>
+</div>
+</div>
+</div>
+<!-- Inline Toast Feedback Element -->
+<div class="fixed bottom-6 right-6 bg-inverse-surface text-inverse-on-surface px-space-lg py-space-md rounded shadow-xl flex items-center gap-space-md translate-y-24 opacity-0 transition-all duration-300 z-50" id="save-toast">
+<div class="w-6 h-6 rounded-full bg-secondary flex items-center justify-center text-on-secondary">
+<span class="material-symbols-outlined text-[16px]">check</span>
+</div>
+<div class="flex flex-col">
+<span class="font-headline-sm text-headline-sm">Hồ sơ tiệm đã cập nhật thành công!</span>
+<span class="font-label-sm text-label-sm text-surface-dim">Dữ liệu công khai đã được đồng bộ lên máy chủ đám mây MiniLab.</span>
+</div>
+</div>
+</div>
+<script>
+  // Dynamic live-preview sync from Left form inputs to Mobile simulator
+  const brandNameInput = document.getElementById('brand-name');
+  const previewBrandName = document.getElementById('preview-brand-name');
+  const brandDescInput = document.getElementById('brand-desc');
+  const previewBrandDesc = document.getElementById('preview-brand-desc');
+  const saveBtn = document.getElementById('save-profile-btn');
+  const saveToast = document.getElementById('save-toast');
+
+  if (brandNameInput && previewBrandName) {
+    brandNameInput.addEventListener('input', (e) => {
+      previewBrandName.textContent = e.target.value.trim() || 'Tên tiệm Lab';
+    });
+  }
+
+  if (brandDescInput && previewBrandDesc) {
+    brandDescInput.addEventListener('input', (e) => {
+      previewBrandDesc.textContent = e.target.value.trim() || 'Chưa có thông tin giới thiệu tiệm.';
+    });
+  }
+
+  if (saveBtn && saveToast) {
+    saveBtn.addEventListener('click', () => {
+      // Trigger animation
+      saveToast.classList.remove('translate-y-24', 'opacity-0');
+      saveToast.classList.add('translate-y-0', 'opacity-100');
+      
+      setTimeout(() => {
+        saveToast.classList.remove('translate-y-0', 'opacity-100');
+        saveToast.classList.add('translate-y-24', 'opacity-0');
+      }, 3500);
+    });
+  }
+</script></main></div></body></html>

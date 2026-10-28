@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+
+<html lang="vi"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_stack" name="shell-type"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "secondary-fixed": "#c6ebd9", "surface-container": "#f4ede6", "tertiary-fixed-dim": "#d3c4b6", "secondary-container": "#c6ebd9", "surface-bright": "#fff8f3", "on-tertiary-container": "#f9e8d9", "inverse-on-surface": "#f7efe8", "inverse-surface": "#33302b", "tertiary-fixed": "#f0e0d1", "surface-container-high": "#efe7e0", "secondary-fixed-dim": "#abcebe", "surface-variant": "#e9e1da", "on-primary": "#ffffff", "on-surface": "#1e1b17", "outline": "#887268", "on-tertiary": "#ffffff", "surface-container-highest": "#e9e1da", "surface": "#fff8f3", "on-primary-fixed": "#341100", "outline-variant": "#dcc1b5", "on-primary-container": "#ffe6dc", "on-secondary-fixed-variant": "#2d4d40", "on-error": "#ffffff", "primary": "#8a3a03", "on-background": "#1e1b17", "error": "#ba1a1a", "on-secondary-fixed": "#002116", "surface-container-lowest": "#ffffff", "primary-fixed": "#ffdbcb", "surface-container-low": "#faf2eb", "on-secondary": "#ffffff", "inverse-primary": "#ffb691", "on-surface-variant": "#55433a", "tertiary": "#5b5045", "on-secondary-container": "#4a6b5d", "error-container": "#ffdad6", "primary-fixed-dim": "#ffb691", "primary-container": "#a9511c", "surface-dim": "#e0d9d2", "surface-tint": "#9a4610", "background": "#fff8f3", "on-error-container": "#93000a", "on-tertiary-fixed": "#221a11", "tertiary-container": "#74685c", "on-primary-fixed-variant": "#793100", "secondary": "#446557", "on-tertiary-fixed-variant": "#4f453a" }, borderRadius: { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" }, spacing: { "margin-md": "1.25rem", "margin-lg": "1.5rem", "space-2xs": "0.125rem", "space-xs": "0.25rem", "margin": "1rem", "gutter-md": "1rem", "space-xl": "1.5rem", "space-md": "0.75rem", "gutter-lg": "1.25rem", "gutter": "0.75rem", "space-sm": "0.5rem", "space-lg": "1rem" }, fontFamily: { "code-md": ["IBM Plex Mono"], "headline-lg": ["IBM Plex Sans"], "body-md": ["IBM Plex Sans"], "headline-xl": ["IBM Plex Sans"], "headline-md": ["IBM Plex Sans"], "body-sm": ["IBM Plex Sans"], "headline-sm": ["IBM Plex Sans"], "label-md": ["IBM Plex Mono"], "label-sm": ["IBM Plex Mono"] }, fontSize: { "code-md": ["0.8125rem", { lineHeight: "1.125rem", letterSpacing: "0em", fontWeight: "400" }], "headline-lg": ["1.25rem", { lineHeight: "1.625rem", letterSpacing: "-0.01em", fontWeight: "600" }], "body-md": ["0.875rem", { lineHeight: "1.25rem", letterSpacing: "0em", fontWeight: "400" }], "headline-xl": ["1.75rem", { lineHeight: "2.125rem", letterSpacing: "-0.015em", fontWeight: "600" }], "headline-md": ["1rem", { lineHeight: "1.375rem", letterSpacing: "-0.005em", fontWeight: "600" }], "body-sm": ["0.8125rem", { lineHeight: "1.125rem", letterSpacing: "0.005em", fontWeight: "400" }], "headline-sm": ["0.875rem", { lineHeight: "1.25rem", letterSpacing: "0em", fontWeight: "600" }], "label-md": ["0.75rem", { lineHeight: "1rem", letterSpacing: "0.04em", fontWeight: "500" }], "label-sm": ["0.6875rem", { lineHeight: "0.875rem", letterSpacing: "0.06em", fontWeight: "500" }] } } } };</script><style>@layer base{html,body{width:100vw;margin:0;padding:0;}body{overscroll-behavior:none;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-surface font-body-md text-body-md text-on-surface flex flex-col min-h-screen antialiased"><header class="fixed top-0 w-full z-50 pt-safe bg-surface/80 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-14 px-space-sm flex items-center justify-between"><div class="flex items-center gap-space-xs"><button aria-label="Quay lại" class="min-w-[44px] min-h-[44px] flex items-center justify-center text-on-surface hover:text-primary-container transition-colors" onclick="history.back()"><span class="material-symbols-outlined text-[22px]">arrow_back</span></button><h1 class="font-headline-md text-headline-md text-on-surface truncate">Chi Tiết Lab</h1></div><div class="flex items-center gap-space-sm pr-space-xs"><button aria-label="Tác vụ" class="w-11 h-11 flex items-center justify-center text-on-surface-variant hover:text-on-surface transition-colors"><span class="material-symbols-outlined text-[20px]">more_vert</span></button><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="flex-1 flex flex-col relative w-full pt-14 pb-safe bg-surface"><div class="flex flex-col w-full pb-28">
+<!-- Visual Lab Hero Showcase -->
+<div class="relative w-full h-52 bg-surface-container overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Vintage cozy analog film lab workshop in Saigon, warm tungsten ambient light, rustic wooden workbench with Noritsu scanner, rolls of Kodak and Fujifilm canisters stacked neatly, tactile warm paper and amber aesthetics, fine grain film photography vibe." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC1ntXm4rWl5N4rb3YVBIURY5Q_sae5cagNtNsNItafZkXPhQtXqAwgKw3k2cAMZ_5t4rR3mTsRXqrxP7cvEGNMid5mbOjN126lWpeGlHjTYDgTkRe-zLzK3wiwLr9L1JHPYUQItfGXy7yj6k1xoikTgM8rr_XmxhlecCfJ6PM1BxokeoUZ3-kbhWDweVCXw8W5JDMkT1Jn_Jzeg2Gjkns6tsgR0EpLtPCnPnZXg0g"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface via-surface/40 to-transparent"></div>
+<!-- Top Action Badges (Overlaid on Hero) -->
+<div class="absolute top-3 right-3 flex items-center gap-space-xs z-10">
+<button aria-label="Lưu yêu thích" class="w-9 h-9 rounded-full bg-surface-bright/90 backdrop-blur-md flex items-center justify-center text-on-surface shadow-sm active:scale-95 transition-transform" id="btn-bookmark" onclick="toggleBookmark()">
+<span class="material-symbols-outlined text-[20px] text-primary" id="bookmark-icon">bookmark_border</span>
+</button>
+<button aria-label="Chia sẻ tiệm" class="w-9 h-9 rounded-full bg-surface-bright/90 backdrop-blur-md flex items-center justify-center text-on-surface shadow-sm active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-[20px] text-on-surface">share</span>
+</button>
+</div>
+<!-- Lab Floating Badge -->
+<div class="absolute bottom-3 left-4 flex items-center gap-space-xs">
+<span class="px-2 py-0.5 rounded-sm bg-primary text-on-primary font-label-sm text-label-sm uppercase tracking-wider shadow-sm">
+        Lab Đối tác Xác minh
+      </span>
+<span class="px-2 py-0.5 rounded-sm bg-secondary-fixed text-on-secondary-fixed font-label-sm text-label-sm uppercase tracking-wider">
+        Noritsu &amp; Frontier
+      </span>
+</div>
+</div>
+<!-- Primary Lab Info Dossier -->
+<div class="px-4 pt-3 flex flex-col gap-space-md">
+<!-- Title & Rating -->
+<div class="flex flex-col gap-1">
+<div class="flex items-baseline justify-between">
+<h2 class="font-headline-lg text-headline-lg text-on-surface font-semibold tracking-tight">LLab Sài Gòn</h2>
+<div class="flex items-center gap-1 bg-surface-container-high px-2 py-0.5 rounded">
+<span class="material-symbols-outlined text-[16px] text-primary" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-code-md text-code-md font-semibold text-on-surface">4.9</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">(140)</span>
+</div>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Phòng tối chuyên nghiệp tráng quét phim màu C-41, B&amp;W và điện ảnh ECN-2 chuẩn màu.</p>
+</div>
+<!-- Operational Stats Card -->
+<div class="bg-surface-container-low rounded-lg p-3.5 flex flex-col gap-2.5">
+<!-- Address -->
+<div class="flex items-start gap-2.5">
+<span class="material-symbols-outlined text-[18px] text-primary mt-0.5 shrink-0">location_on</span>
+<div class="flex-1 min-w-0">
+<p class="font-body-sm text-body-sm text-on-surface font-medium">42 Nguyễn Huệ, Phường Bến Nghé, Quận 1, TP.HCM</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant mt-0.5">Cách phố đi bộ 50m • Giữ xe miễn phí tại sảnh</p>
+</div>
+</div>
+<!-- Hours & Status -->
+<div class="flex items-center justify-between pt-2">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px] text-secondary shrink-0">schedule</span>
+<span class="font-body-sm text-body-sm text-on-surface">08:30 – 20:30</span>
+<span class="px-1.5 py-0.5 rounded-sm bg-secondary-fixed text-on-secondary-fixed font-label-sm text-label-sm font-semibold uppercase">Đang mở cửa</span>
+</div>
+<a class="flex items-center gap-1 text-primary font-body-sm text-body-sm font-medium hover:underline" href="tel:0903123456">
+<span class="material-symbols-outlined text-[16px]">call</span>
+<span>0903 123 456</span>
+</a>
+</div>
+<!-- Equipment Spec Tag -->
+<div class="flex items-center gap-2 pt-2 bg-surface-container px-2.5 py-2 rounded">
+<span class="material-symbols-outlined text-[18px] text-tertiary shrink-0">photo_camera</span>
+<div class="flex items-center gap-1.5 flex-wrap">
+<span class="font-label-sm text-label-sm text-tertiary uppercase">Máy Scan:</span>
+<span class="font-code-md text-code-md text-on-surface font-medium">Noritsu HS-1800</span>
+<span class="text-outline-variant font-code-md text-code-md">•</span>
+<span class="font-code-md text-code-md text-on-surface font-medium">Fuji SP-3000</span>
+</div>
+</div>
+</div>
+<!-- Archival Policy Strip (Tactile Ledger style) -->
+<div class="bg-surface-container rounded-lg p-3 flex flex-col gap-2">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-primary">policy</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant font-semibold uppercase tracking-wider">Chính sách lưu trữ &amp; bàn giao</span>
+</div>
+<div class="grid grid-cols-2 gap-2">
+<div class="bg-surface-container-lowest p-2 rounded flex flex-col justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant">KHO CLOUD ARCHIVE</span>
+<div class="flex items-baseline gap-1 mt-1">
+<span class="font-code-md text-code-md font-bold text-on-surface">60 Ngày</span>
+<span class="font-label-sm text-label-sm text-secondary font-medium">Tải gốc</span>
+</div>
+<p class="font-label-sm text-label-sm text-on-surface-variant mt-0.5">Link Google Drive / Flickr</p>
+</div>
+<div class="bg-surface-container-lowest p-2 rounded flex flex-col justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant">LƯU NEGATIVE GỐC</span>
+<div class="flex items-baseline gap-1 mt-1">
+<span class="font-code-md text-code-md font-bold text-on-surface">15 Ngày</span>
+<span class="font-label-sm text-label-sm text-primary font-medium">Tại tiệm</span>
+</div>
+<p class="font-label-sm text-label-sm text-on-surface-variant mt-0.5">Nhận lại âm bản đã cắt/cuộn</p>
+</div>
+</div>
+</div>
+<!-- Section Heading: Bảng giá dịch vụ -->
+<div class="flex items-center justify-between pt-2">
+<div class="flex items-center gap-2">
+<div class="w-1.5 h-4 bg-primary rounded-full"></div>
+<h3 class="font-headline-md text-headline-md text-on-surface font-semibold tracking-tight">Bảng giá Tráng &amp; Scan Phim</h3>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase font-medium">VAT Included</span>
+</div>
+<!-- Price Ledger Cards -->
+<div class="flex flex-col gap-2.5">
+<!-- Item 1: C-41 -->
+<div class="bg-surface-container-low rounded-lg p-3.5 flex flex-col gap-2 transition-all hover:bg-surface-container">
+<div class="flex items-start justify-between">
+<div class="flex flex-col">
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-primary-container"></span>
+<h4 class="font-headline-sm text-headline-sm text-on-surface font-semibold">Gói Tráng + Scan Chuẩn C-41</h4>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">Phù hợp: Kodak Gold, ColorPlus, Ultramax, Fuji C200</p>
+</div>
+<div class="text-right">
+<span class="font-code-md text-code-md text-primary font-bold text-[15px]">70.000đ</span>
+<p class="font-label-sm text-label-sm text-on-surface-variant">/ cuộn 135</p>
+</div>
+</div>
+<div class="flex items-center gap-2 pt-1.5 flex-wrap">
+<span class="bg-surface-container px-2 py-0.5 rounded text-on-surface font-code-md text-code-md text-[11px] flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px] text-tertiary">timer</span> SLA: 24h
+          </span>
+<span class="bg-surface-container px-2 py-0.5 rounded text-on-surface font-code-md text-code-md text-[11px] flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px] text-tertiary">aspect_ratio</span> 3000 x 2000px (JPG)
+          </span>
+<span class="bg-secondary-fixed text-on-secondary-fixed px-2 py-0.5 rounded font-label-sm text-label-sm uppercase font-medium">
+            Phổ biến nhất
+          </span>
+</div>
+</div>
+<!-- Item 2: B&W -->
+<div class="bg-surface-container-low rounded-lg p-3.5 flex flex-col gap-2 transition-all hover:bg-surface-container">
+<div class="flex items-start justify-between">
+<div class="flex flex-col">
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-tertiary"></span>
+<h4 class="font-headline-sm text-headline-sm text-on-surface font-semibold">Gói Tráng + Scan B&amp;W Đen Trắng</h4>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">Thuốc tráng Kodak D-76 / X-Tol thủ công chuẩn sắc độ</p>
+</div>
+<div class="text-right">
+<span class="font-code-md text-code-md text-primary font-bold text-[15px]">80.000đ</span>
+<p class="font-label-sm text-label-sm text-on-surface-variant">/ cuộn 135</p>
+</div>
+</div>
+<div class="flex items-center gap-2 pt-1.5 flex-wrap">
+<span class="bg-surface-container px-2 py-0.5 rounded text-on-surface font-code-md text-code-md text-[11px] flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px] text-tertiary">timer</span> SLA: 48h
+          </span>
+<span class="bg-surface-container px-2 py-0.5 rounded text-on-surface font-code-md text-code-md text-[11px] flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px] text-tertiary">tune</span> Độ tương phản cao
+          </span>
+</div>
+</div>
+<!-- Item 3: ECN-2 -->
+<div class="bg-surface-container-low rounded-lg p-3.5 flex flex-col gap-2 transition-all hover:bg-surface-container">
+<div class="flex items-start justify-between">
+<div class="flex flex-col">
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+<h4 class="font-headline-sm text-headline-sm text-on-surface font-semibold">Gói Tráng + Scan Phim ECN-2</h4>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">Phim điện ảnh Kodak Vision 3 (Tẩy than sạch 100%)</p>
+</div>
+<div class="text-right">
+<span class="font-code-md text-code-md text-primary font-bold text-[15px]">95.000đ</span>
+<p class="font-label-sm text-label-sm text-on-surface-variant">/ cuộn 135</p>
+</div>
+</div>
+<div class="flex items-center gap-2 pt-1.5 flex-wrap">
+<span class="bg-surface-container px-2 py-0.5 rounded text-on-surface font-code-md text-code-md text-[11px] flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px] text-tertiary">timer</span> SLA: 72h
+          </span>
+<span class="bg-surface-container px-2 py-0.5 rounded text-on-surface font-code-md text-code-md text-[11px] flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px] text-tertiary">water_drop</span> Máy rửa xoáy Remjet
+          </span>
+</div>
+</div>
+<!-- Item 4: Add-on Options Ledger -->
+<div class="bg-surface-container-lowest rounded-lg p-3.5 shadow-sm">
+<h4 class="font-label-sm text-label-sm text-on-surface-variant font-semibold uppercase tracking-wider mb-2">Tùy chọn kỹ thuật nâng cao</h4>
+<div class="space-y-2">
+<div class="flex items-center justify-between py-1 bg-surface-container-low px-2 rounded">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-primary">raw_on</span>
+<span class="font-body-sm text-body-sm text-on-surface font-medium">Xuất file TIFF 16-bit Siêu nét</span>
+</div>
+<span class="font-code-md text-code-md text-on-surface font-semibold">+35.000đ</span>
+</div>
+<div class="flex items-center justify-between py-1 bg-surface-container-low px-2 rounded">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-primary">exposure</span>
+<span class="font-body-sm text-body-sm text-on-surface font-medium">Push / Pull ISO (+1 đến +3 stops)</span>
+</div>
+<span class="font-code-md text-code-md text-on-surface font-semibold">+20.000đ</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Customer Reviews Section -->
+<div class="flex flex-col gap-2.5 pt-2">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<div class="w-1.5 h-4 bg-primary rounded-full"></div>
+<h3 class="font-headline-md text-headline-md text-on-surface font-semibold tracking-tight">Đánh giá từ khách quen</h3>
+</div>
+<button class="font-body-sm text-body-sm text-primary font-medium hover:underline">Xem tất cả (140)</button>
+</div>
+<!-- Review Card 1 -->
+<div class="bg-surface-container-low rounded-lg p-3 flex flex-col gap-1.5">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 rounded-full bg-primary-fixed flex items-center justify-center font-code-md text-code-md text-primary font-bold text-xs">
+              MH
+            </div>
+<span class="font-body-sm text-body-sm font-semibold text-on-surface">Minh Hoàng</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">• 2 ngày trước</span>
+</div>
+<div class="flex items-center text-primary">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+          "Tráng cuộn Kodak Vision 250D tại LLab màu ra trong vắt, tẩy than sạch bong không sót hạt nào. Scan máy Noritsu hạt mịn màng rất ưng ý!"
+        </p>
+<div class="flex items-center gap-1 font-label-sm text-label-sm text-secondary font-medium">
+<span class="material-symbols-outlined text-[14px]">verified</span>
+<span>Đã tráng 12 cuộn tại tiệm</span>
+</div>
+</div>
+<!-- Review Card 2 -->
+<div class="bg-surface-container-low rounded-lg p-3 flex flex-col gap-1.5">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 rounded-full bg-secondary-fixed flex items-center justify-center font-code-md text-code-md text-secondary font-bold text-xs">
+              TA
+            </div>
+<span class="font-body-sm text-body-sm font-semibold text-on-surface">Trâm Anh</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">• Tuần trước</span>
+</div>
+<div class="flex items-center text-primary">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+          "Giao file đúng hạn 24h qua link drive, đóng gói trả negative rất cẩn thận vào sleeve nhựa chuyên dụng."
+        </p>
+</div>
+</div>
+</div>
+<!-- Persistent Bottom Action Anchor -->
+<div class="fixed bottom-0 left-0 right-0 z-40 bg-surface/95 backdrop-blur-md px-4 py-3 pb-safe shadow-[0_-4px_16px_rgba(0,0,0,0.06)]">
+<div class="max-w-md mx-auto flex items-center justify-between gap-3">
+<div class="flex flex-col min-w-0">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase font-medium">Bắt đầu từ</span>
+<div class="flex items-baseline gap-1">
+<span class="font-code-md text-code-md font-bold text-primary text-[1.125rem]">70.000đ</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">/ cuộn</span>
+</div>
+</div>
+<button class="flex-1 h-12 bg-primary-container text-on-primary rounded-lg flex items-center justify-center gap-2 px-4 font-headline-sm text-headline-sm font-semibold shadow-md active:opacity-90 active:scale-[0.99] transition-all" onclick="orderService()" style="background-color: #A9511C;">
+<span class="material-symbols-outlined text-[20px]">local_shipping</span>
+<span>Đặt dịch vụ tráng phim ngay</span>
+</button>
+</div>
+</div>
+</div>
+<script>
+  function toggleBookmark() {
+    const icon = document.getElementById('bookmark-icon');
+    const isBookmarked = icon.innerText === 'bookmark';
+    if (isBookmarked) {
+      icon.innerText = 'bookmark_border';
+      icon.style.fontVariationSettings = "'FILL' 0";
+    } else {
+      icon.innerText = 'bookmark';
+      icon.style.fontVariationSettings = "'FILL' 1";
+    }
+  }
+
+  function orderService() {
+    // Micro-interaction trigger feedback
+    const toast = document.createElement('div');
+    toast.className = 'fixed top-16 left-1/2 -translate-x-1/2 z-50 bg-inverse-surface text-inverse-on-surface px-4 py-2 rounded shadow-lg font-body-sm text-body-sm flex items-center gap-2 transition-all';
+    toast.innerHTML = '<span class="material-symbols-outlined text-primary-fixed text-[18px]">check_circle</span> Đang chuyển đến quy trình tạo đơn gửi cuộn phim...';
+    document.body.appendChild(toast);
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      setTimeout(() => toast.remove(), 300);
+    }, 2200);
+  }
+</script></main></body></html>
