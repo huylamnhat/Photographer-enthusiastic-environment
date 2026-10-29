@@ -40,7 +40,7 @@ flowchart LR
         L1(["Cấu hình hồ sơ tiệm & bảng giá dịch vụ"])
         L2(["Tiếp nhận đơn & Chụp ảnh QC"])
         L3(["Cập nhật công đoạn tráng/scan"])
-        L4(["Upload file scan lên Cloud Archive"])
+        L4(["Upload file scan vào Digital Film Archive"])
         L5(["Xem báo cáo vận hành & SLA"])
         L6(["Thương lượng bồi thường khiếu nại"])
         L7(["Đăng bán sản phẩm B2C (Film/Hóa chất)"])
@@ -118,7 +118,7 @@ flowchart LR
         L2(["Cập nhật công đoạn tráng/scan"])
         L2a(["Cập nhật tiến độ: Nhận - Tráng - Sấy - Scan - QC"])
         
-        L3(["Upload file scan lên Cloud & Trả kết quả"])
+        L3(["Upload file scan & Trả kết quả Archive"])
         L3a(["Tự động đồng bộ Digital Film Archive"])
         L3b(["Thu hồi & Ghi đè file scan (trong 24h)"])
 
@@ -303,7 +303,7 @@ Sơ đồ xử lý đầy đủ các nhánh nghiệp vụ thực tế:
 * Thanh toán thất bại $\rightarrow$ Cho phép khách bấm **"Thanh toán lại"** hoặc tự hủy sau 24h.
 * Giao nhận film 2 chiều: Chiều 1 lấy film (Shipper Pickup hoặc Khách tự mang Drop-off); Chiều 2 giao trả vật lý (âm bản / ảnh in) nếu khách đăng ký.
 * Xử lý phụ phí phát sinh (Cine ECN-2, film outdate Push sáng).
-* Tự động lưu Cloud Storage và đồng bộ ảnh vào Digital Film Archive.
+* Tự động lưu tệp vào hệ thống lưu trữ (File Storage) và đồng bộ ảnh vào Digital Film Archive.
 
 ```mermaid
 flowchart TB
@@ -336,7 +336,7 @@ flowchart TB
         P5("Cập nhật PaymentStatus = Paid<br/>Chuyển đơn sang Chờ Lab xác nhận")
         P_CHECK_SHIP{"Phương thức gửi film?"}
         P6("Tạo vận đơn Chiều 1 & Điều phối Shipper")
-        P7("Lưu file scan lên Cloud Storage")
+        P7("Lưu file scan vào hệ thống lưu trữ (File Storage)")
         P8("Tự động đồng bộ ảnh vào<br/>Digital Film Archive của khách")
         P_CHECK_RETURN{"Khách yêu cầu trả<br/>âm bản / ảnh in?"}
         P10("Tạo vận đơn Chiều 2 giao trả vật lý")

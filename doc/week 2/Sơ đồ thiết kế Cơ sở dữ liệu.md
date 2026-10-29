@@ -36,6 +36,8 @@ CSDL phục vụ 5 vai trò (Customer, Film Lab Owner, Photography Expert, Deliv
 
 **Quy ước đặt tên:** bảng dùng `PascalCase_Snake`, cột dùng `snake_case`. Khóa chính `<entity>_id`. Chuỗi tiếng Việt dùng `NVARCHAR`; mã/enum/URL dùng `VARCHAR`. Tiền tệ VND dùng `DECIMAL(15,2)`. Thời gian dùng `DATETIME2` lưu UTC.
 
+**Quy ước lưu trữ tệp (File Storage):** Toàn bộ tệp ảnh (avatar, ảnh scan gốc của Archive, ảnh thiết bị Marketplace, ảnh bằng chứng QC/khiếu nại) được lưu trữ vật lý trong hệ thống lưu trữ tệp của máy chủ (Local File Storage qua Multer, thư mục `/uploads/`), SQL Server tuyệt đối không lưu dữ liệu nhị phân (VARBINARY/BLOB) mà chỉ lưu đường dẫn tương đối trong các cột `storage_key`, `thumbnail_key`, `image_url`, `file_url` kiểu `VARCHAR(500)`.
+
 ---
 
 ## 2. Sơ đồ ERD quan niệm (Conceptual ERD)
@@ -1154,7 +1156,8 @@ CREATE TABLE Order_Process_Step (
     status        VARCHAR(20)  NOT NULL CONSTRAINT DF_OPS_Status DEFAULT 'PENDING',
     started_at    DATETIME2(0) NULL,
     completed_at  DATETIME2(0) NULL,
-    performed_by  INT          NULL,
+    performed_by       INT           NULL,
+    evidence_photo_url VARCHAR(500)  NULL,          -- ảnh chụp tình trạng cuộn film lúc nhận / bằng chứng QC
     note          NVARCHAR(500) NULL,
     CONSTRAINT PK_Order_Process_Step PRIMARY KEY (step_id),
     CONSTRAINT FK_OPS_Item FOREIGN KEY (order_item_id) REFERENCES Order_Item(order_item_id) ON DELETE CASCADE,
@@ -1277,13 +1280,13 @@ CREATE TABLE Shipment (
 ### 5.5. Digital Film Archive & Metadata
 
 ```sql
--- 21. Scan_File (file Lab upload sau khi scan - lưu trên Cloud Storage)
+-- 21. Scan_File (file Lab upload sau khi scan - lưu trong hệ thống File Storage)
 CREATE TABLE Scan_File (
     scan_file_id    BIGINT IDENTITY(1,1) NOT NULL,
     order_item_id   BIGINT        NOT NULL,
     uploaded_by     INT           NOT NULL,
     file_name       NVARCHAR(255) NOT NULL,
-    storage_key     VARCHAR(500)  NOT NULL,         -- đường dẫn object trên Cloud Storage
+    storage_key     VARCHAR(500)  NOT NULL,         -- đường dẫn file trong File Storage (VD: /uploads/scans/order_101/roll_01_001.jpg)
     mime_type       VARCHAR(50)   NOT NULL,
     size_bytes      BIGINT        NOT NULL,
     width_px        INT           NULL,
@@ -1325,8 +1328,8 @@ CREATE TABLE Archive_Photo (
     archive_id    BIGINT        NOT NULL,
     scan_file_id  BIGINT        NULL,               -- liên kết với file gốc do Lab giao
     file_name     NVARCHAR(255) NOT NULL,
-    storage_key   VARCHAR(500)  NOT NULL,
-    thumbnail_key VARCHAR(500)  NULL,
+    storage_key   VARCHAR(500)  NOT NULL,           -- đường dẫn file scan gốc trong File Storage
+    thumbnail_key VARCHAR(500)  NULL,               -- đường dẫn ảnh thu nhỏ (/uploads/thumbnails/...)
     mime_type     VARCHAR(50)   NOT NULL,
     size_bytes    BIGINT        NOT NULL,
     width_px      INT           NULL,
@@ -1874,7 +1877,7 @@ Các ràng buộc dưới đây **không biểu diễn được bằng `CHECK` �
 | R7 | Số `Event_Registration` có `status IN ('REGISTERED','ATTENDED')` ≤ `Event.capacity` | Transaction + `UPDLOCK` khi đăng ký |
 | R8 | Khiếu nại chỉ mở được khi đơn đã `COMPLETED`/`DELIVERING`/`CLOSED` và trong thời hạn quy định | Service layer |
 | R9 | Cập nhật `Lab_Profile.avg_rating`/`review_count` khi `Review` thay đổi | Trigger trên `Review` |
-| R10 | Mật khẩu chỉ lưu `password_hash`; file scan gốc chỉ lưu `storage_key`, nội dung nằm trên Cloud Storage | Quy ước thiết kế |
+| R10 | Mật khẩu chỉ lưu `password_hash`; file scan gốc chỉ lưu `storage_key` (đường dẫn tương đối), nội dung tệp lưu trong hệ thống lưu trữ (File Storage), không lưu BLOB vào DB | Quy ước thiết kế |
 | R11 | `Review.status = 'VISIBLE'` mới được tính vào điểm trung bình | Truy vấn / trigger R9 |
 
 ---
@@ -1890,7 +1893,7 @@ Các ràng buộc dưới đây **không biểu diễn được bằng `CHECK` �
 | Đặt dịch vụ tráng / scan / in, yêu cầu pickup & giao nhận | `Orders`, `Order_Item`, `Shipment`, `User_Address` |
 | Thanh toán online (VNPay / MoMo) | `Payment` |
 | Theo dõi tiến độ real-time, từng công đoạn (nhận, tráng, rửa, sấy, scan, QC) | `Order_Process_Step`, `Order_Status_History`, `Notification`, `Device_Token` |
-| Lab upload file scan lên Cloud Storage | `Scan_File` (`storage_key`) |
+| Lab upload file scan vào hệ thống lưu trữ (File Storage) | `Scan_File` (`storage_key`) |
 | **Digital Film Archive** + metadata (loại film, máy ảnh, ống kính, ngày chụp, cách xử lý, thông số scan) | `Digital_Film_Archive`, `Archive_Photo`, `Photo_Metadata`, `Film_Stock`, `Process_Type`, `Tag`, `Photo_Tag` |
 | Đối tác vận chuyển (Ahamove / Lalamove) cập nhật trạng thái | `Delivery_Partner_Profile`, `Shipment` (`provider`, `external_order_id`) |
 | **Marketplace**: đăng bán/trao đổi, tìm kiếm, **liên hệ SĐT/Zalo**, theo dõi giao dịch, đánh giá người bán | `Equipment_Category`, `Equipment_Listing` (`contact_phone`, `contact_zalo`), `Listing_Image`, `Listing_Favorite`, `Marketplace_Transaction`, `Review` |
