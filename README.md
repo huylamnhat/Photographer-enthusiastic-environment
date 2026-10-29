@@ -87,7 +87,7 @@ Nền tảng hoạt động như một hệ sinh thái cho nhiếp ảnh analog:
 
 **3. Quản lý vòng đời xử lý film.** Lab quản lý từng công đoạn: nhận film, tráng, rửa, sấy, scan, chuẩn bị ảnh và kiểm tra chất lượng cuối. Mỗi bước được ghi nhận và đồng bộ lên ứng dụng của khách để theo dõi real-time.
 
-**4. Giao file số & quản lý Archive.** Khi hoàn tất, lab upload file scan lên cloud storage an toàn. Khách nhận thông báo, xem, tải về, sắp xếp và lưu trữ lâu dài trong Digital Film Archive cùng đầy đủ metadata.
+**4. Giao file số & quản lý Archive.** Khi hoàn tất, lab upload file scan vào hệ thống lưu trữ tệp (File Storage trên máy chủ qua Multer). Hệ thống ghi nhận đường dẫn tương đối (storage key) vào CSDL SQL Server và tự động nạp vào Digital Film Archive. Khách nhận thông báo, xem ảnh dạng lưới (Gallery View), tải file gốc về và quản lý cùng đầy đủ thông số metadata.
 
 **5. Marketplace & trao đổi thiết bị.** Thành viên đăng bài mua, bán, trao đổi máy ảnh analog, film, ống kính, phụ kiện. Có quản lý tin đăng, tìm kiếm nâng cao, đánh giá người bán, theo dõi giao dịch và liên hệ trực tiếp qua số điện thoại/Zalo giữa người mua và người bán.
 
@@ -109,6 +109,7 @@ Hệ thống được tách module rõ ràng giữa App, Web, Backend và Storag
 | Web Portal & Admin | Flutter Web |
 | Backend | Node.js (Express) |
 | Database | SQL Server |
+| File Storage | Local File Storage (Multer & Express Static) / Hỗ trợ Cloud Storage |
 | Authentication | JWT |
 | Search Engine | Elasticsearch |
 | Triển khai | Netlify and Render |
@@ -118,7 +119,7 @@ Hệ thống được tách module rõ ràng giữa App, Web, Backend và Storag
 ## Yêu cầu phi chức năng
 
 - Xác thực bằng **JWT** kết hợp **phân quyền theo vai trò (RBAC)**.
-- **Cloud storage** cho file scan, có sao lưu tự động và cơ chế phục hồi.
+- **Lưu trữ tệp số an toàn (File Storage):** Lưu trữ file scan gốc (.JPG, .TIFF) an toàn trong thư mục máy chủ qua Multer kết hợp kiểm tra phân quyền JWT, CSDL SQL Server chỉ lưu đường dẫn tương đối (`storage_key`), sẵn sàng cấu hình nâng cấp Cloud Storage khi mở rộng.
 - **Kiến trúc module** tách App, Web, Backend, Storage.
 - **RESTful API** hỗ trợ tích hợp cổng thanh toán, đối tác logistics và các dịch vụ nhiếp ảnh trong tương lai.
 - **Sẵn sàng cao, mở rộng tốt, nhất quán dữ liệu** cho nền tảng multi-tenant phục vụ nhiều Film Lab cùng lúc.
