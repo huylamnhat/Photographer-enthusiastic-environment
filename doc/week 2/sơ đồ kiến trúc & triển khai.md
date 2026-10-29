@@ -64,12 +64,12 @@ flowchart TB
         MAIL["📧 Transactional Email<br/>(SMTP / Nodemailer)"]
     end
 
-    CLIENT -->|HTTPS:443 REST API| NGX
-    NGX -->|Proxy Pass HTTP:3000| BACKEND
-    BACKEND -->|TDS Protocol / TCP:1433| SQL
-    BACKEND -->|File I/O (Multer / File System)| FS
-    BACKEND -->|HTTPS REST API / Webhooks| EXT
-    NGX -.->|Serve ảnh Archive có kiểm tra token| FS
+    CLIENT -->|"HTTPS:443 REST API"| NGX
+    NGX -->|"Proxy Pass HTTP:3000"| BACKEND
+    BACKEND -->|"TDS Protocol / TCP:1433"| SQL
+    BACKEND -->|"File I/O (Multer / File System)"| FS
+    BACKEND -->|"HTTPS REST API / Webhooks"| EXT
+    NGX -.->|"Serve ảnh Archive có kiểm tra token"| FS
 ```
 
 ### 2.2 Chi tiết các tầng thành phần
@@ -88,6 +88,7 @@ flowchart TB
 > **Giải pháp lưu trữ Archive của hệ thống MiniLab:**
 > Kho lưu trữ số Digital Film Archive **KHÔNG** lưu dữ liệu nhị phân (BLOB) vào SQL Server (tránh phình to DB) và **KHÔNG** dùng link Google Drive (để đảm bảo tính tự động hóa và bảo mật riêng tư).  
 > Thay vào đó, hệ thống áp dụng mô hình chuẩn: **"Metadata lưu trong SQL Server – Tệp ảnh lưu trong File Storage của Server"**:
+
 * **SQL Server Database:** Quản lý cấu trúc dữ liệu quan hệ gồm 44 bảng. Riêng phân hệ Archive gồm các bảng: `Digital_Film_Archive` (đại diện cuộn film), `Scan_File` (file scan vật lý), `Archive_Photo` (từng bức ảnh) và `Photo_Metadata` (khẩu độ, tốc độ, ISO, loại film, máy ảnh, ống kính). Cột **`storage_key`** trong database chỉ lưu đường dẫn tương đối (VD: `/uploads/scans/order_101/roll_01_001.jpg`).
 * **Local File Storage:** Thư mục tệp tin được tổ chức khoa học ngay trên máy chủ backend (`public/uploads/scans/{order_id}/`). Khi cần nâng cấp lên Cloud Storage (AWS S3 hay Google Cloud) trong tương lai, hệ thống chỉ cần thay đổi cấu hình adapter lưu trữ mà không phải sửa đổi cấu trúc CSDL hay logic nghiệp vụ.
 * **Bảo vệ quyền riêng tư:** Thư mục ảnh Archive mặc định ở chế độ riêng tư (Private). API tải/xem ảnh bắt buộc kiểm tra JWT để đảm bảo chỉ chính chủ đơn hàng mới có thể truy cập ảnh, Quản trị viên chỉ được mở xem khi có tranh chấp khiếu nại chính thức.
@@ -123,7 +124,7 @@ flowchart TB
     subgraph INTERNAL_ZONE["3. Vùng mạng nội bộ (Private Subnet / Server App)"]
         subgraph APP_NODE["Application Server Node (Host Server)"]
             APP_SRV["⚙️ Backend Runtime<br/>Node.js + Express REST API<br/>- Quản lý: PM2 / Docker Container<br/>- Cổng nội bộ: 3000 (HTTP)"]:::internal
-            
+
             LOCAL_STORAGE[("📁 Thư mục lưu trữ tệp (File Storage)<br/>/var/www/minilab/uploads/<br/>- scans/ (Ảnh tráng gốc)<br/>- avatars/ & marketplace/")]:::internal
         end
 
@@ -139,11 +140,12 @@ flowchart TB
         EMAIL_SVC["📧 SMTP Email Server<br/>(Gửi OTP & Thông báo tài khoản)"]:::external
     end
 
-    C1 & C2 -->|HTTPS : 443| WEB_SRV
-    WEB_SRV -->|Proxy Pass HTTP : 3000| APP_SRV
-    APP_SRV -->|File I/O (Lưu/Đọc ảnh)| LOCAL_STORAGE
-    APP_SRV -->|TDS / TCP : 1433| DB_SRV
-    APP_SRV -->|HTTPS REST API / Webhooks : 443| EXT_ZONE
+    C1 -->|"HTTPS : 443"| WEB_SRV
+    C2 -->|"HTTPS : 443"| WEB_SRV
+    WEB_SRV -->|"Proxy Pass HTTP : 3000"| APP_SRV
+    APP_SRV -->|"File I/O (Lưu/Đọc ảnh)"| LOCAL_STORAGE
+    APP_SRV -->|"TDS / TCP : 1433"| DB_SRV
+    APP_SRV -->|"HTTPS REST API / Webhooks : 443"| EXT_ZONE
 ```
 
 ### Bảng phân công thành phần triển khai
@@ -202,7 +204,8 @@ flowchart TD
     F --> G["Thực hiện: Tráng hóa chất -> Rửa & Sấy -> Scan"]
     G --> H["Kiểm tra chất lượng file scan (QC)"]
     H --> I{"QC đạt chuẩn?"}
-    I -->|"Lỗi scan/bụi sọc"| J["Vệ sinh và scan lại"] --> H
+    I -->|"Lỗi scan/bụi sọc"| J["Vệ sinh và scan lại"]
+    J --> H
     I -->|"Đạt chuẩn"| K["Lab bấm Upload file scan (.JPG/.TIFF) lên Web Portal"]
     K --> L["Backend nhận file qua Multer, lưu vào thư mục /uploads/scans/order_xxx/"]
     L --> M["Ghi nhận storage_key và Photo_Metadata vào SQL Server"]
@@ -228,7 +231,8 @@ flowchart TD
     E --> F{"Lấy film thành công?"}
     F -->|"Thất bại"| G{"Đã hẹn lại tối đa 2 lần?"}
     G -->|"Chưa"| E
-    G -->|"Quá 2 lần"| H["Tự hủy yêu cầu pickup, chuyển sang Drop-off"] --> C
+    G -->|"Quá 2 lần"| H["Tự hủy yêu cầu pickup, chuyển sang Drop-off"]
+    H --> C
     F -->|"Thành công"| I["Shipper bàn giao film tại Lab (Received at Lab)"]
     C --> I
     I --> J["Lab tráng, scan và nạp kết quả số vào Archive"]
