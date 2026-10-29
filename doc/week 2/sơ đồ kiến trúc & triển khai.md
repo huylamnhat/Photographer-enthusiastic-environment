@@ -49,19 +49,19 @@ flowchart TB
     subgraph DATA_STORAGE["3. Data & Storage Layer (Dữ liệu & Lưu trữ tệp số)"]
         direction LR
         subgraph DB_BOX["Database Server (Quan hệ)"]
-            SQL[("🗄️ SQL Server Database<br/>- Users, Lab_Profile, Orders<br/>- Digital_Film_Archive, Photo_Metadata<br/>- Refund_Transactions, Audit_Log")]
+            SQL[(" SQL Server Database<br/>- Users, Lab_Profile, Orders<br/>- Digital_Film_Archive, Photo_Metadata<br/>- Refund_Transactions, Audit_Log")]
         end
         subgraph FILE_BOX["File Storage (Tệp số)"]
-            FS[("📁 Local File Storage (Server Directory)<br/>- /uploads/scans/order_xxx/ (File scan gốc)<br/>- /uploads/thumbnails/ (Ảnh nén xem trước)<br/>- /uploads/marketplace/ (Ảnh thiết bị)")]
+            FS[(" Local File Storage (Server Directory)<br/>- /uploads/scans/order_xxx/ (File scan gốc)<br/>- /uploads/thumbnails/ (Ảnh nén xem trước)<br/>- /uploads/marketplace/ (Ảnh thiết bị)")]
         end
     end
 
     subgraph EXT["4. External Services Layer (Dịch vụ tích hợp bên ngoài)"]
         direction LR
-        PAY["💳 Cổng thanh toán<br/>(VNPay / MoMo)"]
-        SHIP["🚚 Đơn vị vận chuyển<br/>(Ahamove / Lalamove)"]
-        NOTIF["🔔 Push Notification<br/>(Firebase Cloud Messaging - FCM)"]
-        MAIL["📧 Transactional Email<br/>(SMTP / Nodemailer)"]
+        PAY[" Cổng thanh toán<br/>(VNPay / MoMo)"]
+        SHIP[" Đơn vị vận chuyển<br/>(Ahamove / Lalamove)"]
+        NOTIF[" Push Notification<br/>(Firebase Cloud Messaging - FCM)"]
+        MAIL[" Transactional Email<br/>(SMTP / Nodemailer)"]
     end
 
     CLIENT -->|"HTTPS:443 REST API"| NGX
@@ -113,31 +113,31 @@ flowchart TB
     classDef external fill:#f3e5f5,stroke:#8e24aa,color:#4a148c
 
     subgraph CLIENT_ZONE["1. Thiết bị người dùng (Client Devices)"]
-        C1["📱 Smartphone (Android / iOS)<br/>Flutter Mobile App"]:::client
-        C2["💻 Desktop / Laptop (Web Browser)<br/>Flutter Web Application"]:::client
+        C1[" Smartphone (Android / iOS)<br/>Flutter Mobile App"]:::client
+        C2[" Desktop / Laptop (Web Browser)<br/>Flutter Web Application"]:::client
     end
 
     subgraph DMZ_ZONE["2. Vùng mạng công cộng (Public Subnet / DMZ)"]
-        WEB_SRV["🌐 Web Server & Reverse Proxy Node<br/>Nginx (Linux Ubuntu Server)<br/>- Cổng tiếp nhận: 443 (HTTPS), 80 (HTTP)<br/>- Chức năng: SSL Termination, Reverse Proxy, Static Caching"]:::dmz
+        WEB_SRV[" Web Server & Reverse Proxy Node<br/>Nginx (Linux Ubuntu Server)<br/>- Cổng tiếp nhận: 443 (HTTPS), 80 (HTTP)<br/>- Chức năng: SSL Termination, Reverse Proxy, Static Caching"]:::dmz
     end
 
     subgraph INTERNAL_ZONE["3. Vùng mạng nội bộ (Private Subnet / Server App)"]
         subgraph APP_NODE["Application Server Node (Host Server)"]
-            APP_SRV["⚙️ Backend Runtime<br/>Node.js + Express REST API<br/>- Quản lý: PM2 / Docker Container<br/>- Cổng nội bộ: 3000 (HTTP)"]:::internal
+            APP_SRV[" Backend Runtime<br/>Node.js + Express REST API<br/>- Quản lý: PM2 / Docker Container<br/>- Cổng nội bộ: 3000 (HTTP)"]:::internal
 
-            LOCAL_STORAGE[("📁 Thư mục lưu trữ tệp (File Storage)<br/>/var/www/minilab/uploads/<br/>- scans/ (Ảnh tráng gốc)<br/>- avatars/ & marketplace/")]:::internal
+            LOCAL_STORAGE[(" Thư mục lưu trữ tệp (File Storage)<br/>/var/www/minilab/uploads/<br/>- scans/ (Ảnh tráng gốc)<br/>- avatars/ & marketplace/")]:::internal
         end
 
         subgraph DB_NODE["Database Server Node"]
-            DB_SRV[("🗄️ SQL Server Database Node<br/>Microsoft SQL Server 2019/2022<br/>- Cổng nội bộ: 1433 (TCP)<br/>- Ràng buộc 3NF, Bảng Audit Log & Metadata")]:::internal
+            DB_SRV[(" SQL Server Database Node<br/>Microsoft SQL Server 2019/2022<br/>- Cổng nội bộ: 1433 (TCP)<br/>- Ràng buộc 3NF, Bảng Audit Log & Metadata")]:::internal
         end
     end
 
     subgraph EXT_ZONE["4. Dịch vụ đối tác bên thứ ba (External Services)"]
-        VNPAY["💳 VNPay / MoMo API<br/>(Thanh toán & Hoàn tiền)"]:::external
-        AHAMOVE["🚚 Ahamove / Lalamove API<br/>(Điều phối giao vận 2 chiều)"]:::external
-        FCM["🔔 Firebase Cloud Messaging (FCM)<br/>(Push Notification thời gian thực)"]:::external
-        EMAIL_SVC["📧 SMTP Email Server<br/>(Gửi OTP & Thông báo tài khoản)"]:::external
+        VNPAY[" VNPay / MoMo API<br/>(Thanh toán & Hoàn tiền)"]:::external
+        AHAMOVE[" Ahamove / Lalamove API<br/>(Điều phối giao vận 2 chiều)"]:::external
+        FCM[" Firebase Cloud Messaging (FCM)<br/>(Push Notification thời gian thực)"]:::external
+        EMAIL_SVC[" SMTP Email Server<br/>(Gửi OTP & Thông báo tài khoản)"]:::external
     end
 
     C1 -->|"HTTPS : 443"| WEB_SRV
