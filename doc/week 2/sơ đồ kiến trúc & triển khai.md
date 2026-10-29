@@ -1,9 +1,5 @@
 # WEEK 2 – SƠ ĐỒ KIẾN TRÚC & TRIỂN KHAI
 
-> **Dự án:** MiniLab – Nền tảng kết nối cộng đồng nhiếp ảnh phim và các Film Lab  
-> **Nhóm thực hiện:** Nhóm 8  
-> **Phiên bản:** 2.0 (Đồng bộ hóa nghiệp vụ Week 1 & giải pháp lưu trữ Archive thực tế)
-
 ---
 
 ## 1. Mục tiêu và phạm vi
