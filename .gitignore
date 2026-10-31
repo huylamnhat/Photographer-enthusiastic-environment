@@ -1,10 +1,10 @@
 # ===== Bí mật (KHÔNG BAO GIỜ commit) =====
-.env
-.env.*
-!.env.example
+*.env
+*.env.*
+!*.env.example
 *.pem
 *.key
- 
+
 # ===== Node.js (backend) =====
 node_modules/
 npm-debug.log*
@@ -14,7 +14,7 @@ coverage/
 dist/
 logs/
 *.log
- 
+
 # ===== Flutter / Dart (app + web) =====
 .dart_tool/
 .pub/
@@ -24,7 +24,7 @@ logs/
 .flutter-plugins-dependencies
 build/
 *.iml
- 
+
 # Android
 **/android/.gradle/
 **/android/local.properties
@@ -34,23 +34,23 @@ build/
 **/android/app/release
 *.jks
 *.keystore
- 
+
 # iOS
 **/ios/Pods/
 **/ios/.symlinks/
 **/ios/Flutter/ephemeral/
 **/ios/**/xcuserdata/
- 
+
 # ===== Database =====
 *.mdf
 *.ldf
 *.bak
 *.sqlite
 *.db
- 
+
 # ===== File upload khi chạy thử (nếu backend lưu ảnh vào thư mục) =====
 uploads/
- 
+
 # ===== IDE & hệ điều hành =====
 .idea/
 .vscode/
