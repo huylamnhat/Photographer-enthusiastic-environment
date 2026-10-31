@@ -1,0 +1,22 @@
+{
+  "name": "photographer-web-lab-backend",
+  "version": "1.0.0",
+  "description": "Backend API nội bộ cho Phân hệ Web Lab",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.2"
+  },
+  "keywords": [
+    "film-lab",
+    "minilab",
+    "express",
+    "rest-api"
+  ],
+  "author": "Nhom 8 - Term Project",
+  "license": "ISC"
+}

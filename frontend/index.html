@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Film Web Lab - Cổng Quản Trị Vận Hành Xưởng Phim</title>
+  <link rel="stylesheet" href="css/lab-style.css">
+</head>
+<body>
+
+  <!-- Top Navigation Header -->
+  <header class="app-header">
+    <div class="brand-wrapper">
+      <div class="brand-logo">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect>
+          <line x1="7" y1="2" x2="7" y2="22"></line>
+          <line x1="17" y1="2" x2="17" y2="22"></line>
+          <line x1="2" y1="12" x2="22" y2="12"></line>
+          <line x1="2" y1="7" x2="7" y2="7"></line>
+          <line x1="2" y1="17" x2="7" y2="17"></line>
+          <line x1="17" y1="17" x2="22" y2="17"></line>
+          <line x1="17" y1="7" x2="22" y2="7"></line>
+        </svg>
+        <span>FILM LAB STUDIO</span>
+      </div>
+      <div class="brand-subtitle">
+        Cổng Quản Trị & Điều Hành Sản Xuất Nội Bộ
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <!-- Role Switcher giả lập để kiểm thử RBAC -->
+      <div class="role-switcher-box">
+        <span style="color:var(--text-muted); font-weight:500;">Vai trò:</span>
+        <select id="role-select" class="role-select">
+          <option value="LAB_OWNER">Chủ Lab (Lab Owner)</option>
+          <option value="LAB_OPERATOR">Kỹ thuật viên (Lab Operator)</option>
+        </select>
+      </div>
+    </div>
+  </header>
+
+  <!-- Nav Tabs -->
+  <nav class="nav-tabs">
+    <button class="tab-btn active" data-tab="tab-kanban">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+        <line x1="9" y1="3" x2="9" y2="21"></line>
+        <line x1="15" y1="3" x2="15" y2="21"></line>
+      </svg>
+      Kanban Sản Xuất
+    </button>
+    <button class="tab-btn" data-tab="tab-orders">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="16.5" y1="9.4" x2="7.5" y2="4.21"></line>
+        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+        <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+        <line x1="12" y1="22.08" x2="12" y2="12"></line>
+      </svg>
+      Quản Lý Đơn Hàng
+    </button>
+    <button class="tab-btn" data-tab="tab-services">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
+        <line x1="7" y1="7" x2="7.01" y2="7"></line>
+      </svg>
+      Gói Dịch Vụ & Bảng Giá
+    </button>
+    <button class="tab-btn" data-tab="tab-profile">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="3"></circle>
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+      </svg>
+      Cấu Hình Hồ Sơ Lab
+    </button>
+  </nav>
+
+  <!-- Main Workspace -->
+  <main class="main-content">
+
+    <!-- 1. TAB KANBAN SẢN XUẤT -->
+    <section id="tab-kanban" class="tab-pane active">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Bảng Kanban Điều Phối Xưởng Tráng Phim</h2>
+          <p>
+            Theo dõi và chuyển đổi từng công đoạn xử lý cuộn phim: Tiếp nhận ➔ Tráng hóa chất ➔ Scan & QC ➔ Nạp file scan trả khách.
+          </p>
+        </div>
+        <div>
+          <button class="btn btn-secondary" onclick="KanbanModule.renderKanban()">Làm mới</button>
+        </div>
+      </div>
+
+      <div id="kanban-board" class="kanban-board">
+        <!-- Render động bởi kanban.js -->
+      </div>
+    </section>
+
+    <!-- 2. TAB DANH SÁCH ĐƠN HÀNG -->
+    <section id="tab-orders" class="tab-pane">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Danh Sách Đơn Hàng & Vòng Đời Cuộn Film</h2>
+          <p>
+            Quản lý chi tiết đơn hàng, bảo lưu giá (Price Snapshotting), gán khay âm bản (Bin code), và nạp file scan.
+          </p>
+        </div>
+      </div>
+
+      <div class="filter-bar">
+        <input type="text" id="order-search" class="search-input" placeholder="Tìm theo mã đơn, tên khách, số điện thoại, loại film...">
+        <select id="order-status-filter" class="select-filter">
+          <option value="">Tất cả trạng thái</option>
+          <option value="PROCESSING">PROCESSING (Đang xử lý)</option>
+          <option value="SCANS_UPLOADED">SCANS_UPLOADED (Đã upload scan)</option>
+          <option value="CLOSED">CLOSED (Hoàn tất đóng đơn)</option>
+        </select>
+        <button class="btn btn-secondary" onclick="OrdersModule.renderOrdersTable()">Lọc kết quả</button>
+      </div>
+
+      <div class="data-table-wrapper">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Mã Đơn</th>
+              <th>Khách Hàng</th>
+              <th>Trạng Thái</th>
+              <th>Số Cuộn Film</th>
+              <th>Tổng Tiền</th>
+              <th>Ngày Tạo</th>
+              <th>Thao Tác</th>
+            </tr>
+          </thead>
+          <tbody id="orders-table-body">
+            <!-- Render động bởi orders.js -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 3. TAB GÓI DỊCH VỤ & BẢNG GIÁ -->
+    <section id="tab-services" class="tab-pane">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Danh Mục Gói Dịch Vụ & Biểu Phí</h2>
+          <p>
+            Chỉ Chủ Lab (Lab Owner) mới được chỉnh sửa giá. Mọi thay đổi giá đều được lưu vết kiểm toán (Audit Trail) và bảo lưu giá đơn cũ.
+          </p>
+        </div>
+        <div style="display:flex; gap:0.6rem;">
+          <button class="btn btn-secondary" onclick="ServicesModule.viewAuditLogs()">Lịch Sử Đổi Giá (Audit Trail)</button>
+          <button id="add-service-btn" class="btn btn-primary">Thêm Gói Dịch Vụ Mới</button>
+        </div>
+      </div>
+
+      <div class="data-table-wrapper">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Tên Dịch Vụ</th>
+              <th>Khổ Film</th>
+              <th>Quy Trình</th>
+              <th>Giá Cơ Bản</th>
+              <th>Cam Kết SLA</th>
+              <th>Trạng Thái</th>
+              <th>Thao Tác</th>
+            </tr>
+          </thead>
+          <tbody id="services-table-body">
+            <!-- Render động bởi services.js -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 4. TAB CẤU HÌNH HỒ SƠ LAB -->
+    <section id="tab-profile" class="tab-pane">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Cấu Hình Hồ Sơ Film Lab (Lab Profile)</h2>
+          <p>
+            Thông tin định danh tiệm, chính sách lưu trữ file scan Cloud (mặc định 60 ngày) và thời hạn giữ âm bản vật lý (15 ngày).
+          </p>
+        </div>
+        <div>
+          <button id="save-profile-btn" class="btn btn-primary">Lưu Cấu Hình</button>
+        </div>
+      </div>
+
+      <div style="background:var(--bg-secondary); border:1px solid var(--border-subtle); border-radius:var(--radius-lg); padding:1.75rem; max-width:920px; box-shadow:var(--shadow-sm);">
+        <div class="form-group" style="margin-bottom:1.15rem;">
+          <label class="form-label">Tên Tiệm Lab:</label>
+          <input type="text" id="lab-name" class="form-control">
+        </div>
+
+        <div class="form-group" style="margin-bottom:1.15rem;">
+          <label class="form-label">Khẩu Hiệu / Tagline:</label>
+          <input type="text" id="lab-tagline" class="form-control">
+        </div>
+
+        <div class="grid-2" style="margin-bottom:1.15rem;">
+          <div class="form-group">
+            <label class="form-label">Hotline Liên Hệ:</label>
+            <input type="text" id="lab-hotline" class="form-control">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email Lab:</label>
+            <input type="email" id="lab-email" class="form-control">
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom:1.15rem;">
+          <label class="form-label">Giờ Làm Việc Tiếp Khách:</label>
+          <input type="text" id="lab-hours" class="form-control">
+        </div>
+
+        <div class="form-group" style="margin-bottom:1.15rem;">
+          <label class="form-label">Địa Chỉ Các Chi Nhánh Cơ Sở (Mỗi dòng một cơ sở):</label>
+          <textarea id="lab-addresses" class="form-control" rows="3"></textarea>
+        </div>
+
+        <div class="grid-2" style="margin-top:1.5rem; padding-top:1.25rem; border-top:1px solid var(--border-subtle);">
+          <div class="form-group">
+            <label class="form-label">Thời Hạn Lưu File Scan Trên Cloud (Ngày):</label>
+            <input type="number" id="policy-scan-days" class="form-control">
+            <small style="color:var(--text-muted);">Cam kết giữ file cho khách tải về (Ví dụ: 60 ngày)</small>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Thời Hạn Giữ Âm Bản Gốc Tại Tiệm (Ngày):</label>
+            <input type="number" id="policy-negative-days" class="form-control">
+            <small style="color:var(--text-muted);">Khách đến nhận trực tiếp trước hạn hủy (Ví dụ: 15 ngày)</small>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ==================== CÁC MODAL NGHIỆP VỤ ==================== -->
+
+  <!-- Modal Chi Tiết Đơn Hàng -->
+  <div id="order-detail-modal" class="modal-overlay">
+    <div class="modal-content" style="max-width:850px;">
+      <div class="modal-header">
+        <h3 class="modal-title">Chi Tiết Đơn Hàng & Vòng Đời Cuộn Film</h3>
+        <button class="modal-close">&times;</button>
+      </div>
+      <div id="order-detail-body" class="modal-body">
+        <!-- Render động -->
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary btn-modal-close">Đóng</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Gán Khay Âm Bản (Bin Code) -->
+  <div id="bin-modal" class="modal-overlay">
+    <div class="modal-content" style="max-width:460px;">
+      <div class="modal-header">
+        <h3 class="modal-title">Gán Khay Lưu Trữ Âm Bản (Bin Code)</h3>
+        <button class="modal-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Mã ngăn / khay vật lý:</label>
+          <input type="text" id="bin-code-input" class="form-control" placeholder="VD: BIN-A12, BIN-B03">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Số ngày giữ âm bản:</label>
+          <input type="number" id="bin-expiry-input" class="form-control" value="15">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary btn-modal-close">Hủy</button>
+        <button class="btn btn-primary" onclick="OrdersModule.submitBinCode()">Lưu Vị Trí Khay</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Đánh Dấu Phim Trắng (Blank Film) -->
+  <div id="blank-modal" class="modal-overlay">
+    <div class="modal-content" style="max-width:550px;">
+      <div class="modal-header">
+        <h3 class="modal-title" style="color:var(--accent-red);">Báo Cuộn Phim Trắng (Blank Film)</h3>
+        <button class="modal-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Lý do kỹ thuật (Film không lộ sáng / lỗi màn trập):</label>
+          <textarea id="blank-reason-input" class="form-control" rows="3"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Đường dẫn ảnh chụp bằng chứng:</label>
+          <input type="text" id="blank-proof-input" class="form-control" value="assets/proofs/blank_film_evidence.jpg">
+        </div>
+        <div style="background:rgba(248,113,113,0.08); border:1px solid rgba(248,113,113,0.3); padding:0.85rem; border-radius:var(--radius-sm); font-size:0.825rem; color:var(--text-secondary);">
+          <b style="color:var(--accent-red);">Chính sách hoàn tiền tự động:</b> Giữ lại chi phí hóa chất tráng, hoàn trả 100% chi phí scan & in ảnh cho khách hàng.
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary btn-modal-close">Hủy</button>
+        <button class="btn btn-danger" onclick="OrdersModule.submitBlankFilm()">Xác Nhận Phim Trắng</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Nạp Metadata File Scan Trả Khách -->
+  <div id="scan-modal" class="modal-overlay">
+    <div class="modal-content" style="max-width:560px;">
+      <div class="modal-header">
+        <h3 class="modal-title" style="color:var(--accent-purple);">Nạp Metadata File Scan Trả Khách</h3>
+        <button class="modal-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Tên File nén (.ZIP) chuẩn hóa:</label>
+          <input type="text" id="scan-filename-input" class="form-control">
+          <small style="color:var(--text-muted);">Cú pháp: {MãĐơn}_{MãCuộn}_{SĐTKhách}_{TênFilm}.zip</small>
+        </div>
+        <div class="grid-2">
+          <div class="form-group">
+            <label class="form-label">Tổng số frames ảnh:</label>
+            <input type="number" id="scan-frames-input" class="form-control" value="36">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Dung lượng file (MB):</label>
+            <input type="number" step="0.1" id="scan-size-input" class="form-control" value="120.5">
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="form-group">
+            <label class="form-label">Máy Scanner sử dụng:</label>
+            <select id="scan-model-input" class="form-control">
+              <option value="Noritsu HS-1800">Noritsu HS-1800</option>
+              <option value="Fuji Frontier SP-3000">Fuji Frontier SP-3000</option>
+              <option value="Pakon F135 Plus">Pakon F135 Plus</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Độ phân giải scan:</label>
+            <select id="scan-res-input" class="form-control">
+              <option value="3000x2000 (Standard JPG)">3000x2000 (Standard JPG)</option>
+              <option value="6000x4000 (High-Res JPG)">6000x4000 (High-Res JPG)</option>
+              <option value="16-Bit Uncompressed TIFF">16-Bit Uncompressed TIFF</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary btn-modal-close">Hủy</button>
+        <button class="btn btn-primary" onclick="OrdersModule.submitScanMetadata()">Nạp File Scan & Hoàn Tất</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Thu Hồi / Ghi Đè File Scan (Revoke & Replace) -->
+  <div id="revoke-modal" class="modal-overlay">
+    <div class="modal-content" style="max-width:520px;">
+      <div class="modal-header">
+        <h3 class="modal-title" style="color:var(--accent-amber);">Thu Hồi File Scan Cũ (Trong 24h)</h3>
+        <button class="modal-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Lý do thu hồi / ghi đè (Bắt buộc ghi Audit Log):</label>
+          <textarea id="revoke-reason-input" class="form-control" rows="3" placeholder="Nhập lý do kỹ thuật (ví dụ: nhầm file, lệch khung hình, bụi sensor)..."></textarea>
+        </div>
+        <p style="font-size:0.825rem; color:var(--text-muted); line-height:1.45;">
+          * Lưu ý: File scan cũ sẽ bị vô hiệu hóa liên kết tải của khách hàng và cuộn phim sẽ quay về trạng thái SCANNING để nạp bản scan mới.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary btn-modal-close">Hủy</button>
+        <button class="btn btn-warning" onclick="OrdersModule.submitRevokeScan()">Xác Nhận Thu Hồi</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Thêm / Sửa Gói Dịch Vụ -->
+  <div id="service-edit-modal" class="modal-overlay">
+    <div class="modal-content" style="max-width:620px;">
+      <div class="modal-header">
+        <h3 id="service-modal-title" class="modal-title">Chỉnh Sửa Gói Dịch Vụ</h3>
+        <button class="modal-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Tên gói dịch vụ:</label>
+          <input type="text" id="svc-name" class="form-control">
+        </div>
+        <div class="grid-2">
+          <div class="form-group">
+            <label class="form-label">Khổ phim:</label>
+            <select id="svc-format" class="form-control">
+              <option value="135 (35mm)">135 (35mm)</option>
+              <option value="120 (Medium Format)">120 (Medium Format)</option>
+              <option value="110">110</option>
+              <option value="APS (240)">APS (240)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Quy trình tráng:</label>
+            <select id="svc-process" class="form-control">
+              <option value="C-41">C-41 (Phim màu)</option>
+              <option value="B&W">B&W (Đen trắng)</option>
+              <option value="ECN-2">ECN-2 (Điện ảnh Cine)</option>
+              <option value="E-6">E-6 (Slide dương bản)</option>
+            </select>
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="form-group">
+            <label class="form-label">Giá cơ bản (VNĐ):</label>
+            <input type="number" id="svc-price" class="form-control">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Cam kết SLA:</label>
+            <input type="text" id="svc-sla" class="form-control">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Mô tả dịch vụ:</label>
+          <textarea id="svc-desc" class="form-control" rows="2"></textarea>
+        </div>
+        <div id="svc-reason-group" class="form-group" style="display:none; background:rgba(251,191,36,0.08); padding:0.85rem; border-radius:var(--radius-sm); border:1px solid rgba(251,191,36,0.3);">
+          <label class="form-label" style="color:var(--accent-amber);">* Lý do thay đổi giá (Bắt buộc lưu Audit Trail):</label>
+          <input type="text" id="svc-reason" class="form-control" placeholder="Ví dụ: Tăng giá hóa chất nhập khẩu, chương trình ưu đãi...">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary btn-modal-close">Hủy</button>
+        <button class="btn btn-primary" onclick="ServicesModule.saveService()">Lưu Dịch Vụ</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Xem Nhật Ký Đổi Giá (Audit Trail) -->
+  <div id="audit-log-modal" class="modal-overlay">
+    <div class="modal-content" style="max-width:660px;">
+      <div class="modal-header">
+        <h3 class="modal-title">Nhật Ký Thay Đổi Giá Dịch Vụ (Audit Trail)</h3>
+        <button class="modal-close">&times;</button>
+      </div>
+      <div id="audit-log-content" class="modal-body">
+        <!-- Render động -->
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary btn-modal-close">Đóng</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- Scripts -->
+  <script src="js/api.js"></script>
+  <script src="js/kanban.js"></script>
+  <script src="js/orders.js"></script>
+  <script src="js/services.js"></script>
+  <script src="js/profile.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
