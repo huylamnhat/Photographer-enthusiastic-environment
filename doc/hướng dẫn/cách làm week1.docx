@@ -82,6 +82,7 @@ Mục tiêu: Xác định Admin cần kiểm soát những gì để hệ thốn
 - Cần lưu lại lịch sử thao tác nào để kiểm tra?
 
 Cách làm: Với từng chức năng, phân biệt rõ quyền của Admin, quy tắc xử lý, thông tin được phép xem/sửa và cách ghi nhận lịch sử. Không mặc định Admin có quyền làm mọi thứ nếu nhóm chưa thống nhất.
+
 Người 4 — Dịch vụ bổ trợ và cộng đồng
 Mục tiêu: Phân tích những quy trình hỗ trợ cho việc đặt dịch vụ, giao nhận và tương tác cộng đồng.
 1. Nhận phim và giao hàng

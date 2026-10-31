@@ -18,30 +18,30 @@
 
 ---
 
-## 📖 Mục lục
+## Mục lục
 
-1. [Giới thiệu](#-giới-thiệu)
-2. [Vấn đề cần giải quyết](#-vấn-đề-cần-giải-quyết)
-3. [Giải pháp đề xuất](#-giải-pháp-đề-xuất)
-4. [Vai trò trong hệ thống](#-vai-trò-trong-hệ-thống)
-5. [Luồng nghiệp vụ chính](#-luồng-nghiệp-vụ-chính)
-6. [Kiến trúc hệ thống](#-kiến-trúc-hệ-thống)
-7. [Công nghệ sử dụng](#-công-nghệ-sử-dụng)
-8. [Yêu cầu phi chức năng](#-yêu-cầu-phi-chức-năng)
-9. [Sản phẩm đầu ra](#-sản-phẩm-đầu-ra)
-10. [Kế hoạch thực hiện](#-kế-hoạch-thực-hiện)
-11. [Bắt đầu](#-bắt-đầu)
-12. [Thành viên nhóm](#-thành-viên-nhóm)
+1. [Giới thiệu](#giới-thiệu)
+2. [Vấn đề cần giải quyết](#vấn-đề-cần-giải-quyết)
+3. [Giải pháp đề xuất](#giải-pháp-đề-xuất)
+4. [Vai trò trong hệ thống](#vai-trò-trong-hệ-thống)
+5. [Luồng nghiệp vụ chính](#luồng-nghiệp-vụ-chính)
+6. [Kiến trúc hệ thống](#kiến-trúc-hệ-thống)
+7. [Công nghệ sử dụng](#công-nghệ-sử-dụng)
+8. [Yêu cầu phi chức năng](#yêu-cầu-phi-chức-năng)
+9. [Sản phẩm đầu ra](#sản-phẩm-đầu-ra)
+10. [Kế hoạch thực hiện](#kế-hoạch-thực-hiện)
+11. [Bắt đầu](#bắt-đầu)
+12. [Thành viên nhóm](#thành-viên-nhóm)
 
 ---
 
-## 🎞️ Giới thiệu
+## Giới thiệu
 
 Nhiếp ảnh phim đang hồi sinh mạnh mẽ trên toàn thế giới, trong đó có Việt Nam. Ngày càng nhiều người yêu nhiếp ảnh, nghệ sĩ và nhà sưu tầm quay lại với phim nhờ vẻ đẹp đặc trưng và trải nghiệm sáng tạo riêng của nó. Nhu cầu về các dịch vụ **tráng phim, scan phim, in ảnh và lưu trữ số** vì vậy cũng tăng nhanh.
 
 Dự án này xây dựng một **nền tảng số** kết nối **nhiếp ảnh gia, Film Lab, chuyên gia nhiếp ảnh và đối tác vận chuyển** trong cùng một hệ sinh thái: số hóa quy trình dịch vụ, quản lý đơn hàng minh bạch và thúc đẩy cộng đồng nhiếp ảnh phim.
 
-## 🔎 Vấn đề cần giải quyết
+## Vấn đề cần giải quyết
 
 | Đối tượng | Hiện trạng |
 |---|---|
@@ -49,7 +49,7 @@ Dự án này xây dựng một **nền tảng số** kết nối **nhiếp ản
 | **Film Lab** | Nhiều lab vẫn làm thủ công: nhận film, theo dõi tiến độ, giao file scan, quản lý khách. Hiệu quả vận hành thấp, khó mở rộng. |
 | **Cộng đồng** | Thiếu một hệ sinh thái số nơi mọi người tiếp cận kiến thức chuyên môn, tìm lab uy tín, trao đổi thiết bị, quản lý bộ sưu tập ảnh scan và tham gia hoạt động chung. |
 
-## 💡 Giải pháp đề xuất
+## Giải pháp đề xuất
 
 Nền tảng hoạt động như một hệ sinh thái cho nhiếp ảnh analog:
 
@@ -61,7 +61,7 @@ Nền tảng hoạt động như một hệ sinh thái cho nhiếp ảnh analog:
 - **Marketplace**: mua, bán, trao đổi máy ảnh analog, ống kính, film và phụ kiện.
 - **Kho kiến thức**: chuyên gia đăng hướng dẫn, review thiết bị, bài viết kỹ thuật; tổ chức workshop và photowalk.
 
-## 👥 Vai trò trong hệ thống
+## Vai trò trong hệ thống
 
 <p align="center">
   <img src="images/roles.svg" alt="Các vai trò trong hệ thống" width="100%">
@@ -75,7 +75,7 @@ Nền tảng hoạt động như một hệ sinh thái cho nhiếp ảnh analog:
 | **Delivery Partner** | Nhận yêu cầu pickup; lấy film từ khách; giao film đến lab; trả film đã xử lý cho khách; cập nhật trạng thái vận chuyển. Có thể tích hợp Ahamove, Lalamove. |
 | **System Administrator** | Quản lý người dùng và phân quyền; duyệt Film Lab; quản lý Marketplace và danh mục dịch vụ; cấu hình phí giao dịch; giám sát thanh toán; kiểm duyệt đánh giá và nội dung; xử lý khiếu nại, tranh chấp; theo dõi hiệu năng nền tảng. |
 
-## 🔄 Luồng nghiệp vụ chính
+## Luồng nghiệp vụ chính
 
 <p align="center">
   <img src="images/flow.svg" alt="Vòng đời một đơn hàng film" width="100%">
@@ -89,7 +89,7 @@ Nền tảng hoạt động như một hệ sinh thái cho nhiếp ảnh analog:
 
 **4. Giao file số & quản lý Archive.** Khi hoàn tất, lab upload file scan lên cloud storage an toàn. Khách nhận thông báo, xem, tải về, sắp xếp và lưu trữ lâu dài trong Digital Film Archive cùng đầy đủ metadata.
 
-**5. Marketplace & trao đổi thiết bị.** Thành viên đăng bài mua, bán, trao đổi máy ảnh analog, film, ống kính, phụ kiện. Có quản lý tin đăng, tìm kiếm nâng cao, đánh giá người bán, theo dõi giao dịch và nhắn tin giữa người mua và người bán.
+**5. Marketplace & trao đổi thiết bị.** Thành viên đăng bài mua, bán, trao đổi máy ảnh analog, film, ống kính, phụ kiện. Có quản lý tin đăng, tìm kiếm nâng cao, đánh giá người bán, theo dõi giao dịch và liên hệ trực tiếp qua số điện thoại/Zalo giữa người mua và người bán.
 
 **6. Chia sẻ kiến thức & cộng đồng.** Chuyên gia và thành viên giàu kinh nghiệm đăng hướng dẫn, bài kỹ thuật, review thiết bị, gợi ý lab. Người dùng thảo luận, đăng ký workshop, photowalk và cùng mở rộng kho kiến thức chung.
 
@@ -142,7 +142,7 @@ Hệ thống được tách module rõ ràng giữa App, Web, Backend và Storag
 | 3 | Phát triển web portal (Flutter Web) cho chủ Film Lab và quản trị viên: quản lý dịch vụ, theo dõi quy trình, quản lý khách hàng, báo cáo, kiểm duyệt cộng đồng |
 | 4 | Tích hợp hệ thống (thanh toán, logistics), kiểm thử, triển khai, tối ưu hiệu năng, hoàn thiện tài liệu kỹ thuật và báo cáo Capstone |
 
-## 🙌 Thành viên nhóm
+## Thành viên nhóm
 
 | STT | Họ và tên | MSSV | Vai trò |
 |---|---|---|---|
