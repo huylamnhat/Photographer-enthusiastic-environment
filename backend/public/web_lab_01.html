@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>Đăng ký mở tiệm Film Lab - MiniLab</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#8a3a03",
+            "primary-container": "#a9511c",
+            "on-primary": "#ffffff",
+            "on-primary-container": "#ffe6dc",
+            "secondary": "#446557",
+            "secondary-container": "#c6ebd9",
+            "on-secondary-container": "#4a6b5d",
+            "surface": "#fff8f3",
+            "surface-container": "#f4ede6",
+            "surface-container-low": "#faf2eb",
+            "surface-container-lowest": "#ffffff",
+            "surface-container-high": "#efe7e0",
+            "surface-variant": "#e9e1da",
+            "on-surface": "#1e1b17",
+            "on-surface-variant": "#55433a",
+            "outline": "#887268",
+            "outline-variant": "#dcc1b5"
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="css/impeccable.css">
+</head>
+<body class="bg-surface font-body-md text-on-surface antialiased">
+<main class="min-h-screen w-full flex items-center justify-center p-6 bg-surface-container-low">
+  <div class="flex flex-col w-full max-w-5xl mx-auto py-6 space-y-6">
+    <!-- Document Header Bar -->
+    <div class="bg-surface-container-lowest p-4 rounded-xl shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div class="flex items-center gap-4">
+        <div class="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center text-primary shrink-0">
+          <span class="material-symbols-outlined text-2xl">biotech</span>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="text-xs uppercase px-2.5 py-0.5 rounded-full bg-surface-container text-on-surface-variant font-mono">KYC-REG-2025/VN</span>
+            <span class="text-xs uppercase px-2.5 py-0.5 rounded-full bg-secondary-container text-on-secondary-container font-semibold">Bản thảo lưu tạm</span>
+          </div>
+          <h1 class="text-xl font-bold text-on-surface mt-1">Thẩm định Hồ sơ Cơ sở Tráng Quét Phim Analog</h1>
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        <a href="web_lab_02.html" class="px-4 py-2 rounded-lg bg-surface-container hover:bg-surface-variant text-on-surface text-xs font-bold flex items-center gap-1 transition-colors shadow-sm">
+          <span class="material-symbols-outlined text-sm">login</span>
+          <span>Đã có tài khoản? Đăng nhập</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Stepping Indicator -->
+    <div class="bg-surface-container-lowest p-4 rounded-xl shadow-sm">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="flex items-center gap-2 cursor-pointer" onclick="switchStep(1)">
+          <div class="w-7 h-7 rounded bg-primary text-white text-xs flex items-center justify-center font-bold" id="step-badge-1">01</div>
+          <div class="min-w-0">
+            <p class="text-[10px] text-primary uppercase font-bold tracking-wider font-mono">BƯỚC 1</p>
+            <p class="text-xs font-semibold text-on-surface truncate">Thông tin Tiệm & Trụ sở</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 cursor-pointer" onclick="switchStep(2)">
+          <div class="w-7 h-7 rounded bg-surface-container text-on-surface-variant text-xs flex items-center justify-center font-bold" id="step-badge-2">02</div>
+          <div class="min-w-0">
+            <p class="text-[10px] text-on-surface-variant uppercase font-medium tracking-wider font-mono">BƯỚC 2</p>
+            <p class="text-xs font-semibold text-on-surface truncate">Pháp lý & CCCD Chủ Lab</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 cursor-pointer" onclick="switchStep(3)">
+          <div class="w-7 h-7 rounded bg-surface-container text-on-surface-variant text-xs flex items-center justify-center font-bold" id="step-badge-3">03</div>
+          <div class="min-w-0">
+            <p class="text-[10px] text-on-surface-variant uppercase font-medium tracking-wider font-mono">BƯỚC 3</p>
+            <p class="text-xs font-semibold text-on-surface truncate">Hệ máy Scan & Hoá chất</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 cursor-pointer" onclick="switchStep(4)">
+          <div class="w-7 h-7 rounded bg-surface-container text-on-surface-variant text-xs flex items-center justify-center font-bold" id="step-badge-4">04</div>
+          <div class="min-w-0">
+            <p class="text-[10px] text-on-surface-variant uppercase font-medium tracking-wider font-mono">BƯỚC 4</p>
+            <p class="text-xs font-semibold text-on-surface truncate">Hiện trường & Kiểm tra</p>
+          </div>
+        </div>
+      </div>
+      <div class="w-full bg-surface-container h-1 rounded-full mt-4 overflow-hidden">
+        <div class="bg-primary h-full transition-all duration-300 w-1/4" id="progress-bar"></div>
+      </div>
+    </div>
+
+    <!-- Form Workflow Panels -->
+    <form class="space-y-6" id="kycForm" onsubmit="event.preventDefault(); submitKYC();">
+      <!-- STEP 1 PANEL -->
+      <section class="step-panel bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden" id="panel-step-1">
+        <div class="bg-surface-container p-4 flex items-center justify-between">
+          <div class="flex items-center gap-2 text-on-surface">
+            <span class="material-symbols-outlined text-primary">storefront</span>
+            <h2 class="text-base font-bold">Hồ sơ Thông tin Cơ sở Hoạt động & Chi nhánh</h2>
+          </div>
+          <span class="text-xs text-on-surface-variant font-mono">MỤC A-01</span>
+        </div>
+        <div class="p-6 space-y-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-bold text-on-surface-variant uppercase mb-1">TÊN THƯƠNG HIỆU LAB *</label>
+              <input id="brand_name" class="w-full h-10 px-3 bg-surface-container-low rounded-lg text-sm text-on-surface border border-outline-variant/60 focus:ring-1 focus:ring-primary outline-none" required type="text" value="Analog Archive Lab" />
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-on-surface-variant uppercase mb-1">SỐ ĐKKD / GIẤY PHÉP HKD *</label>
+              <input id="license_no" class="w-full h-10 px-3 bg-surface-container-low rounded-lg text-sm font-mono text-on-surface border border-outline-variant/60 focus:ring-1 focus:ring-primary outline-none" required type="text" value="0319842109" />
+            </div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label class="block text-xs font-bold text-on-surface-variant uppercase mb-1">KHU VỰC *</label>
+              <select id="region" class="w-full h-10 px-3 bg-surface-container-low rounded-lg text-sm text-on-surface border border-outline-variant/60 outline-none">
+                <option selected value="HCM">TP. Hồ Chí Minh</option>
+                <option value="HN">Hà Nội</option>
+                <option value="DN">Đà Nẵng</option>
+              </select>
+            </div>
+            <div class="md:col-span-2">
+              <label class="block text-xs font-bold text-on-surface-variant uppercase mb-1">ĐỊA CHỈ TRỤ SỞ TIẾP NHẬN PHIM *</label>
+              <input id="address" class="w-full h-10 px-3 bg-surface-container-low rounded-lg text-sm text-on-surface border border-outline-variant/60 focus:ring-1 focus:ring-primary outline-none" required type="text" value="145/3 Bis Đường Nguyễn Đình Chiểu, Phường Võ Thị Sáu, Quận 3" />
+            </div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label class="block text-xs font-bold text-on-surface-variant uppercase mb-1">HOTLINE PHÒNG TỐI *</label>
+              <input id="hotline" class="w-full h-10 px-3 bg-surface-container-low rounded-lg text-sm font-mono text-on-surface border border-outline-variant/60 focus:ring-1 focus:ring-primary outline-none" required type="tel" value="0918 245 890" />
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-on-surface-variant uppercase mb-1">EMAIL ĐIỀU PHỐI FILE SCAN *</label>
+              <input id="email" class="w-full h-10 px-3 bg-surface-container-low rounded-lg text-sm font-mono text-on-surface border border-outline-variant/60 focus:ring-1 focus:ring-primary outline-none" required type="email" value="labmaster@analogarchive.vn" />
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-on-surface-variant uppercase mb-1">HỘP THƯ DROPBOX 24/7</label>
+              <div class="flex items-center h-10 px-3 bg-surface-container-low rounded-lg">
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input id="has_dropbox" checked class="w-4 h-4 accent-primary rounded" type="checkbox" />
+                  <span class="text-xs text-on-surface font-medium">Có thùng nhận phim ngoài giờ</span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- STEP 2 PANEL -->
+      <section class="step-panel bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden" id="panel-step-2">
+        <div class="bg-surface-container p-4 flex items-center justify-between">
+          <div class="flex items-center gap-2 text-on-surface">
+            <span class="material-symbols-outlined text-primary">badge</span>
+            <h2 class="text-base font-bold">Pháp nhân Đại diện & CCCD Gắn Chip</h2>
+          </div>
+          <span class="text-xs text-on-surface-variant font-mono">MỤC B-02</span>
+        </div>
+        <div class="p-6 space-y-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-bold text-on-surface-variant uppercase mb-1">HỌ VÀ TÊN NGƯỜI ĐẠI DIỆN *</label>
+              <input id="rep_name" class="w-full h-10 px-3 bg-surface-container-low rounded-lg text-sm font-bold text-on-surface border border-outline-variant/60 focus:ring-1 focus:ring-primary outline-none" required type="text" value="NGUYỄN VĂN AN KHANG" />
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-on-surface-variant uppercase mb-1">SỐ CCCD 12 SỐ GẮN CHIP *</label>
+              <input id="cccd" class="w-full h-10 px-3 bg-surface-container-low rounded-lg text-sm font-mono tracking-wider text-on-surface border border-outline-variant/60 focus:ring-1 focus:ring-primary outline-none" required type="text" value="079092004581" />
+            </div>
+          </div>
+          <div class="p-3 bg-secondary-container/40 rounded-lg flex items-center gap-2 text-xs text-on-secondary-container">
+            <span class="material-symbols-outlined text-secondary">check_circle</span>
+            <span>Đã kiểm tra liên thông dữ liệu xác thực danh tính số</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- STEP 3 PANEL -->
+      <section class="step-panel bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden" id="panel-step-3">
+        <div class="bg-surface-container p-4 flex items-center justify-between">
+          <div class="flex items-center gap-2 text-on-surface">
+            <span class="material-symbols-outlined text-primary">precision_manufacturing</span>
+            <h2 class="text-base font-bold">Hệ thống Máy Quét Chuyên Dụng & Quy trình Hoá chất</h2>
+          </div>
+          <span class="text-xs text-on-surface-variant font-mono">MỤC C-03</span>
+        </div>
+        <div class="p-6 space-y-4">
+          <div>
+            <label class="block text-xs font-bold text-on-surface-variant uppercase mb-2">1. HỆ THỐNG MÁY SCAN TẠI TIỆM *</label>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <label class="flex items-center gap-2 p-3 rounded-lg bg-surface-container-low cursor-pointer">
+                <input checked class="w-4 h-4 accent-primary" type="checkbox" value="Noritsu HS-1800">
+                <span class="text-xs font-bold">Noritsu HS-1800</span>
+              </label>
+              <label class="flex items-center gap-2 p-3 rounded-lg bg-surface-container-low cursor-pointer">
+                <input checked class="w-4 h-4 accent-primary" type="checkbox" value="Fuji Frontier SP-3000">
+                <span class="text-xs font-bold">Fuji Frontier SP-3000</span>
+              </label>
+              <label class="flex items-center gap-2 p-3 rounded-lg bg-surface-container-low cursor-pointer">
+                <input class="w-4 h-4 accent-primary" type="checkbox" value="Pakon F134">
+                <span class="text-xs font-bold">Pakon F134 / F235</span>
+              </label>
+              <label class="flex items-center gap-2 p-3 rounded-lg bg-surface-container-low cursor-pointer">
+                <input class="w-4 h-4 accent-primary" type="checkbox" value="Epson V850">
+                <span class="text-xs font-bold">Epson V850 Pro</span>
+              </label>
+            </div>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-on-surface-variant uppercase mb-2">2. MÁY TRÁNG TỰ ĐỘNG *</label>
+            <select id="processor" class="w-full h-10 px-3 bg-surface-container-low rounded-lg text-sm text-on-surface border border-outline-variant/60 outline-none">
+              <option selected value="Noritsu V30">Noritsu V30 / V50 (Leader Card Continuous)</option>
+              <option value="Jobo CPP3">Jobo CPP3 / CPE-2 Plus (Rotary)</option>
+              <option value="Paterson">Tank Thủ công Paterson</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <!-- STEP 4 PANEL -->
+      <section class="step-panel bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden" id="panel-step-4">
+        <div class="bg-surface-container p-4 flex items-center justify-between">
+          <div class="flex items-center gap-2 text-on-surface">
+            <span class="material-symbols-outlined text-primary">add_a_photo</span>
+            <h2 class="text-base font-bold">Bằng chứng Cơ sở Thực tế & Cam kết An toàn</h2>
+          </div>
+          <span class="text-xs text-on-surface-variant font-mono">MỤC D-04</span>
+        </div>
+        <div class="p-6 space-y-4">
+          <div class="p-4 rounded-lg bg-surface-container flex items-center justify-between">
+            <div class="flex items-start gap-3">
+              <span class="material-symbols-outlined text-secondary">eco</span>
+              <div>
+                <p class="text-sm font-bold text-on-surface">Cam kết Xử lý Thải bỏ Hoá chất & An toàn Môi trường</p>
+                <p class="text-xs text-on-surface-variant mt-1">Cơ sở cam kết thu hồi dung dịch Fixer giàu bạc (Ag+) và muội than Remjet không xả trực tiếp ra môi trường.</p>
+              </div>
+            </div>
+            <label class="flex items-center gap-2 cursor-pointer shrink-0 bg-surface-container-lowest px-4 py-2 rounded-lg shadow-sm">
+              <input checked class="w-4 h-4 accent-primary rounded" id="pledgeCheck" type="checkbox" />
+              <span class="text-xs font-bold text-on-surface">ĐỒNG Ý</span>
+            </label>
+          </div>
+        </div>
+      </section>
+
+      <!-- Submission Controls -->
+      <div class="flex items-center justify-between bg-surface-container-lowest p-4 rounded-xl shadow-sm">
+        <span class="text-xs text-on-surface-variant flex items-center gap-1">
+          <span class="material-symbols-outlined text-secondary text-sm">verified</span>
+          Thời gian xét duyệt thông thường: 24 - 48 giờ làm việc
+        </span>
+        <button id="btn-submit-kyc" class="h-10 px-6 rounded-lg bg-primary hover:bg-primary-container text-white font-bold text-sm flex items-center gap-2 shadow transition" type="submit">
+          <span>Nộp hồ sơ thẩm định KYC</span>
+          <span class="material-symbols-outlined text-sm">arrow_forward</span>
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    function switchStep(stepIndex) {
+      document.getElementById('progress-bar').style.width = (stepIndex * 25) + '%';
+      const target = document.getElementById('panel-step-' + stepIndex);
+      if (target) target.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    async function submitKYC() {
+      const btn = document.getElementById('btn-submit-kyc');
+      btn.disabled = true;
+      btn.innerHTML = `<span class="material-symbols-outlined animate-spin text-sm">sync</span> Đang gửi hồ sơ...`;
+
+      const payload = {
+        brand_name: document.getElementById('brand_name').value,
+        license_no: document.getElementById('license_no').value,
+        region: document.getElementById('region').value,
+        address: document.getElementById('address').value,
+        hotline: document.getElementById('hotline').value,
+        email: document.getElementById('email').value,
+        has_dropbox: document.getElementById('has_dropbox').checked,
+        representative_name: document.getElementById('rep_name').value,
+        cccd_number: document.getElementById('cccd').value,
+        processor: document.getElementById('processor').value,
+        chemistries: ['C-41', 'B&W', 'ECN-2']
+      };
+
+      try {
+        const res = await fetch('/api/auth/register-lab', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        alert(data.message || 'Đã nộp hồ sơ thành công!');
+        window.location.href = 'web_lab_02.html';
+      } catch (err) {
+        alert('Lỗi nộp hồ sơ: ' + err.message);
+        btn.disabled = false;
+        btn.innerHTML = `<span>Nộp hồ sơ thẩm định KYC</span><span class="material-symbols-outlined text-sm">arrow_forward</span>`;
+      }
+    }
+  </script>
+</main>
+</body>
+</html>
+

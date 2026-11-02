@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>Lịch Sử Đơn & Báo Cáo Hiệu Suất SLA - MiniLab</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#8a3a03",
+            "primary-container": "#a9511c",
+            "on-primary": "#ffffff",
+            "on-primary-container": "#ffe6dc",
+            "secondary": "#446557",
+            "secondary-container": "#c6ebd9",
+            "on-secondary-container": "#4a6b5d",
+            "surface": "#fff8f3",
+            "surface-container": "#f4ede6",
+            "surface-container-low": "#faf2eb",
+            "surface-container-lowest": "#ffffff",
+            "surface-container-high": "#efe7e0",
+            "on-surface": "#1e1b17",
+            "on-surface-variant": "#55433a",
+            "outline": "#887268",
+            "outline-variant": "#dcc1b5"
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="css/impeccable.css">
+</head>
+<body class="bg-surface font-body-md text-on-surface antialiased">
+
+<!-- Sidebar Navigation -->
+<aside class="fixed left-0 top-0 h-screen w-64 bg-surface-container-low z-50 flex flex-col justify-between shadow-sm">
+  <div class="flex flex-col">
+    <div class="h-16 px-4 flex items-center justify-between bg-surface-container">
+      <div class="flex items-center gap-2">
+        <div class="w-8 h-8 bg-primary flex items-center justify-center rounded">
+          <span class="material-symbols-outlined text-white text-[18px]">motion_photos_on</span>
+        </div>
+        <div class="flex flex-col">
+          <span class="font-bold text-xs uppercase tracking-tight text-on-surface">MINILAB ARCHIVE</span>
+          <span class="text-[10px] font-bold uppercase text-primary font-mono">LAB OPS</span>
+        </div>
+      </div>
+    </div>
+    <div class="px-4 pt-4 pb-2">
+      <span class="text-[10px] font-bold uppercase text-on-surface-variant tracking-wider font-mono">VẬN HÀNH TIỆM LAB</span>
+    </div>
+    <nav class="flex flex-col gap-1 px-2">
+      <a class="flex items-center gap-3 px-3 py-2 rounded text-on-surface-variant hover:bg-surface-container-high transition-colors" href="web_lab_03.html">
+        <span class="material-symbols-outlined text-[18px]">view_kanban</span>
+        <div class="flex flex-col flex-1 leading-tight">
+          <span class="text-xs">1. Tiếp nhận & Phân loại</span>
+          <span class="text-[9px] font-mono text-outline">WEB-LAB-03</span>
+        </div>
+      </a>
+      <a class="flex items-center gap-3 px-3 py-2 rounded text-on-surface-variant hover:bg-surface-container-high transition-colors" href="web_lab_04.html">
+        <span class="material-symbols-outlined text-[18px]">cloud_upload</span>
+        <div class="flex flex-col flex-1 leading-tight">
+          <span class="text-xs">2. Tải file scan & QC</span>
+          <span class="text-[9px] font-mono text-outline">WEB-LAB-04</span>
+        </div>
+      </a>
+      <a class="flex items-center gap-3 px-3 py-2 rounded text-on-surface-variant hover:bg-surface-container-high transition-colors" href="web_lab_05.html">
+        <span class="material-symbols-outlined text-[18px]">price_change</span>
+        <div class="flex flex-col flex-1 leading-tight">
+          <span class="text-xs">3. Dịch vụ & Bảng giá</span>
+          <span class="text-[9px] font-mono text-outline">WEB-LAB-05</span>
+        </div>
+      </a>
+      <a class="flex items-center gap-3 px-3 py-2 rounded text-on-surface-variant hover:bg-surface-container-high transition-colors" href="web_lab_06.html">
+        <span class="material-symbols-outlined text-[18px]">storefront</span>
+        <div class="flex flex-col flex-1 leading-tight">
+          <span class="text-xs">4. Hồ sơ tiệm công khai</span>
+          <span class="text-[9px] font-mono text-outline">WEB-LAB-06</span>
+        </div>
+      </a>
+      <a class="flex items-center gap-3 px-3 py-2 rounded text-on-surface-variant hover:bg-surface-container-high transition-colors" href="web_lab_07.html">
+        <span class="material-symbols-outlined text-[18px]">report_problem</span>
+        <div class="flex flex-col flex-1 leading-tight">
+          <span class="text-xs">5. Xử lý khiếu nại</span>
+          <span class="text-[9px] font-mono text-outline">WEB-LAB-07</span>
+        </div>
+      </a>
+      <a class="flex items-center gap-3 px-3 py-2 bg-primary-container text-on-primary-container font-semibold rounded" href="web_lab_08.html">
+        <span class="material-symbols-outlined text-[18px]">history_toggle_off</span>
+        <div class="flex flex-col flex-1 leading-tight">
+          <span class="text-xs">6. Lịch sử đơn & SLA</span>
+          <span class="text-[9px] font-mono opacity-80">WEB-LAB-08</span>
+        </div>
+      </a>
+    </nav>
+  </div>
+  <div class="p-3 bg-surface-container flex flex-col gap-1">
+    <div class="flex items-center justify-between">
+      <span class="text-[10px] uppercase font-bold text-on-surface-variant font-mono">HỆ THỐNG TRẠM</span>
+      <span class="w-2 h-2 rounded-full bg-secondary"></span>
+    </div>
+    <span class="font-mono text-xs text-on-surface font-bold">v4.8.2-LAB [ONLINE]</span>
+  </div>
+</aside>
+
+<div class="pl-64">
+  <header class="fixed top-0 left-64 right-0 h-16 bg-surface/90 backdrop-blur-xl border-b border-outline-variant/40 z-40 flex items-center justify-between px-6">
+    <div class="flex items-center gap-2 bg-surface-container px-3 py-1.5 rounded">
+      <span class="material-symbols-outlined text-primary text-[18px]">location_on</span>
+      <span class="text-xs font-semibold text-on-surface">Saigon Darkroom - Chi nhánh Q.3</span>
+    </div>
+    <div class="flex items-center gap-4">
+      <div class="text-right flex flex-col">
+        <span class="text-xs font-bold text-on-surface leading-tight">Lê Hoài Nam</span>
+        <span class="text-[10px] text-primary font-bold uppercase font-mono">KỸ THUẬT VIÊN TRƯỞNG</span>
+      </div>
+      <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white">
+        <span class="material-symbols-outlined text-[18px]">person</span>
+      </div>
+      <a href="web_lab_02.html" title="Đăng xuất" class="text-on-surface-variant hover:text-error">
+        <span class="material-symbols-outlined text-[20px]">logout</span>
+      </a>
+    </div>
+  </header>
+
+  <main class="w-full pt-20 px-6 bg-surface min-h-screen pb-12">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 py-4 mb-6">
+      <div>
+        <h1 class="text-2xl font-bold text-on-surface tracking-tight">Lịch sử Đơn & Hiệu suất Vận hành SLA</h1>
+        <p class="text-xs text-on-surface-variant">Báo cáo kiểm định chất lượng phòng tối, thời gian xoay vòng hóa chất và đối soát lịch sử khách hàng.</p>
+      </div>
+      <div class="flex items-center gap-2">
+        <select id="period-select" onchange="loadReports()" class="h-9 px-3 border border-outline-variant rounded-lg text-xs font-mono font-semibold bg-surface-container-lowest">
+          <option value="10-2024">Tháng 10/2024 (Hiện tại)</option>
+          <option value="09-2024">Tháng 09/2024</option>
+          <option value="q3-2024">Quý 3/2024 (Tổng hợp)</option>
+        </select>
+        <button onclick="alert('Đang xuất sổ kiểm toán PDF (A4 Ledger)...')" class="px-3 py-2 bg-surface-container-lowest border border-outline-variant/50 text-xs font-bold rounded-lg flex items-center gap-1 hover:bg-surface-container">
+          <span class="material-symbols-outlined text-primary text-[16px]">file_download</span>
+          <span>Xuất báo cáo PDF</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Metrics -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      <div class="bg-surface-container-lowest p-4 rounded-xl border border-outline-variant/40 shadow-sm">
+        <span class="text-[10px] font-mono text-outline uppercase font-bold">Tổng đơn hoàn thành</span>
+        <div class="flex items-baseline justify-between mt-1">
+          <span class="text-xl font-bold text-on-surface" id="stat-total-orders">1.482</span>
+          <span class="text-xs text-secondary font-bold">+14% MoM</span>
+        </div>
+      </div>
+      <div class="bg-surface-container-lowest p-4 rounded-xl border border-outline-variant/40 shadow-sm">
+        <span class="text-[10px] font-mono text-outline uppercase font-bold">Tỷ lệ đúng hạn SLA</span>
+        <div class="flex items-baseline justify-between mt-1">
+          <span class="text-xl font-bold text-secondary" id="stat-on-time">98.4%</span>
+          <span class="text-xs text-secondary font-bold">> 95% chuẩn</span>
+        </div>
+      </div>
+      <div class="bg-surface-container-lowest p-4 rounded-xl border border-outline-variant/40 shadow-sm">
+        <span class="text-[10px] font-mono text-outline uppercase font-bold">Thời gian xoay vòng TB</span>
+        <div class="flex items-baseline justify-between mt-1">
+          <span class="text-xl font-bold text-primary" id="stat-avg-hours">28.5h</span>
+          <span class="text-xs text-outline font-mono">< 48h</span>
+        </div>
+      </div>
+      <div class="bg-surface-container-lowest p-4 rounded-xl border border-outline-variant/40 shadow-sm">
+        <span class="text-[10px] font-mono text-outline uppercase font-bold">Đạt QC lần 1</span>
+        <div class="flex items-baseline justify-between mt-1">
+          <span class="text-xl font-bold text-on-surface" id="stat-qc-pass">94.8%</span>
+          <span class="text-xs text-secondary font-bold">SP-3000</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 7-Day Performance Table -->
+    <div class="bg-surface-container-lowest rounded-xl border border-outline-variant/40 shadow-sm overflow-hidden mb-6">
+      <div class="p-4 bg-surface-container-low border-b border-outline-variant/30 flex items-center justify-between">
+        <span class="text-xs font-bold uppercase text-on-surface">BIẾN ĐỘNG NĂNG LỰC SẢN XUẤT 7 NGÀY GẦN NHẤT</span>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="border-b border-outline-variant/30 text-[10px] font-mono uppercase text-outline bg-surface-container/30">
+              <th class="p-3">NGÀY</th>
+              <th class="p-3">SỐ CUỘN XỬ LÝ</th>
+              <th class="p-3">ĐƠN ĐÚNG HẠN</th>
+              <th class="p-3">THỜI GIAN TRẢ FILE TB</th>
+              <th class="p-3">TRẠNG THÁI CA</th>
+            </tr>
+          </thead>
+          <tbody id="daily-table" class="divide-y divide-outline-variant/20 text-xs"></tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+  async function loadReports() {
+    const period = document.getElementById('period-select').value;
+    try {
+      const res = await fetch('/api/reports/sla?period=' + period);
+      const json = await res.json();
+      if (json.success) {
+        const m = json.data.metrics;
+        document.getElementById('stat-total-orders').textContent = m.total_orders;
+        document.getElementById('stat-on-time').textContent = m.on_time_rate + '%';
+        document.getElementById('stat-avg-hours').textContent = m.avg_turnaround_hours + 'h';
+        document.getElementById('stat-qc-pass').textContent = m.first_pass_qc + '%';
+
+        const tbody = document.getElementById('daily-table');
+        tbody.innerHTML = '';
+        json.data.dailyStats.forEach(d => {
+          const row = document.createElement('tr');
+          row.className = "hover:bg-surface-container-low transition";
+          row.innerHTML = `
+            <td class="p-3 font-bold">${d.date}</td>
+            <td class="p-3 font-mono">${d.orders} cuộn</td>
+            <td class="p-3 font-mono font-bold text-secondary">${d.on_time} đơn (100%)</td>
+            <td class="p-3 font-mono">${d.avg_time} giờ</td>
+            <td class="p-3">
+              <span class="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-secondary-container text-on-secondary-container">
+                ĐẠT CHỈ TIÊU
+              </span>
+            </td>
+          `;
+          tbody.appendChild(row);
+        });
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  loadReports();
+</script>
+</body>
+</html>
+

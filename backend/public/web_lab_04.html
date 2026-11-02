@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>Tải File Scan & Kiểm Định QC - MiniLab</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#8a3a03",
+            "primary-container": "#a9511c",
+            "on-primary": "#ffffff",
+            "on-primary-container": "#ffe6dc",
+            "secondary": "#446557",
+            "secondary-container": "#c6ebd9",
+            "on-secondary-container": "#4a6b5d",
+            "surface": "#fff8f3",
+            "surface-container": "#f4ede6",
+            "surface-container-low": "#faf2eb",
+            "surface-container-lowest": "#ffffff",
+            "surface-container-high": "#efe7e0",
+            "on-surface": "#1e1b17",
+            "on-surface-variant": "#55433a",
+            "outline": "#887268",
+            "outline-variant": "#dcc1b5",
+            "error": "#ba1a1a",
+            "error-container": "#ffdad6"
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="css/impeccable.css">
+</head>
+<body class="bg-surface font-body-md text-on-surface antialiased">
+
+<!-- Sidebar Navigation -->
+<aside class="fixed left-0 top-0 h-screen w-64 bg-surface-container-low z-50 flex flex-col justify-between shadow-sm">
+  <div class="flex flex-col">
+    <div class="h-16 px-4 flex items-center justify-between bg-surface-container">
+      <div class="flex items-center gap-2">
+        <div class="w-8 h-8 bg-primary flex items-center justify-center rounded">
+          <span class="material-symbols-outlined text-white text-[18px]">motion_photos_on</span>
+        </div>
+        <div class="flex flex-col">
+          <span class="font-bold text-xs uppercase tracking-tight text-on-surface">MINILAB ARCHIVE</span>
+          <span class="text-[10px] font-bold uppercase text-primary font-mono">LAB OPS</span>
+        </div>
+      </div>
+    </div>
+    <div class="px-4 pt-4 pb-2">
+      <span class="text-[10px] font-bold uppercase text-on-surface-variant tracking-wider font-mono">VẬN HÀNH TIỆM LAB</span>
+    </div>
+    <nav class="flex flex-col gap-1 px-2">
+      <a class="flex items-center gap-3 px-3 py-2 rounded text-on-surface-variant hover:bg-surface-container-high transition-colors" href="web_lab_03.html">
+        <span class="material-symbols-outlined text-[18px]">view_kanban</span>
+        <div class="flex flex-col flex-1 leading-tight">
+          <span class="text-xs">1. Tiếp nhận & Phân loại</span>
+          <span class="text-[9px] font-mono text-outline">WEB-LAB-03</span>
+        </div>
+      </a>
+      <a class="flex items-center gap-3 px-3 py-2 bg-primary-container text-on-primary-container font-semibold rounded" href="web_lab_04.html">
+        <span class="material-symbols-outlined text-[18px]">cloud_upload</span>
+        <div class="flex flex-col flex-1 leading-tight">
+          <span class="text-xs">2. Tải file scan & QC</span>
+          <span class="text-[9px] font-mono opacity-80">WEB-LAB-04</span>
+        </div>
+      </a>
+      <a class="flex items-center gap-3 px-3 py-2 rounded text-on-surface-variant hover:bg-surface-container-high transition-colors" href="web_lab_05.html">
+        <span class="material-symbols-outlined text-[18px]">price_change</span>
+        <div class="flex flex-col flex-1 leading-tight">
+          <span class="text-xs">3. Dịch vụ & Bảng giá</span>
+          <span class="text-[9px] font-mono text-outline">WEB-LAB-05</span>
+        </div>
+      </a>
+      <a class="flex items-center gap-3 px-3 py-2 rounded text-on-surface-variant hover:bg-surface-container-high transition-colors" href="web_lab_06.html">
+        <span class="material-symbols-outlined text-[18px]">storefront</span>
+        <div class="flex flex-col flex-1 leading-tight">
+          <span class="text-xs">4. Hồ sơ tiệm công khai</span>
+          <span class="text-[9px] font-mono text-outline">WEB-LAB-06</span>
+        </div>
+      </a>
+      <a class="flex items-center gap-3 px-3 py-2 rounded text-on-surface-variant hover:bg-surface-container-high transition-colors" href="web_lab_07.html">
+        <span class="material-symbols-outlined text-[18px]">report_problem</span>
+        <div class="flex flex-col flex-1 leading-tight">
+          <span class="text-xs">5. Xử lý khiếu nại</span>
+          <span class="text-[9px] font-mono text-outline">WEB-LAB-07</span>
+        </div>
+      </a>
+      <a class="flex items-center gap-3 px-3 py-2 rounded text-on-surface-variant hover:bg-surface-container-high transition-colors" href="web_lab_08.html">
+        <span class="material-symbols-outlined text-[18px]">history_toggle_off</span>
+        <div class="flex flex-col flex-1 leading-tight">
+          <span class="text-xs">6. Lịch sử đơn & SLA</span>
+          <span class="text-[9px] font-mono text-outline">WEB-LAB-08</span>
+        </div>
+      </a>
+    </nav>
+  </div>
+  <div class="p-3 bg-surface-container flex flex-col gap-1">
+    <div class="flex items-center justify-between">
+      <span class="text-[10px] uppercase font-bold text-on-surface-variant font-mono">HỆ THỐNG TRẠM</span>
+      <span class="w-2 h-2 rounded-full bg-secondary"></span>
+    </div>
+    <span class="font-mono text-xs text-on-surface font-bold">v4.8.2-LAB [ONLINE]</span>
+  </div>
+</aside>
+
+<div class="pl-64">
+  <header class="fixed top-0 left-64 right-0 h-16 bg-surface/90 backdrop-blur-xl border-b border-outline-variant/40 z-40 flex items-center justify-between px-6">
+    <div class="flex items-center gap-2 bg-surface-container px-3 py-1.5 rounded">
+      <span class="material-symbols-outlined text-primary text-[18px]">location_on</span>
+      <span class="text-xs font-semibold text-on-surface">Saigon Darkroom - Chi nhánh Q.3</span>
+    </div>
+    <div class="flex items-center gap-4">
+      <div class="text-right flex flex-col">
+        <span class="text-xs font-bold text-on-surface leading-tight">Lê Hoài Nam</span>
+        <span class="text-[10px] text-primary font-bold uppercase font-mono">KỸ THUẬT VIÊN TRƯỞNG</span>
+      </div>
+      <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white">
+        <span class="material-symbols-outlined text-[18px]">person</span>
+      </div>
+      <a href="web_lab_02.html" title="Đăng xuất" class="text-on-surface-variant hover:text-error">
+        <span class="material-symbols-outlined text-[20px]">logout</span>
+      </a>
+    </div>
+  </header>
+
+  <main class="w-full pt-20 px-6 bg-surface min-h-screen pb-12">
+    <!-- Operational Meta Bar -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 py-4 border-b border-outline-variant/30 mb-6">
+      <div class="flex flex-col gap-1.5">
+        <div class="flex items-center gap-2">
+          <h1 class="text-2xl font-bold text-on-surface tracking-tight">Tải File Scan & Kiểm định QC</h1>
+          <span class="text-xs font-mono font-semibold text-secondary bg-secondary-container px-2.5 py-0.5 rounded-full uppercase">NORITSU HS-1800</span>
+        </div>
+        <div class="flex items-center gap-2 text-xs text-on-surface-variant">
+          <span class="font-mono font-bold bg-surface-container-high px-2.5 py-0.5 rounded-full text-on-surface">#ORD-2024-88412</span>
+          <span>/</span>
+          <span>Khách: <strong class="text-on-surface">Lê Hoàng Nam</strong></span>
+          <span>•</span>
+          <span>02 cuộn Kodak Portra 400 (135/36)</span>
+          <span>•</span>
+          <span class="font-mono text-secondary font-bold">C-41 FRESH (37.8°C)</span>
+        </div>
+      </div>
+
+      <!-- Quick Stats Pill Container -->
+      <div class="flex items-center gap-3 bg-surface-container-low p-2.5 rounded-xl border border-outline-variant/40 shadow-sm">
+        <div class="flex flex-col px-3">
+          <span class="text-[10px] font-mono text-outline uppercase">ĐÃ TẢI LÊN</span>
+          <span id="stat-total" class="font-mono text-sm font-bold text-on-surface">72 / 72 TIỆP</span>
+        </div>
+        <div class="w-px h-6 bg-outline-variant/50"></div>
+        <div class="flex flex-col px-3">
+          <span class="text-[10px] font-mono text-outline uppercase">ĐÃ ĐẠT QC</span>
+          <span id="stat-passed" class="font-mono text-sm font-bold text-secondary">69 / 72 FRAME</span>
+        </div>
+        <div class="w-px h-6 bg-outline-variant/50"></div>
+        <div class="flex flex-col px-3">
+          <span class="text-[10px] font-mono text-outline uppercase">GẮN CỜ LỖI</span>
+          <span id="stat-flagged" class="font-mono text-sm font-bold text-error">03 CẦN XỬ LÝ</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 1: Resumable Upload Bay -->
+    <section class="mb-6">
+      <div class="bg-surface-container-lowest rounded-xl p-4 border border-outline-variant/40 shadow-sm">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-primary text-[18px]">cloud_sync</span>
+            <span class="text-xs font-bold text-on-surface uppercase">1. CÔNG CỤ RESUMABLE UPLOAD TỰ ĐỘNG</span>
+          </div>
+          <span class="text-[10px] font-mono text-outline">CHUNK: 64MB • PARALLEL: 4 THREADS</span>
+        </div>
+        <div class="flex items-center gap-4">
+          <div class="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary shrink-0">
+            <span class="material-symbols-outlined text-[28px]">archive</span>
+          </div>
+          <div class="flex-1">
+            <div class="flex items-center justify-between text-xs mb-1">
+              <span class="font-semibold text-on-surface">Đang tải lên: 72/72 tệp TIFF 16-bit (3.4 GB)</span>
+              <span class="font-mono font-bold text-secondary">100% Hoàn tất</span>
+            </div>
+            <div class="w-full bg-surface-container-high h-2 rounded-full overflow-hidden mb-1">
+              <div class="bg-primary h-full w-full"></div>
+            </div>
+            <div class="flex items-center gap-4 text-[11px] font-mono text-outline">
+              <span>Tốc độ: <strong class="text-on-surface">48.2 MB/s</strong></span>
+              <span>MD5 Checksum: <strong class="text-on-surface">0x9F4BD21A472A</strong></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 2: QC Frames Grid -->
+    <section>
+      <div class="flex items-center justify-between mb-3">
+        <div class="flex items-center gap-2">
+          <span class="material-symbols-outlined text-primary text-[18px]">photo_library</span>
+          <span class="text-xs font-bold text-on-surface uppercase">2. DANH SÁCH KHUNG HÌNH (BẤM VÀO FRAME ĐỂ ĐỔI TRẠNG THÁI QC)</span>
+        </div>
+        <button onclick="approveRelease()" class="px-4 py-2 bg-secondary hover:bg-secondary/90 text-white text-xs font-bold rounded-lg flex items-center gap-1 shadow-sm">
+          <span class="material-symbols-outlined text-sm">verified</span>
+          <span>Phê duyệt & Trả file vào Digital Film Archive</span>
+        </button>
+      </div>
+
+      <div id="frames-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3"></div>
+    </section>
+  </main>
+</div>
+
+<script>
+  let currentBatch = null;
+
+  async function loadQC() {
+    try {
+      const res = await fetch('/api/scans/ORD-2024-88412');
+      const json = await res.json();
+      if (json.success) {
+        currentBatch = json.data;
+        renderBatch();
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  function renderBatch() {
+    if (!currentBatch) return;
+
+    document.getElementById('stat-total').textContent = `${currentBatch.total_files} / ${currentBatch.total_files} TIỆP`;
+    document.getElementById('stat-passed').textContent = `${currentBatch.passed_frames} / ${currentBatch.total_files} FRAME`;
+    document.getElementById('stat-flagged').textContent = `${currentBatch.flagged_frames.toString().padStart(2, '0')} CẦN XỬ LÝ`;
+
+    const grid = document.getElementById('frames-grid');
+    grid.innerHTML = '';
+
+    currentBatch.frames.forEach(frame => {
+      const isPassed = frame.qc_status === 'PASSED';
+      const card = document.createElement('div');
+      card.className = "bg-surface-container-lowest rounded-xl border border-outline-variant/40 overflow-hidden shadow-sm flex flex-col cursor-pointer hover:border-primary hover:shadow-md transition duration-200";
+      card.onclick = () => toggleFrame(frame.frame_id, isPassed ? 'FLAGGED' : 'PASSED');
+
+      card.innerHTML = `
+        <div class="relative h-28 bg-surface-container overflow-hidden">
+          <img src="${frame.thumb_url}" class="w-full h-full object-cover" loading="lazy" />
+          <div class="absolute top-1 left-1 bg-black/60 text-white font-mono text-[9px] font-bold px-1 rounded">
+            #${frame.frame_number.toString().padStart(2, '0')}
+          </div>
+          <div class="absolute top-1 right-1 w-5 h-5 rounded-full ${isPassed ? 'bg-secondary' : 'bg-error'} text-white flex items-center justify-center">
+            <span class="material-symbols-outlined text-[13px]">${isPassed ? 'check' : 'warning'}</span>
+          </div>
+        </div>
+        <div class="p-2 flex flex-col gap-0.5">
+          <span class="font-mono text-[10px] font-bold truncate text-on-surface">${frame.filename}</span>
+          <span class="text-[10px] font-bold ${isPassed ? 'text-secondary' : 'text-error'} truncate">
+            ${isPassed ? 'ĐẠT CHUẨN QC' : (frame.defect_type || 'GẮN CỜ')}
+          </span>
+        </div>
+      `;
+      grid.appendChild(card);
+    });
+  }
+
+  async function toggleFrame(frameId, newStatus) {
+    try {
+      const res = await fetch(`/api/scans/ORD-2024-88412/frames/${frameId}/qc`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ qc_status: newStatus, defect_type: newStatus === 'FLAGGED' ? 'Bụi quang học' : null })
+      });
+      const data = await res.json();
+      if (data.success) {
+        loadQC();
+      }
+    } catch (e) {
+      alert('Lỗi cập nhật: ' + e.message);
+    }
+  }
+
+  async function approveRelease() {
+    try {
+      const res = await fetch('/api/scans/ORD-2024-88412/release', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ note: 'Đã hoàn tất kiểm duyệt QC' })
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert(data.message);
+        window.location.href = 'web_lab_03.html';
+      }
+    } catch (e) {
+      alert('Lỗi phê duyệt: ' + e.message);
+    }
+  }
+
+  loadQC();
+</script>
+</body>
+</html>
+

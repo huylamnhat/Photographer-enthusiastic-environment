@@ -1,0 +1,25 @@
+{
+  "name": "minilab-backend",
+  "version": "1.0.0",
+  "description": "MiniLab Management Platform - Film Lab Backend API (Node.js & Express)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "keywords": [
+    "film-lab",
+    "minilab",
+    "analog",
+    "photography",
+    "express",
+    "rest-api"
+  ],
+  "author": "Nhom 8 - He Quan Tri CSDL",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.2"
+  }
+}
+

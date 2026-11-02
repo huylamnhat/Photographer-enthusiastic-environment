@@ -1,0 +1,309 @@
+/* ==========================================================================
+   IMPECCABLE DESIGN SYSTEM - WARM FILM LAB EDITION
+   Adheres strictly to .impeccable/design-rules.md
+   ========================================================================== */
+
+:root {
+  --font-sans: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+  /* Warm Paper Lab Palette */
+  --color-primary: #8a3a03;
+  --color-primary-hover: #733002;
+  --color-primary-container: #a9511c;
+  --color-on-primary: #ffffff;
+  --color-on-primary-container: #ffe6dc;
+
+  --color-secondary: #446557;
+  --color-secondary-container: #e2f4ec;
+  --color-on-secondary-container: #1b4332;
+
+  --color-surface: #fff8f3;
+  --color-surface-container: #f4ede6;
+  --color-surface-container-low: #faf2eb;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-high: #efe7e0;
+
+  --color-ink: #1e1b17;
+  --color-ink-muted: #55433a;
+  --color-outline: #887268;
+  --color-outline-subtle: rgba(220, 193, 181, 0.55);
+
+  --color-error: #ba1a1a;
+  --color-error-bg: #ffdad6;
+  --color-on-error: #93000a;
+
+  /* Motion & Radius Standards */
+  --ease-impeccable: cubic-bezier(0.16, 1, 0.3, 1);
+  --radius-card: 12px;
+  --radius-button: 8px;
+  --radius-pill: 9999px;
+
+  /* Elevation: Clean single declaration (border OR soft shadow) */
+  --shadow-subtle: 0 1px 3px rgba(30, 27, 23, 0.04), 0 4px 12px -2px rgba(30, 27, 23, 0.05);
+  --shadow-card: 0 2px 8px -1px rgba(30, 27, 23, 0.06), 0 1px 3px 0 rgba(30, 27, 23, 0.04);
+  --shadow-hover: 0 8px 20px -4px rgba(138, 58, 3, 0.12), 0 2px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+/* Dark Slate Warm Mode */
+.dark, [data-theme="dark"] {
+  --color-surface: #141210;
+  --color-surface-container: #201c18;
+  --color-surface-container-low: #1a1714;
+  --color-surface-container-lowest: #27221d;
+  --color-surface-container-high: #2f2a24;
+
+  --color-ink: #f5ede6;
+  --color-ink-muted: #d0c0b4;
+  --color-outline: #9f8a7e;
+  --color-outline-subtle: rgba(159, 138, 126, 0.25);
+
+  --color-primary: #f58238;
+  --color-primary-hover: #fa9758;
+  --color-primary-container: #8a3a03;
+  --color-on-primary: #341100;
+  --color-on-primary-container: #ffe6dc;
+
+  --color-secondary: #74a08e;
+  --color-secondary-container: #213c31;
+  --color-on-secondary-container: #a5d8c3;
+
+  --shadow-subtle: 0 1px 3px rgba(0, 0, 0, 0.25), 0 4px 12px -2px rgba(0, 0, 0, 0.3);
+  --shadow-card: 0 2px 8px -1px rgba(0, 0, 0, 0.35);
+  --shadow-hover: 0 8px 24px -4px rgba(0, 0, 0, 0.5);
+}
+
+/* 1. Browser Surfaces: Themed Selection, Caret & Scrollbars */
+::selection {
+  background-color: #f0dacd;
+  color: #341100;
+}
+.dark ::selection {
+  background-color: #57270c;
+  color: #ffe6dc;
+}
+
+input, textarea, select {
+  caret-color: var(--color-primary);
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #d9c4b7;
+  border-radius: var(--radius-pill);
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: #4a4039;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #9f877b;
+}
+
+/* 2. Typography & Reading Comfort */
+body {
+  font-family: var(--font-sans);
+  color: var(--color-ink);
+  background-color: var(--color-surface);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4 {
+  color: var(--color-ink);
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  margin-top: 0;
+  line-height: 1.25;
+}
+
+/* WCAG AAA text clarity */
+.text-ink { color: var(--color-ink); }
+.text-ink-muted { color: var(--color-ink-muted); }
+
+/* 3. Cards & Elevation (Strict: NO side-stripes, NO ghost cards) */
+.imp-card {
+  background-color: var(--color-surface-container-lowest);
+  border: 1px solid var(--color-outline-subtle);
+  border-radius: var(--radius-card);
+  transition: transform 0.22s var(--ease-impeccable), box-shadow 0.22s var(--ease-impeccable), border-color 0.15s ease;
+}
+
+.imp-card:hover {
+  border-color: rgba(138, 58, 3, 0.35);
+  box-shadow: var(--shadow-hover);
+}
+
+/* 4. Pill Badges (Standardized 9999px border-radius) */
+.imp-badge, .badge-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.2rem 0.75rem;
+  border-radius: var(--radius-pill) !important;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  line-height: 1.25;
+}
+
+.imp-badge-success {
+  background-color: var(--color-secondary-container);
+  color: var(--color-on-secondary-container);
+}
+
+.imp-badge-warning {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.imp-badge-error {
+  background-color: var(--color-error-bg);
+  color: var(--color-on-error);
+}
+
+.imp-badge-neutral {
+  background-color: var(--color-surface-container);
+  color: var(--color-ink-muted);
+}
+
+/* 5. Buttons with Authentic Micro-interactions */
+.imp-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: var(--radius-button);
+  font-family: var(--font-sans);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  padding: 0.55rem 1.15rem;
+  cursor: pointer;
+  border: none;
+  transition: transform 0.18s var(--ease-impeccable), background-color 0.18s var(--ease-impeccable), box-shadow 0.18s var(--ease-impeccable);
+}
+
+.imp-btn:active {
+  transform: scale(0.97);
+}
+
+.imp-btn-primary {
+  background-color: var(--color-primary-container);
+  color: var(--color-on-primary);
+  box-shadow: 0 1px 3px rgba(138, 58, 3, 0.25);
+}
+
+.imp-btn-primary:hover {
+  background-color: var(--color-primary);
+  box-shadow: 0 4px 10px rgba(138, 58, 3, 0.3);
+}
+
+.imp-btn-secondary {
+  background-color: var(--color-secondary);
+  color: #ffffff;
+}
+
+.imp-btn-secondary:hover {
+  background-color: #385549;
+}
+
+.imp-btn-outline {
+  background-color: var(--color-surface-container-lowest);
+  border: 1px solid var(--color-outline-subtle);
+  color: var(--color-ink);
+}
+
+.imp-btn-outline:hover {
+  background-color: var(--color-surface-container);
+  border-color: var(--color-outline);
+}
+
+/* 6. Form Fields & Interactive Inputs */
+input[type="text"], input[type="email"], input[type="password"], input[type="number"], select, textarea {
+  border-radius: var(--radius-button);
+  border: 1px solid var(--color-outline-subtle);
+  background-color: var(--color-surface-container-lowest);
+  color: var(--color-ink);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(138, 58, 3, 0.15);
+}
+
+/* 7. Focus Rings for Accessible Navigation */
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* 8. Ban Overrides: Eliminate accidental side-stripes */
+.no-side-stripe {
+  border-left-width: 0 !important;
+  border-right-width: 0 !important;
+}
+
+/* 9. Layout & Data Dense Alignment Standards */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+.catalog-layout-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+@media (min-width: 1280px) {
+  .catalog-layout-grid {
+    grid-template-columns: minmax(580px, 1fr) 360px;
+  }
+}
+
+.service-row-item {
+  min-width: 580px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  transition: background-color 0.15s ease;
+}
+
+.service-row-item:hover {
+  background-color: var(--color-surface-container-low);
+}
+
+.service-col-price {
+  width: 7.5rem;
+  flex-shrink: 0;
+  text-align: right;
+}
+
+.service-col-sla {
+  width: 6.5rem;
+  flex-shrink: 0;
+  text-align: center;
+}
+
+.service-col-status {
+  width: 6.5rem;
+  flex-shrink: 0;
+  text-align: center;
+}
+
+.service-col-action {
+  width: 4rem;
+  flex-shrink: 0;
+  text-align: right;
+}
+
