@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
-import '../../../core/services/web_api_service.dart';
+import '../../../core/theme/app_typography.dart';
 
 class LabSlaReportTab extends StatefulWidget {
   const LabSlaReportTab({super.key});
@@ -10,111 +10,161 @@ class LabSlaReportTab extends StatefulWidget {
 }
 
 class _LabSlaReportTabState extends State<LabSlaReportTab> {
-  Map<String, dynamic>? _slaData;
-  bool _isLoading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadData();
-  }
-
-  void _loadData() async {
-    final data = await WebApiService().getLabSlaReport();
-    if (mounted) {
-      setState(() {
-        _slaData = data;
-        _isLoading = false;
-      });
-    }
-  }
+  final List<Map<String, dynamic>> _orderHistory = [
+    {
+      'id': 'ORD-2026-8801',
+      'customer': 'Nguyễn Hoàng Anh',
+      'service': 'Tráng & Scan 135 Color C-41',
+      'rolls': 2,
+      'amount': '100.000đ',
+      'date': '01/03/2026',
+      'sla': '10h / 12h (Đạt)',
+      'rating': '5.0 ★',
+    },
+    {
+      'id': 'ORD-2026-8802',
+      'customer': 'Trần Văn Đức',
+      'service': 'Tráng ECN-2 Cine 500T',
+      'rolls': 1,
+      'amount': '80.000đ',
+      'date': '02/03/2026',
+      'sla': '22h / 24h (Đạt)',
+      'rating': '4.8 ★',
+    },
+    {
+      'id': 'ORD-2026-8803',
+      'customer': 'Lê Quang Huy',
+      'service': 'Tráng B&W D-76 Thủ công',
+      'rolls': 3,
+      'amount': '210.000đ',
+      'date': '03/03/2026',
+      'sla': '14h / 16h (Đạt)',
+      'rating': '5.0 ★',
+    },
+  ];
 
   @override
   Widget build(BuildContext context) {
-    if (_isLoading) return const Center(child: CircularProgressIndicator());
-
-    return Padding(
+    return SingleChildScrollView(
       padding: const EdgeInsets.all(24.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Báo Cáo Hiệu Suất SLA & Năng Suất Tráng Phim', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.ink)),
-          const SizedBox(height: 4),
-          const Text('Thống kê tỷ lệ giao file scan đúng hẹn cam kết, công suất máy tráng và tỷ lệ kiểm định QC',
-              style: TextStyle(color: AppColors.inkMuted, fontSize: 13)),
-          const SizedBox(height: 24),
-
-          // SLA Metrics Grid
-          GridView.count(
-            crossAxisCount: 3,
-            crossAxisSpacing: 16,
-            mainAxisSpacing: 16,
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            childAspectRatio: 2.2,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _buildCard('TỶ LỆ ĐÚNG HẸN CAM KẾT (SLA)', '${_slaData?['on_time_delivery_rate'] ?? '98.7%'}', 'Cam kết trả file trong 12h', AppColors.success),
-              _buildCard('THỜI GIAN HOÀN TẤT TRUNG BÌNH', '${_slaData?['average_turnaround_hours'] ?? '9.4'} Giờ', 'Nhanh hơn 2.6h so với cam kết', AppColors.primary),
-              _buildCard('TỶ LỆ KIỂM ĐỊNH QC ĐẠT CHUẨN', '${_slaData?['qc_pass_rate'] ?? '99.2%'}', 'Không phát sinh khiếu nại trầy xước', Colors.indigo),
+              const Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('WEB-LAB-08 // LỊCH SỬ ĐƠN & BÁO CÁO HIỆU SUẤT SLA', style: AppTypography.labelCaps),
+                  SizedBox(height: 4),
+                  Text('Chỉ Số Vận Hành & Lịch Sử Tráng Scan', style: AppTypography.pageTitle),
+                ],
+              ),
+              OutlinedButton.icon(
+                onPressed: () {},
+                icon: const Icon(Icons.file_download_outlined, size: 16),
+                label: const Text('Xuất báo cáo thuế & doanh thu'),
+              ),
             ],
           ),
           const SizedBox(height: 24),
 
+          // 3 KPI cards for Lab Performance
+          Row(
+            children: [
+              _buildSummaryCard('TỶ LỆ TRẢ FILE ĐÚNG SLA', '98.6%', '+0.4% so với tuần trước', AppColors.secondary),
+              const SizedBox(width: 16),
+              _buildSummaryCard('TỔNG SẢN LƯỢNG THÁNG NÀY', '614 cuộn', 'C-41: 420 | B&W: 134 | ECN-2: 60', AppColors.primary),
+              const SizedBox(width: 16),
+              _buildSummaryCard('DOANH THU THỰC NHẬN TIỆM', '34.850.000đ', 'Sau khi trừ 10% phí nền tảng', AppColors.ink),
+            ],
+          ),
+          const SizedBox(height: 24),
+
+          // History Table
           Container(
-            padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
               color: AppColors.surfaceRaised,
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: AppColors.outline),
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            child: Table(
+              columnWidths: const {
+                0: FlexColumnWidth(2.5),
+                1: FlexColumnWidth(2.5),
+                2: FlexColumnWidth(4),
+                3: FlexColumnWidth(1.5),
+                4: FlexColumnWidth(2),
+                5: FlexColumnWidth(2),
+                6: FlexColumnWidth(1.5),
+              },
               children: [
-                const Text('Chi tiết vận hành trong tháng', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                const SizedBox(height: 14),
-                _buildRow('Tổng số cuộn phim đã xử lý hoàn tất:', '${_slaData?['total_completed_orders'] ?? 1284} cuộn'),
-                _buildRow('Số đơn phát sinh trễ hẹn SLA:', '${_slaData?['delayed_orders'] ?? 17} đơn (chiếm 1.3%)'),
-                _buildRow('Công suất tiếp nhận tối đa hàng ngày:', '${_slaData?['daily_capacity'] ?? '80 cuộn / ngày'}'),
-                _buildRow('Đánh giá chất lượng trung bình từ khách hàng:', '4.9 / 5.0 ⭐ (328 đánh giá)'),
+                TableRow(
+                  decoration: const BoxDecoration(
+                    color: AppColors.surfaceSunken,
+                    borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
+                  ),
+                  children: [
+                    _th('MÃ ĐƠN'),
+                    _th('KHÁCH HÀNG'),
+                    _th('GÓI DỊCH VỤ'),
+                    _th('SỐ CUỘN'),
+                    _th('DOANH THU'),
+                    _th('THỜI GIAN SLA'),
+                    _th('ĐÁNH GIÁ'),
+                  ],
+                ),
+                ..._orderHistory.map((h) => TableRow(
+                  decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: AppColors.outline, width: 0.5))),
+                  children: [
+                    Padding(padding: const EdgeInsets.all(12), child: Text(h['id'], style: AppTypography.dataMono.copyWith(color: AppColors.primary))),
+                    Padding(padding: const EdgeInsets.all(12), child: Text(h['customer'], style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13))),
+                    Padding(padding: const EdgeInsets.all(12), child: Text(h['service'], style: AppTypography.tableCell)),
+                    Padding(padding: const EdgeInsets.all(12), child: Text(h['rolls'].toString(), style: AppTypography.dataMono)),
+                    Padding(padding: const EdgeInsets.all(12), child: Text(h['amount'], style: AppTypography.dataMono.copyWith(fontWeight: FontWeight.bold))),
+                    Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Text(h['sla'], style: const TextStyle(color: AppColors.secondary, fontWeight: FontWeight.bold, fontSize: 12)),
+                    ),
+                    Padding(padding: const EdgeInsets.all(12), child: Text(h['rating'], style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold))),
+                  ],
+                )),
               ],
             ),
-          )
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildCard(String title, String value, String desc, Color color) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.surfaceRaised,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.outline),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(title, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.inkMuted, letterSpacing: 0.5)),
-          Text(value, style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: color)),
-          Text(desc, style: const TextStyle(fontSize: 11, color: AppColors.inkMuted)),
-        ],
+  Widget _buildSummaryCard(String title, String val, String sub, Color valColor) {
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: AppColors.surfaceRaised,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: AppColors.outline),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(title, style: AppTypography.labelCaps),
+            const SizedBox(height: 8),
+            Text(val, style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: valColor)),
+            const SizedBox(height: 4),
+            Text(sub, style: AppTypography.caption),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildRow(String label, String value) {
+  Widget _th(String title) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(label, style: const TextStyle(fontSize: 13, color: AppColors.inkMuted)),
-          Text(value, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.ink)),
-        ],
-      ),
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+      child: Text(title, style: AppTypography.labelCaps),
     );
   }
 }
-

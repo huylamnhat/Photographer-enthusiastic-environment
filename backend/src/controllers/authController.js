@@ -12,7 +12,8 @@ exports.login = (req, res) => {
   }
 
   // Find user by email or phone
-  let user = mockUsers.find(u => u.email === identifier || u.phone === identifier);
+  const lowerId = (identifier || '').toLowerCase();
+  let user = mockUsers.find(u => (u.email && u.email.toLowerCase() === lowerId) || u.phone === identifier);
   if (!user) {
     // If user doesn't exist, create customer on-the-fly for smooth demo
     user = {
@@ -20,7 +21,7 @@ exports.login = (req, res) => {
       email: identifier.includes('@') ? identifier : `${identifier}@minilab.vn`,
       phone: identifier.includes('@') ? '0912345678' : identifier,
       full_name: 'Khách hàng MiniLab',
-      role: 'Customer',
+      role: lowerId.split('@')[0].includes('admin') ? 'Admin' : (lowerId.split('@')[0].includes('lab') ? 'LabOwner' : 'Customer'),
       avatar_url: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150',
       created_at: new Date().toISOString()
     };

@@ -1,6 +1,18 @@
+import 'package:flutter/foundation.dart';
+
 class ApiConstants {
-  // Use 10.0.2.2 for Android Emulator, localhost for iOS/Web, or your local machine IP
-  static const String baseUrl = 'http://localhost:5000/api';
+  // IP mạng LAN của máy tính: 192.168.1.7 (Port backend: 5000)
+  static const String serverIp = '192.168.1.7';
+  static const int port = 5000;
+
+  static String get baseUrl {
+    if (kIsWeb) {
+      return 'http://localhost:$port/api';
+    }
+    // Khi chạy native app trên điện thoại thật kết nối cùng Wi-Fi với máy tính
+    return 'http://$serverIp:$port/api';
+  }
+
   static const String emulatorBaseUrl = 'http://10.0.2.2:5000/api';
 
   // Auth endpoints
@@ -35,4 +47,3 @@ class ApiConstants {
   // Reviews
   static const String reviews = '/reviews';
 }
-

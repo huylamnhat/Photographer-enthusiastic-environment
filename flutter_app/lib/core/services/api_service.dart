@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../constants/api_constants.dart';
+import '../mock/mock_test_assets.dart';
 import '../../models/lab_model.dart';
 import '../../models/order_model.dart';
 import '../../models/archive_photo_model.dart';
@@ -42,7 +43,9 @@ class ApiService {
           'email': identifier.contains('@') ? identifier : 'khachhang@minilab.vn',
           'phone': '0912345678',
           'full_name': 'Nguyễn Hoàng Anh',
-          'role': 'Customer',
+          'role': identifier.toLowerCase().split('@')[0].contains('admin')
+              ? 'Admin'
+              : (identifier.toLowerCase().split('@')[0].contains('lab') || identifier.toLowerCase().split('@')[0].contains('crop') ? 'LabOwner' : 'Customer'),
           'avatar_url': 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150',
           'address': '123 Phố Huế, Hai Bà Trưng, Hà Nội',
         }
@@ -207,6 +210,22 @@ class ApiService {
     return null;
   }
 
+  // Get Order By Id
+  Future<OrderModel?> getOrderById(String orderId) async {
+    try {
+      final cleanId = orderId.replaceAll('#', '');
+      final res = await http.get(
+        Uri.parse('${ApiConstants.baseUrl}${ApiConstants.orders}/$cleanId'),
+        headers: _headers(),
+      );
+      final data = jsonDecode(res.body);
+      if (data['success'] == true && data['data'] != null) {
+        return OrderModel.fromJson(data['data']);
+      }
+    } catch (_) {}
+    return null;
+  }
+
   // Archive Photos
   Future<List<ArchivePhotoModel>> getArchivePhotos({String? album}) async {
     try {
@@ -226,8 +245,8 @@ class ApiService {
         orderId: 'ORD-2026-8801',
         rollCode: 'ROLL-PORTRA400-01',
         title: 'Nắng chiều Phố Cổ Hà Nội',
-        imageUrl: 'https://images.unsplash.com/photo-1528127269322-539801943592?w=1200',
-        thumbnailUrl: 'https://images.unsplash.com/photo-1528127269322-539801943592?w=400',
+        imageUrl: MockTestAssets.samplePhoto1,
+        thumbnailUrl: MockTestAssets.samplePhoto1,
         albumName: 'Mùa thu Hà Nội 2026',
         isFavorite: true,
         createdAt: '2026-03-01T17:15:00Z',
@@ -251,8 +270,8 @@ class ApiService {
         orderId: 'ORD-2026-8801',
         rollCode: 'ROLL-PORTRA400-01',
         title: 'Gánh hoa góc đường',
-        imageUrl: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=1200',
-        thumbnailUrl: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=400',
+        imageUrl: MockTestAssets.samplePhoto2,
+        thumbnailUrl: MockTestAssets.samplePhoto2,
         albumName: 'Mùa thu Hà Nội 2026',
         isFavorite: false,
         createdAt: '2026-03-01T17:15:00Z',
@@ -291,7 +310,7 @@ class ApiService {
         listingId: 'mkt-001',
         sellerId: 'usr-001',
         sellerName: 'Nguyễn Hoàng Anh',
-        sellerAvatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150',
+        sellerAvatar: MockTestAssets.avatarCustomer,
         title: 'Máy ảnh Film Canon QL17 GIII (Black Limited Edition)',
         category: 'Máy ảnh Rangefinder',
         condition: '98% Sưu tầm, đo sáng hoàn hảo',
@@ -300,7 +319,7 @@ class ApiService {
         location: 'Hoàn Kiếm, Hà Nội',
         phoneContact: '0912345678',
         zaloContact: '0912345678',
-        imageUrls: ['https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=800'],
+        imageUrls: [MockTestAssets.marketplaceCam1],
         description: 'Cần nhượng lại Canon QL17 GIII bản đen hiếm. Kính trong vắt, không mốc xước.',
         createdAt: '2026-02-28T10:00:00Z',
       ),
@@ -325,17 +344,48 @@ class ApiService {
         postId: 'post-001',
         authorId: 'usr-003',
         authorName: 'Lê Quang Huy',
-        authorAvatar: 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=150',
+        authorAvatar: MockTestAssets.avatarExpert,
         authorBadge: 'Chuyên gia nhiếp ảnh',
         title: 'Bí quyết chọn điểm đo sáng khi chụp phim âm bản màu',
         content: 'Phim âm bản màu có khả năng giữ chi tiết highlight ấn tượng, lên đến +3 hoặc +4 stops...',
         category: 'Kỹ thuật chụp',
-        imageUrl: 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=800',
+        imageUrl: MockTestAssets.samplePhoto3,
         likesCount: 89,
         commentsCount: 14,
         createdAt: '2026-03-01T10:00:00Z',
       ),
     ];
   }
-}
 
+  // Film Lab Portal Live Interaction
+  Future<Map<String, dynamic>> getLabKanban({String? labId}) async {
+    try {
+      String url = '${ApiConstants.baseUrl}/lab/kanban';
+      if (labId != null && labId.isNotEmpty) {
+        url += '?lab_id=$labId';
+      }
+      final res = await http.get(
+        Uri.parse(url),
+        headers: _headers(),
+      );
+      final data = jsonDecode(res.body);
+      if (data['success'] == true) {
+        return data['data'] as Map<String, dynamic>;
+      }
+    } catch (_) {}
+    return {};
+  }
+
+  Future<bool> updateKanbanStep(String orderId, String column, {String? note}) async {
+    try {
+      final res = await http.post(
+        Uri.parse('${ApiConstants.baseUrl}/lab/kanban/$orderId/step'),
+        headers: _headers(),
+        body: jsonEncode({'column': column, 'note': note}),
+      );
+      final data = jsonDecode(res.body);
+      return data['success'] == true;
+    } catch (_) {}
+    return false;
+  }
+}

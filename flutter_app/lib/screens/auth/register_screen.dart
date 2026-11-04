@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
+import '../../core/theme/app_typography.dart';
 import '../navigation_shell.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -15,22 +16,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _otpController = TextEditingController();
   bool _otpSent = false;
 
-  @override
-  void dispose() {
-    _phoneController.dispose();
-    _fullNameController.dispose();
-    _otpController.dispose();
-    super.dispose();
-  }
-
   void _sendOtp() {
     setState(() {
       _otpSent = true;
-      _otpController.text = '8888'; // Mock internal OTP
+      _otpController.text = '8888';
     });
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text('Mã OTP mô phỏng: 8888 (Tự động điền)'),
+        content: Text('Mã OTP mô phỏng: 8888 (Tự động điền nội bộ)'),
         backgroundColor: AppColors.secondary,
       ),
     );
@@ -47,103 +40,123 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.surface,
       appBar: AppBar(
-        title: const Text('Tạo tài khoản mới'),
+        titleSpacing: 16,
+        backgroundColor: AppColors.surfaceRaised,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Container(color: AppColors.outline, height: 1),
+        ),
+        title: Text(
+          'ĐĂNG KÝ THÀNH VIÊN MỚI',
+          style: AppTypography.cardTitle.copyWith(fontSize: 13),
+        ),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Tham gia MiniLab',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700, color: AppColors.ink),
-              ),
-              const SizedBox(height: 6),
-              const Text(
-                'Bắt đầu trải nghiệm số hóa film và quản lý kho ảnh cá nhân',
-                style: TextStyle(fontSize: 13, color: AppColors.inkMuted),
-              ),
-              const SizedBox(height: 24),
+          padding: const EdgeInsets.all(20),
+          child: Container(
+            constraints: const BoxConstraints(maxWidth: 420),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text('TẠO THẺ THÀNH VIÊN ANALOG', style: AppTypography.labelCaps),
+                const SizedBox(height: 4),
+                Text('Tham gia cộng đồng MiniLab', style: AppTypography.pageTitle.copyWith(fontSize: 18)),
+                const SizedBox(height: 4),
+                Text('Lưu trữ file scan trọn đời và giao lưu cùng nhiếp ảnh gia khắp cả nước.', style: AppTypography.bodySmall),
+                const SizedBox(height: 20),
 
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: AppColors.surfaceRaised,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.outline),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text('HỌ VÀ TÊN', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.inkMuted)),
-                    const SizedBox(height: 6),
-                    TextField(
-                      controller: _fullNameController,
-                      decoration: const InputDecoration(
-                        prefixIcon: Icon(Icons.person_outline, size: 20, color: AppColors.inkMuted),
-                        hintText: 'Nhập họ và tên',
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-
-                    const Text('SỐ ĐIỆN THOẠI', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.inkMuted)),
-                    const SizedBox(height: 6),
-                    TextField(
-                      controller: _phoneController,
-                      keyboardType: TextInputType.phone,
-                      decoration: const InputDecoration(
-                        prefixIcon: Icon(Icons.phone_outlined, size: 20, color: AppColors.inkMuted),
-                        hintText: '09xx xxx xxx',
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-
-                    if (!_otpSent)
-                      SizedBox(
-                        width: double.infinity,
-                        height: 48,
-                        child: ElevatedButton(
-                          onPressed: _sendOtp,
-                          child: const Text('Nhận mã xác thực OTP', style: TextStyle(fontSize: 14)),
-                        ),
-                      )
-                    else ...[
-                      const Text('MÃ XÁC THỰC OTP', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.inkMuted)),
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: AppColors.surfaceRaised,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: AppColors.outline),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text('HỌ VÀ TÊN', style: AppTypography.labelCaps),
                       const SizedBox(height: 6),
                       TextField(
-                        controller: _otpController,
-                        keyboardType: TextInputType.number,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(fontSize: 20, letterSpacing: 8, fontWeight: FontWeight.bold),
+                        controller: _fullNameController,
+                        style: AppTypography.bodySmall,
                         decoration: const InputDecoration(
-                          hintText: '8888',
+                          prefixIcon: Icon(Icons.person_outline, size: 18, color: AppColors.inkMuted),
+                          hintText: 'Nguyễn Văn A',
+                          contentPadding: EdgeInsets.all(10),
                         ),
                       ),
-                      const SizedBox(height: 12),
-                      const Text(
-                        'Hệ thống mô phỏng nội bộ: Mã OTP mặc định là 8888',
-                        style: TextStyle(fontSize: 12, color: AppColors.secondary, fontStyle: FontStyle.italic),
-                      ),
-                      const SizedBox(height: 20),
-                      SizedBox(
-                        width: double.infinity,
-                        height: 48,
-                        child: ElevatedButton(
-                          onPressed: _verifyAndRegister,
-                          child: const Text('Xác nhận & Hoàn tất', style: TextStyle(fontSize: 14)),
+                      const SizedBox(height: 14),
+
+                      Text('SỐ ĐIỆN THOẠI', style: AppTypography.labelCaps),
+                      const SizedBox(height: 6),
+                      TextField(
+                        controller: _phoneController,
+                        keyboardType: TextInputType.phone,
+                        style: AppTypography.bodySmall,
+                        decoration: const InputDecoration(
+                          prefixIcon: Icon(Icons.phone_outlined, size: 18, color: AppColors.inkMuted),
+                          hintText: '09xxxxxxxx',
+                          contentPadding: EdgeInsets.all(10),
                         ),
                       ),
-                    ]
-                  ],
+                      const SizedBox(height: 16),
+
+                      if (!_otpSent)
+                        SizedBox(
+                          height: 42,
+                          child: ElevatedButton(
+                            onPressed: _sendOtp,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.primary,
+                              foregroundColor: Colors.white,
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+                            ),
+                            child: Text('Gửi mã OTP xác nhận', style: AppTypography.button),
+                          ),
+                        ),
+
+                      if (_otpSent) ...[
+                        Text('MÃ XÁC NHẬN OTP (MÔ PHỎNG NỘI BỘ)', style: AppTypography.labelCaps),
+                        const SizedBox(height: 6),
+                        TextField(
+                          controller: _otpController,
+                          style: AppTypography.dataMono.copyWith(fontSize: 14, letterSpacing: 4),
+                          textAlign: TextAlign.center,
+                          decoration: const InputDecoration(
+                            hintText: '••••',
+                            contentPadding: EdgeInsets.all(10),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        SizedBox(
+                          height: 42,
+                          child: ElevatedButton(
+                            onPressed: _verifyAndRegister,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.secondary,
+                              foregroundColor: Colors.white,
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+                            ),
+                            child: Text('Xác nhận & Vào ứng dụng', style: AppTypography.button),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 }
-

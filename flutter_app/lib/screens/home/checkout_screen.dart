@@ -1,9 +1,9 @@
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+﻿import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
+import '../../core/theme/app_typography.dart';
 import '../../models/lab_model.dart';
-import '../../providers/order_provider.dart';
 import 'payment_receipt_screen.dart';
+import '../../core/services/api_service.dart';
 
 class CheckoutScreen extends StatefulWidget {
   final LabModel lab;
@@ -32,170 +32,295 @@ class CheckoutScreen extends StatefulWidget {
 }
 
 class _CheckoutScreenState extends State<CheckoutScreen> {
-  String _paymentMethod = 'MOMO'; // MOMO, VNPAY, BANK_TRANSFER, CASH
-  final _addressController = TextEditingController(text: '123 Phố Huế, Hai Bà Trưng, Hà Nội');
+  // 100% internal mock payment methods (no external gateway APIs)
+  String _selectedPayment = 'MINILAB_WALLET'; // MINILAB_WALLET, INTERNAL_QR, CASH_ON_DROP
+  bool _agreedToTerms = true;
   bool _isProcessing = false;
 
-  void _confirmAndPay() async {
+  void _handlePayment() async {
     setState(() => _isProcessing = true);
 
-    final orderData = {
-      'lab_id': widget.lab.labId,
-      'shipping_method': widget.shippingMethod,
-      'pickup_address': _addressController.text,
-      'payment_method': _paymentMethod,
-      'items': [
-        {
-          'package_id': 'pkg-001',
-          'film_name': widget.filmName,
-          'quantity': widget.quantity,
-          'price': widget.totalPrice / widget.quantity,
-          'options': {
-            'push_pull': widget.pushPull,
-            'cut_negatives': widget.cutOption,
-          }
-        }
-      ]
-    };
+    String assignedOrderId = 'ORD-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}';
 
-    final order = await context.read<OrderProvider>().addOrder(orderData);
+    try {
+      final created = await ApiService().createOrder({
+        'lab_id': widget.lab.labId,
+        'shipping_method': 'DROP_OFF',
+        'pickup_address': 'Quầy tiếp nhận ${widget.lab.name}',
+        'payment_method': _selectedPayment,
+        'note': 'Gói: ${widget.packageName}, Đẩy/kéo: ${widget.pushPull}',
+        'items': [
+          {
+            'package_id': 'pkg-001',
+            'film_name': widget.filmName,
+            'quantity': widget.quantity,
+            'price': widget.totalPrice / (widget.quantity > 0 ? widget.quantity : 1),
+            'options': {
+              'push_pull': widget.pushPull,
+              'cut_negatives': widget.cutOption,
+            }
+          }
+        ]
+      });
+
+      if (created != null && created.orderId.isNotEmpty) {
+        assignedOrderId = created.orderId;
+      }
+    } catch (_) {}
+
+    if (!mounted) return;
     setState(() => _isProcessing = false);
 
-    if (mounted) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (_) => PaymentReceiptScreen(
-            orderId: order?.orderId ?? 'ORD-2026-8888',
-            labName: widget.lab.name,
-            amount: widget.totalPrice,
-            paymentMethod: _paymentMethod,
-          ),
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (_) => PaymentReceiptScreen(
+          orderId: assignedOrderId,
+          labName: widget.lab.name,
+          amount: widget.totalPrice,
+          paymentMethod: _selectedPayment == 'MINILAB_WALLET'
+              ? 'Ví MiniLab Pay (Nội bộ)'
+              : (_selectedPayment == 'INTERNAL_QR' ? 'QR Chuyển khoản nội bộ' : 'Tiền mặt tại quầy Lab'),
         ),
-      );
-    }
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.surface,
       appBar: AppBar(
-        title: const Text('Xác nhận & Thanh toán'),
+        titleSpacing: 16,
+        backgroundColor: AppColors.surfaceRaised,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Container(color: AppColors.outline, height: 1),
+        ),
+        title: Text(
+          'XÁC NHẬN ĐƠN HÀNG & THANH TOÁN',
+          style: AppTypography.cardTitle.copyWith(fontSize: 13),
+        ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 90),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Order Summary Card
+            // Order Summary Ledger Card (Stitch APP-CUS-08)
             Container(
-              padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: AppColors.surfaceRaised,
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(8),
                 border: Border.all(color: AppColors.outline),
               ),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const Text('TÓM TẮT ĐƠN HÀNG', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.inkMuted)),
-                  const SizedBox(height: 10),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(widget.packageName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-                      Text('${widget.totalPrice.toInt()}đ', style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.primary)),
-                    ],
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    decoration: const BoxDecoration(
+                      color: AppColors.surfaceSunken,
+                      borderRadius: BorderRadius.vertical(top: Radius.circular(7)),
+                      border: Border(bottom: BorderSide(color: AppColors.outline)),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('SỔ TỔNG KẾT ĐƠN HÀNG', style: AppTypography.labelCaps.copyWith(fontSize: 10)),
+                        Text('DOC_TYPE: ORDER_LEDGER', style: AppTypography.dataMono.copyWith(fontSize: 9, color: AppColors.inkMuted)),
+                      ],
+                    ),
                   ),
-                  const SizedBox(height: 4),
-                  Text('• Phim: ${widget.filmName} (x${widget.quantity} cuộn)', style: const TextStyle(fontSize: 12, color: AppColors.inkMuted)),
-                  Text('• Xử lý: ${widget.pushPull}', style: const TextStyle(fontSize: 12, color: AppColors.inkMuted)),
-                  Text('• Âm bản: ${widget.cutOption}', style: const TextStyle(fontSize: 12, color: AppColors.inkMuted)),
-                  const Divider(height: 20),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text('Tiệm xử lý:', style: TextStyle(fontSize: 12, color: AppColors.inkMuted)),
-                      Text(widget.lab.name, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-                    ],
+                  Padding(
+                    padding: const EdgeInsets.all(14),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildLedgerItem('Tiệm Lab xử lý:', widget.lab.name),
+                        const SizedBox(height: 8),
+                        _buildLedgerItem('Quy cách phim:', widget.filmName),
+                        const SizedBox(height: 8),
+                        _buildLedgerItem('Gói dịch vụ:', widget.packageName),
+                        const SizedBox(height: 8),
+                        _buildLedgerItem('Số lượng cuộn:', '${widget.quantity} cuộn'),
+                        const SizedBox(height: 8),
+                        _buildLedgerItem('Xử lý âm bản:', widget.shippingMethod == 'SHIP_HOME' ? 'Gửi bưu điện về nhà' : 'Lưu tại tủ tiệm 15 ngày'),
+                        const SizedBox(height: 12),
+                        const Divider(height: 1, color: AppColors.outline),
+                        const SizedBox(height: 12),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text('TỔNG CỘNG THANH TOÁN', style: AppTypography.cardTitle.copyWith(fontSize: 13)),
+                            Text(
+                              '${widget.totalPrice.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]}.')}đ',
+                              style: AppTypography.metric.copyWith(fontSize: 18, color: AppColors.primary),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
             ),
             const SizedBox(height: 20),
 
-            // Pickup Address
-            const Text('ĐỊA CHỈ NHẬN / TRẢ PHIM', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.inkMuted)),
-            const SizedBox(height: 6),
-            TextField(
-              controller: _addressController,
-              decoration: const InputDecoration(
-                prefixIcon: Icon(Icons.location_on_outlined, color: AppColors.inkMuted),
+            // Internal Payment Methods (Strictly No External APIs)
+            Text('PHƯƠNG THỨC THANH TOÁN NỘI BỘ', style: AppTypography.sectionHeading.copyWith(fontSize: 12)),
+            const SizedBox(height: 8),
+            _buildPaymentOption(
+              key: 'MINILAB_WALLET',
+              title: 'Ví Số Dư MiniLab Pay (Nội bộ sàn)',
+              subtitle: 'Số dư khả dụng: 450.000đ • Trừ trực tiếp tài khoản',
+              icon: Icons.account_balance_wallet_outlined,
+            ),
+            const SizedBox(height: 8),
+            _buildPaymentOption(
+              key: 'INTERNAL_QR',
+              title: 'Mã QR Thanh Toán Nội Bộ Lab',
+              subtitle: 'Quét mã giao dịch nội bộ ghi nhận tự động vào ca trực của Lab',
+              icon: Icons.qr_code_2,
+            ),
+            const SizedBox(height: 8),
+            _buildPaymentOption(
+              key: 'CASH_ON_DROP',
+              title: 'Thanh toán tiền mặt tại quầy Lab',
+              subtitle: 'Thanh toán trực tiếp khi mang cuộn phim đến tiệm',
+              icon: Icons.storefront_outlined,
+            ),
+            const SizedBox(height: 16),
+
+            // Policy Agreement Checkbox
+            InkWell(
+              onTap: () => setState(() => _agreedToTerms = !_agreedToTerms),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(
+                    _agreedToTerms ? Icons.check_box : Icons.check_box_outline_blank,
+                    size: 18,
+                    color: _agreedToTerms ? AppColors.primary : AppColors.inkMuted,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Tôi xác nhận đồng ý với Quy chế xử lý hóa chất, thời gian hoàn trả ảnh scan theo SLA và chính sách bảo quản âm bản của phòng tối.',
+                      style: AppTypography.bodySmall.copyWith(fontSize: 11, color: AppColors.inkMuted, height: 1.3),
+                    ),
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: 20),
-
-            // Payment Methods
-            const Text('PHƯƠNG THỨC THANH TOÁN', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.inkMuted)),
-            const SizedBox(height: 8),
-            _buildPaymentOption('MOMO', 'Ví điện tử MoMo', Icons.account_balance_wallet, 'Mô phỏng thanh toán nội bộ'),
-            _buildPaymentOption('VNPAY', 'VNPAY QR', Icons.qr_code, 'Mô phỏng thanh toán nội bộ'),
-            _buildPaymentOption('BANK_TRANSFER', 'Chuyển khoản VietQR', Icons.account_balance, 'Tự động xác nhận giao dịch'),
-            _buildPaymentOption('CASH', 'Thanh toán tiền mặt khi gửi phim', Icons.money, 'Thanh toán tại quầy Lab'),
-
-            const SizedBox(height: 80),
           ],
         ),
       ),
       bottomSheet: Container(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: const BoxDecoration(
           color: AppColors.surfaceRaised,
           border: Border(top: BorderSide(color: AppColors.outline)),
         ),
-        child: SizedBox(
-          width: double.infinity,
-          height: 48,
-          child: ElevatedButton(
-            onPressed: _isProcessing ? null : _confirmAndPay,
-            child: _isProcessing
-                ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                : Text('Thanh toán ${widget.totalPrice.toInt()}đ', style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+        child: SafeArea(
+          child: SizedBox(
+            width: double.infinity,
+            height: 44,
+            child: ElevatedButton(
+              onPressed: (_agreedToTerms && !_isProcessing) ? _handlePayment : null,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                elevation: 0,
+              ),
+              child: _isProcessing
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                    )
+                  : Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.lock_outline, size: 16),
+                        const SizedBox(width: 8),
+                        Text('Xác nhận & Hoàn tất đơn hàng', style: AppTypography.button),
+                      ],
+                    ),
+            ),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildPaymentOption(String id, String title, IconData icon, String subtitle) {
-    final isSelected = _paymentMethod == id;
-    return GestureDetector(
-      onTap: () => setState(() => _paymentMethod = id),
+  Widget _buildLedgerItem(String label, String value) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(label, style: AppTypography.bodySmall.copyWith(fontSize: 12, color: AppColors.inkMuted)),
+        Flexible(
+          child: Text(
+            value,
+            textAlign: TextAlign.right,
+            style: AppTypography.dataMono.copyWith(fontSize: 11, fontWeight: FontWeight.bold),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPaymentOption({
+    required String key,
+    required String title,
+    required String subtitle,
+    required IconData icon,
+  }) {
+    final isSelected = _selectedPayment == key;
+    return InkWell(
+      onTap: () => setState(() => _selectedPayment = key),
+      borderRadius: BorderRadius.circular(8),
       child: Container(
-        margin: const EdgeInsets.only(bottom: 8),
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primary.withOpacity(0.08) : AppColors.surfaceRaised,
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: isSelected ? AppColors.primary : AppColors.outline),
+          color: isSelected ? AppColors.primary.withValues(alpha: 0.04) : AppColors.surfaceRaised,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: isSelected ? AppColors.primary : AppColors.outline,
+            width: isSelected ? 1.5 : 1,
+          ),
         ),
         child: Row(
           children: [
-            Icon(icon, color: isSelected ? AppColors.primary : AppColors.inkMuted),
-            const SizedBox(width: 12),
+            Icon(
+              isSelected ? Icons.radio_button_checked : Icons.radio_button_off,
+              size: 16,
+              color: isSelected ? AppColors.primary : AppColors.inkMuted,
+            ),
+            const SizedBox(width: 10),
+            Icon(icon, size: 20, color: isSelected ? AppColors.primary : AppColors.inkMuted),
+            const SizedBox(width: 10),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: TextStyle(fontWeight: isSelected ? FontWeight.bold : FontWeight.w500, fontSize: 13)),
-                  Text(subtitle, style: const TextStyle(fontSize: 11, color: AppColors.inkMuted)),
+                  Text(
+                    title,
+                    style: AppTypography.cardTitle.copyWith(
+                      fontSize: 12,
+                      color: isSelected ? AppColors.primary : AppColors.ink,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    style: AppTypography.bodySmall.copyWith(fontSize: 10, color: AppColors.inkMuted),
+                  ),
                 ],
               ),
-            ),
-            Icon(
-              isSelected ? Icons.check_circle : Icons.circle_outlined,
-              color: isSelected ? AppColors.primary : AppColors.inkMuted,
-              size: 20,
             ),
           ],
         ),
@@ -203,4 +328,3 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     );
   }
 }
-

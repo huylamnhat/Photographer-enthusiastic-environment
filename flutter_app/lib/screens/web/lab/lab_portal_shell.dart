@@ -1,14 +1,19 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_typography.dart';
 import '../web_login_screen.dart';
 import 'lab_kanban_tab.dart';
 import 'lab_upload_scan_tab.dart';
 import 'lab_services_tab.dart';
 import 'lab_profile_tab.dart';
+import 'lab_claims_tab.dart';
 import 'lab_sla_report_tab.dart';
 
 class LabPortalShell extends StatefulWidget {
-  const LabPortalShell({super.key});
+  final String? labId;
+  final String? labName;
+
+  const LabPortalShell({super.key, this.labId, this.labName});
 
   @override
   State<LabPortalShell> createState() => _LabPortalShellState();
@@ -16,13 +21,59 @@ class LabPortalShell extends StatefulWidget {
 
 class _LabPortalShellState extends State<LabPortalShell> {
   int _selectedTabIndex = 0;
+  late String _currentLabId;
+  late String _currentLabName;
+  late String _currentBranch;
 
-  final List<Widget> _tabs = [
-    const LabKanbanTab(),
+  final List<Map<String, String>> _availableLabs = [
+    {
+      'id': 'lab-001',
+      'name': 'CropLab Hà Nội',
+      'branch': 'Số 10 Đặng Thai Mai, Tây Hồ, Hà Nội',
+      'badge': '⭐ Nhận đơn từ Mobile App',
+    },
+    {
+      'id': 'lab-002',
+      'name': 'LLab Film Sài Gòn',
+      'branch': '40/2 Phan Văn Trị, Bình Thạnh, TP.HCM',
+      'badge': 'Chi nhánh Miền Nam',
+    },
+    {
+      'id': 'lab-003',
+      'name': 'Nadar Darkroom Atelier',
+      'branch': '15 Tràng Tiền, Hoàn Kiếm, Hà Nội',
+      'badge': 'Phòng tối Fine-Art',
+    },
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _currentLabId = widget.labId ?? 'lab-001';
+    _currentLabName = widget.labName ?? 'CropLab Hà Nội';
+    final matched = _availableLabs.firstWhere(
+      (l) => l['id'] == _currentLabId,
+      orElse: () => _availableLabs[0],
+    );
+    _currentBranch = matched['branch']!;
+  }
+
+  List<Widget> get _tabs => [
+    LabKanbanTab(key: ValueKey(_currentLabId), labId: _currentLabId, labName: _currentLabName),
     const LabUploadScanTab(),
     const LabServicesTab(),
     const LabProfileTab(),
+    const LabClaimsTab(),
     const LabSlaReportTab(),
+  ];
+
+  final List<Map<String, String>> _menuItems = [
+    {'title': '1. Tiếp nhận & Phân loại', 'code': 'WEB-LAB-03', 'icon': 'view_kanban'},
+    {'title': '2. Tải file scan & QC', 'code': 'WEB-LAB-04', 'icon': 'cloud_upload'},
+    {'title': '3. Dịch vụ & Bảng giá', 'code': 'WEB-LAB-05', 'icon': 'price_change'},
+    {'title': '4. Hồ sơ tiệm công khai', 'code': 'WEB-LAB-06', 'icon': 'storefront'},
+    {'title': '5. Xử lý khiếu nại', 'code': 'WEB-LAB-07', 'icon': 'report_problem'},
+    {'title': '6. Lịch sử đơn & SLA', 'code': 'WEB-LAB-08', 'icon': 'history_toggle_off'},
   ];
 
   @override
@@ -31,7 +82,7 @@ class _LabPortalShellState extends State<LabPortalShell> {
       backgroundColor: AppColors.surface,
       body: Row(
         children: [
-          // Left Sidebar (Lab Portal Navigation)
+          // Sidebar 260px
           Container(
             width: 260,
             decoration: const BoxDecoration(
@@ -41,115 +92,297 @@ class _LabPortalShellState extends State<LabPortalShell> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Lab Brand Header
-                Padding(
-                  padding: const EdgeInsets.all(24.0),
+                // Header with current Lab Name
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+                  decoration: const BoxDecoration(
+                    color: AppColors.surfaceRaised,
+                    border: Border(bottom: BorderSide(color: AppColors.outline, width: 1)),
+                  ),
                   child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Container(
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color: AppColors.secondary,
-                          borderRadius: BorderRadius.circular(10),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              _currentLabName.toUpperCase(),
+                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, letterSpacing: 0.5),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 2),
+                            Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.successBg,
+                                    borderRadius: BorderRadius.circular(3),
+                                  ),
+                                  child: Text(_currentLabId.toUpperCase(), style: const TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: AppColors.secondary)),
+                                ),
+                                const SizedBox(width: 6),
+                                const Text('CỔNG VẬN HÀNH', style: TextStyle(fontSize: 10, color: AppColors.primary, fontWeight: FontWeight.bold)),
+                              ],
+                            ),
+                          ],
                         ),
-                        child: const Icon(Icons.store, color: Colors.white, size: 24),
                       ),
-                      const SizedBox(width: 12),
-                      const Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                      Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(color: AppColors.primary, borderRadius: BorderRadius.circular(6)),
+                        child: const Icon(Icons.camera_roll_outlined, color: Colors.white, size: 16),
+                      ),
+                    ],
+                  ),
+                ),
+
+                const Padding(
+                  padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
+                  child: Text('QUY TRÌNH PHÒNG TỐI (DARKROOM)', style: AppTypography.labelCaps),
+                ),
+
+                // Nav Items
+                Expanded(
+                  child: ListView.builder(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    itemCount: _menuItems.length,
+                    itemBuilder: (ctx, idx) {
+                      final item = _menuItems[idx];
+                      final isSelected = _selectedTabIndex == idx;
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 2),
+                        child: InkWell(
+                          onTap: () => setState(() => _selectedTabIndex = idx),
+                          borderRadius: BorderRadius.circular(8),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                            decoration: BoxDecoration(
+                              color: isSelected ? AppColors.surfaceSunken : Colors.transparent,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  item['title']!,
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                                    color: isSelected ? AppColors.primary : AppColors.ink,
+                                  ),
+                                ),
+                                Text(
+                                  item['code']!,
+                                  style: TextStyle(
+                                    fontFamilyFallback: AppTypography.fontMono,
+                                    fontSize: 10,
+                                    color: isSelected ? AppColors.primary : AppColors.outline,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+
+                // Footer Status
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: const BoxDecoration(
+                    color: AppColors.surfaceSunken,
+                    border: Border(top: BorderSide(color: AppColors.outline, width: 1)),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('$_currentLabId // v4.8.2', style: AppTypography.dataMono),
+                      Row(
                         children: [
-                          Text('CROPLAB HÀ NỘI', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, letterSpacing: 0.5)),
-                          Text('Cổng Vận Hành Film Lab', style: TextStyle(fontSize: 11, color: AppColors.secondary, fontWeight: FontWeight.w600)),
+                          Container(width: 8, height: 8, decoration: const BoxDecoration(color: AppColors.secondary, shape: BoxShape.circle)),
+                          const SizedBox(width: 6),
+                          const Text('ONLINE', style: TextStyle(color: AppColors.secondary, fontSize: 11, fontWeight: FontWeight.bold)),
                         ],
                       ),
                     ],
                   ),
                 ),
-                const Divider(),
-
-                // Nav items
-                Expanded(
-                  child: ListView(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                    children: [
-                      _buildNavItem(0, 'Bảng Kanban Vận Hành', Icons.view_kanban_outlined),
-                      _buildNavItem(1, 'Tải file scan & QC', Icons.cloud_upload_outlined),
-                      _buildNavItem(2, 'Gói dịch vụ & Bảng giá', Icons.price_change_outlined),
-                      _buildNavItem(3, 'Cấu hình hồ sơ tiệm Lab', Icons.storefront_outlined),
-                      _buildNavItem(4, 'Báo cáo hiệu suất SLA', Icons.bar_chart_outlined),
-                    ],
-                  ),
-                ),
-
-                const Divider(),
-                // Lab Owner Footer
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Row(
-                    children: [
-                      const CircleAvatar(
-                        radius: 18,
-                        backgroundImage: NetworkImage('https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=150'),
-                      ),
-                      const SizedBox(width: 10),
-                      const Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('Trần Văn Đức (CropLab)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12), maxLines: 1),
-                            Text('labowner@croplab.vn', style: TextStyle(fontSize: 10, color: AppColors.inkMuted), maxLines: 1),
-                          ],
-                        ),
-                      ),
-                      IconButton(
-                        tooltip: 'Đăng xuất',
-                        icon: const Icon(Icons.logout, size: 18, color: AppColors.danger),
-                        onPressed: () {
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(builder: (_) => const WebLoginScreen()),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-                )
               ],
             ),
           ),
 
-          // Main Content Area
+          // Main Header & Tab View
           Expanded(
-            child: _tabs[_selectedTabIndex],
+            child: Column(
+              children: [
+                // Top Header Bar
+                Container(
+                  height: 64,
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  decoration: const BoxDecoration(
+                    color: AppColors.surfaceRaised,
+                    border: Border(bottom: BorderSide(color: AppColors.outline, width: 1)),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      // Interactive Lab Switcher Dropdown
+                      PopupMenuButton<Map<String, String>>(
+                        tooltip: 'Bấm vào đây để chuyển tiệm Lab',
+                        onSelected: (lab) {
+                          setState(() {
+                            _currentLabId = lab['id']!;
+                            _currentLabName = lab['name']!;
+                            _currentBranch = lab['branch']!;
+                          });
+                        },
+                        itemBuilder: (ctx) => _availableLabs.map((lab) {
+                          final isCurrent = lab['id'] == _currentLabId;
+                          return PopupMenuItem(
+                            value: lab,
+                            child: Row(
+                              children: [
+                                Icon(
+                                  isCurrent ? Icons.check_circle : Icons.storefront_outlined,
+                                  size: 18,
+                                  color: isCurrent ? AppColors.secondary : AppColors.inkMuted,
+                                ),
+                                const SizedBox(width: 8),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      lab['name']!,
+                                      style: TextStyle(
+                                        fontWeight: isCurrent ? FontWeight.bold : FontWeight.w600,
+                                        color: isCurrent ? AppColors.primary : AppColors.ink,
+                                        fontSize: 13,
+                                      ),
+                                    ),
+                                    Text(
+                                      '${lab['id']} • ${lab['badge']}',
+                                      style: const TextStyle(fontSize: 10, color: AppColors.inkMuted),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          );
+                        }).toList(),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: AppColors.surfaceSunken,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
+                          ),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.storefront, size: 16, color: AppColors.primary),
+                              const SizedBox(width: 8),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Text(_currentLabName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                                      const SizedBox(width: 6),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                                        decoration: BoxDecoration(
+                                          color: AppColors.successBg,
+                                          borderRadius: BorderRadius.circular(4),
+                                        ),
+                                        child: Text(_currentLabId.toUpperCase(), style: const TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: AppColors.secondary)),
+                                      ),
+                                    ],
+                                  ),
+                                  Text(_currentBranch, style: const TextStyle(fontSize: 10, color: AppColors.inkMuted)),
+                                ],
+                              ),
+                              const SizedBox(width: 10),
+                              const Icon(Icons.swap_horiz, size: 16, color: AppColors.primary),
+                            ],
+                          ),
+                        ),
+                      ),
+
+                      // User Profile and Logout
+                      Row(
+                        children: [
+                          // Search Box
+                          Container(
+                            width: 220,
+                            height: 36,
+                            padding: const EdgeInsets.symmetric(horizontal: 10),
+                            decoration: BoxDecoration(
+                              color: AppColors.surfaceSunken,
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: AppColors.outline),
+                            ),
+                            child: const Row(
+                              children: [
+                                Icon(Icons.search, size: 16, color: AppColors.outline),
+                                SizedBox(width: 8),
+                                Expanded(child: Text('Tìm mã đơn ORD-...', style: TextStyle(color: AppColors.outline, fontSize: 12))),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+
+                          Row(
+                            children: [
+                              Container(
+                                width: 32,
+                                height: 32,
+                                decoration: const BoxDecoration(color: AppColors.primary, shape: BoxShape.circle),
+                                alignment: Alignment.center,
+                                child: const Text('LAB', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 11)),
+                              ),
+                              const SizedBox(width: 8),
+                              Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(_currentLabName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                                  const Text('KỸ THUẬT VIÊN TRỰC CA', style: TextStyle(fontSize: 10, color: AppColors.secondary, fontWeight: FontWeight.bold)),
+                                ],
+                              ),
+                            ],
+                          ),
+                          const SizedBox(width: 16),
+
+                          IconButton(
+                            tooltip: 'Đăng xuất',
+                            icon: const Icon(Icons.logout, size: 18, color: AppColors.inkMuted),
+                            onPressed: () {
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(builder: (_) => const WebLoginScreen()),
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Content View
+                Expanded(
+                  child: _tabs[_selectedTabIndex],
+                ),
+              ],
+            ),
           ),
         ],
       ),
     );
   }
-
-  Widget _buildNavItem(int index, String title, IconData icon) {
-    final isSelected = _selectedTabIndex == index;
-    return Container(
-      margin: const EdgeInsets.only(bottom: 4),
-      decoration: BoxDecoration(
-        color: isSelected ? AppColors.secondary.withValues(alpha: 0.12) : Colors.transparent,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: ListTile(
-        dense: true,
-        leading: Icon(icon, size: 20, color: isSelected ? AppColors.secondary : AppColors.inkMuted),
-        title: Text(
-          title,
-          style: TextStyle(
-            fontSize: 13,
-            fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-            color: isSelected ? AppColors.secondary : AppColors.ink,
-          ),
-        ),
-        onTap: () => setState(() => _selectedTabIndex = index),
-      ),
-    );
-  }
 }
-

@@ -47,14 +47,15 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = config.PORT;
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`=======================================================`);
-  console.log(`MiniLab Backend Server running on http://localhost:${PORT}`);
-  console.log(`API Base: http://localhost:${PORT}/api`);
-  console.log(`Status Check: http://localhost:${PORT}/api/health`);
+  console.log(`MiniLab Backend Server running on:`);
+  console.log(`- Web / PC:    http://localhost:${PORT}`);
+  console.log(`- Phone (LAN): http://192.168.1.7:${PORT}`);
+  console.log(`API Base:      http://localhost:${PORT}/api`);
+  console.log(`Status Check:  http://localhost:${PORT}/api/health`);
   console.log(`Self-contained mode: Active (No external API calls)`);
   console.log(`=======================================================`);
 });
 
 module.exports = app;
-

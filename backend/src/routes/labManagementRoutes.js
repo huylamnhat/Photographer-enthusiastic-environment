@@ -6,6 +6,8 @@ const upload = require('../middleware/upload');
 
 router.get('/kanban', authenticate, labManagementController.getLabKanban);
 router.post('/orders/:orderId/kanban-step', authenticate, labManagementController.updateKanbanStep);
+router.post('/kanban/:orderId/step', authenticate, labManagementController.updateKanbanStep);
+router.patch('/kanban/:orderId', authenticate, labManagementController.updateKanbanStep);
 router.post('/orders/:orderId/upload-scans', authenticate, upload.single('scan_file'), labManagementController.uploadScanFiles);
 router.get('/services', authenticate, labManagementController.getLabPackages);
 router.put('/services/:packageId', authenticate, labManagementController.updatePackagePrice);

@@ -24,6 +24,7 @@ router.use('/reviews', reviewRoutes);
 router.use('/users', userRoutes);
 router.use('/admin', adminRoutes);
 router.use('/lab-portal', labManagementRoutes);
+router.use('/lab', labManagementRoutes);
 
 router.get('/health', (req, res) => {
   res.json({

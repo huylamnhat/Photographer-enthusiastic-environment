@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import '../../core/theme/app_colors.dart';
-import '../../providers/order_provider.dart';
-import '../../models/order_model.dart';
+import '../../core/theme/app_typography.dart';
 import 'order_detail_screen.dart';
+import '../../core/services/api_service.dart';
 
 class OrderListScreen extends StatefulWidget {
   const OrderListScreen({super.key});
@@ -12,154 +11,307 @@ class OrderListScreen extends StatefulWidget {
   State<OrderListScreen> createState() => _OrderListScreenState();
 }
 
-class _OrderListScreenState extends State<OrderListScreen> with SingleTickerProviderStateMixin {
-  late TabController _tabController;
-
+class _OrderListScreenState extends State<OrderListScreen> {
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 4, vsync: this);
+    _fetchLiveOrders();
   }
 
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
+  void _fetchLiveOrders() async {
+    try {
+      final orders = await ApiService().getOrders();
+      if (orders.isNotEmpty && mounted) {
+        setState(() {
+          for (var o in orders) {
+            final existingIndex = _mockOrders.indexWhere((x) => x['id'] == o.orderId);
+            final stepName = o.timeline.isNotEmpty
+                ? o.timeline.lastWhere((s) => s.status == 'IN_PROGRESS' || s.status == 'COMPLETED', orElse: () => o.timeline.first).name
+                : 'Đang xử lý tại Lab';
+            final isCompleted = o.status == 'COMPLETED' || o.status == 'READY_FOR_DOWNLOAD';
+
+            if (existingIndex == -1) {
+              _mockOrders.insert(0, {
+                'id': o.orderId,
+                'lab': o.labName,
+                'film': o.items.isNotEmpty ? o.items[0].filmName : 'Phim 135 Color',
+                'process': o.items.isNotEmpty ? o.items[0].name : 'C-41 Standard',
+                'step': stepName,
+                'status': o.status,
+                'statusLabel': isCompleted ? 'HOÀN TẤT' : 'ĐANG XỬ LÝ',
+                'slaText': 'Dự kiến trả scan trong 24h',
+                'price': '${o.totalAmount.toStringAsFixed(0)}đ',
+                'time': 'Vừa cập nhật',
+              });
+            } else {
+              _mockOrders[existingIndex]['status'] = o.status;
+              _mockOrders[existingIndex]['statusLabel'] = isCompleted ? 'HOÀN TẤT' : 'ĐANG XỬ LÝ';
+              _mockOrders[existingIndex]['step'] = stepName;
+            }
+          }
+        });
+      }
+    } catch (_) {}
   }
+  int _activeTab = 0; // 0 = Tất cả, 1 = Đang xử lý, 2 = Sẵn sàng tải, 3 = Hoàn tất
+
+  final List<Map<String, dynamic>> _mockOrders = [
+    {
+      'id': 'ORD-9281',
+      'lab': 'LLab Sài Gòn',
+      'film': '02 cuộn Kodak ColorPlus 200 (135/36)',
+      'process': 'C-41 Standard JPG',
+      'step': 'Bước 3/5: Sấy khô & Cân bằng phẳng',
+      'status': 'PROCESSING',
+      'statusLabel': 'ĐANG XỬ LÝ',
+      'slaText': 'Dự kiến 18:00 hôm nay',
+      'price': '140.000đ',
+      'time': 'Hôm nay 09:15',
+    },
+    {
+      'id': 'ORD-8742',
+      'lab': 'Croplab Retro',
+      'film': '01 cuộn Fuji Superia Premium 400 (135/36)',
+      'process': 'C-41 Fuji SP-3000',
+      'step': 'Bước 5/5: Đã xuất bản vào kho Archive',
+      'status': 'READY',
+      'statusLabel': 'SẴN SÀNG TẢI',
+      'slaText': 'Đã hoàn thành đúng hạn',
+      'price': '65.000đ',
+      'time': 'Hôm qua 16:30',
+    },
+    {
+      'id': 'ORD-8119',
+      'lab': 'Nadar Darkroom',
+      'film': '01 cuộn Ilford HP5 Plus 400 (120 Medium)',
+      'process': 'B&W D-76 Thủ công Master TIFF',
+      'step': 'Đã nhận lại âm bản tại tiệm',
+      'status': 'COMPLETED',
+      'statusLabel': 'HOÀN TẤT',
+      'slaText': 'Lưu kho 60 ngày',
+      'price': '135.000đ',
+      'time': '3 ngày trước',
+    },
+  ];
 
   @override
   Widget build(BuildContext context) {
-    final orderProvider = context.watch<OrderProvider>();
+    final filtered = _mockOrders.where((o) {
+      if (_activeTab == 1) return o['status'] == 'PROCESSING';
+      if (_activeTab == 2) return o['status'] == 'READY';
+      if (_activeTab == 3) return o['status'] == 'COMPLETED';
+      return true;
+    }).toList();
 
     return Scaffold(
+      backgroundColor: AppColors.surface,
       appBar: AppBar(
-        title: const Text('Đơn hàng của tôi'),
-        bottom: TabBar(
-          controller: _tabController,
-          labelColor: AppColors.primary,
-          unselectedLabelColor: AppColors.inkMuted,
-          indicatorColor: AppColors.primary,
-          tabs: const [
-            Tab(text: 'Tất cả'),
-            Tab(text: 'Đang xử lý'),
-            Tab(text: 'Sẵn sàng'),
-            Tab(text: 'Hoàn tất'),
+        titleSpacing: 16,
+        backgroundColor: AppColors.surfaceRaised,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Container(color: AppColors.outline, height: 1),
+        ),
+        title: Row(
+          children: [
+            Container(
+              width: 8,
+              height: 8,
+              decoration: const BoxDecoration(
+                color: AppColors.primary,
+                shape: BoxShape.circle,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              'ĐƠN HÀNG CỦA TÔI',
+              style: AppTypography.cardTitle.copyWith(letterSpacing: 1.0, fontSize: 14),
+            ),
           ],
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.sync, size: 20, color: AppColors.primary),
+            tooltip: 'Đồng bộ đơn Live',
+            onPressed: _fetchLiveOrders,
+          ),
+          const SizedBox(width: 8),
+        ],
       ),
-      body: TabBarView(
-        controller: _tabController,
+      body: Column(
         children: [
-          _buildOrderList(orderProvider.orders),
-          _buildOrderList(orderProvider.orders.where((o) => o.status == 'PROCESSING').toList()),
-          _buildOrderList(orderProvider.orders.where((o) => o.status == 'READY_FOR_DOWNLOAD').toList()),
-          _buildOrderList(orderProvider.orders.where((o) => o.status == 'COMPLETED').toList()),
+          // Filter Tabs (Stitch APP-CUS-10)
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            color: AppColors.surfaceRaised,
+            child: Row(
+              children: [
+                _buildTab(0, 'Tất cả (${_mockOrders.length})'),
+                const SizedBox(width: 6),
+                _buildTab(1, 'Đang tráng scan'),
+                const SizedBox(width: 6),
+                _buildTab(2, 'Sẵn sàng tải'),
+                const SizedBox(width: 6),
+                _buildTab(3, 'Hoàn tất'),
+              ],
+            ),
+          ),
+          const Divider(height: 1, color: AppColors.outline),
+
+          // Orders List
+          Expanded(
+            child: filtered.isEmpty
+                ? Center(
+                    child: Text('Không có đơn hàng nào trong mục này', style: AppTypography.bodySmall),
+                  )
+                : RefreshIndicator(
+                    onRefresh: () async => _fetchLiveOrders(),
+                    child: ListView.separated(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      padding: const EdgeInsets.all(16),
+                      itemCount: filtered.length,
+                      separatorBuilder: (_, __) => const SizedBox(height: 12),
+                      itemBuilder: (context, index) {
+                      final item = filtered[index];
+                      final isReady = item['status'] == 'READY';
+                      final isProcessing = item['status'] == 'PROCESSING';
+
+                      return InkWell(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => OrderDetailScreen(orderId: item['id']),
+                            ),
+                          );
+                        },
+                        borderRadius: BorderRadius.circular(8),
+                        child: Container(
+                          padding: const EdgeInsets.all(14),
+                          decoration: BoxDecoration(
+                            color: AppColors.surfaceRaised,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: AppColors.outline),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Text(
+                                        '#${item['id']}',
+                                        style: AppTypography.dataMono.copyWith(fontWeight: FontWeight.bold, color: AppColors.primary),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Text(item['lab'], style: AppTypography.cardTitle.copyWith(fontSize: 13)),
+                                    ],
+                                  ),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                    decoration: BoxDecoration(
+                                      color: isReady
+                                          ? AppColors.secondary.withValues(alpha: 0.1)
+                                          : (isProcessing ? AppColors.primary.withValues(alpha: 0.1) : AppColors.surfaceSunken),
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                    child: Text(
+                                      item['statusLabel'],
+                                      style: AppTypography.labelCaps.copyWith(
+                                        fontSize: 9,
+                                        fontWeight: FontWeight.bold,
+                                        color: isReady ? AppColors.secondary : (isProcessing ? AppColors.primary : AppColors.inkMuted),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 8),
+                              Text(item['film'], style: AppTypography.bodySmall.copyWith(fontWeight: FontWeight.w600)),
+                              const SizedBox(height: 2),
+                              Text(item['process'], style: AppTypography.labelCaps.copyWith(fontSize: 10, color: AppColors.inkMuted)),
+                              const SizedBox(height: 10),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                decoration: BoxDecoration(
+                                  color: AppColors.surfaceSunken,
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Icon(
+                                          isReady ? Icons.check_circle : (isProcessing ? Icons.timelapse : Icons.archive),
+                                          size: 14,
+                                          color: isReady ? AppColors.secondary : (isProcessing ? AppColors.primary : AppColors.inkMuted),
+                                        ),
+                                        const SizedBox(width: 6),
+                                        Text(item['step'], style: AppTypography.dataMono.copyWith(fontSize: 11)),
+                                      ],
+                                    ),
+                                    Text(
+                                      item['price'],
+                                      style: AppTypography.dataMono.copyWith(fontWeight: FontWeight.bold, color: AppColors.ink),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(item['slaText'], style: AppTypography.labelCaps.copyWith(fontSize: 9, color: AppColors.inkMuted)),
+                                  Row(
+                                    children: [
+                                      Text(
+                                        'Chi tiết timeline',
+                                        style: AppTypography.labelCaps.copyWith(color: AppColors.primary, fontWeight: FontWeight.bold),
+                                      ),
+                                      const Icon(Icons.arrow_forward_ios, size: 9, color: AppColors.primary),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildOrderList(List<OrderModel> orders) {
-    if (orders.isEmpty) {
-      return const Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.inbox_outlined, size: 48, color: AppColors.inkMuted),
-            SizedBox(height: 12),
-            Text('Chưa có đơn hàng trong mục này', style: TextStyle(color: AppColors.inkMuted, fontSize: 14)),
-          ],
+  Widget _buildTab(int index, String label) {
+    final isSelected = _activeTab == index;
+    return InkWell(
+      onTap: () => setState(() => _activeTab = index),
+      borderRadius: BorderRadius.circular(4),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+        decoration: BoxDecoration(
+          color: isSelected ? AppColors.primary : AppColors.surfaceSunken,
+          borderRadius: BorderRadius.circular(4),
+          border: Border.all(color: isSelected ? AppColors.primary : AppColors.outline),
         ),
-      );
-    }
-
-    return RefreshIndicator(
-      onRefresh: () => context.read<OrderProvider>().fetchOrders(),
-      child: ListView.separated(
-        padding: const EdgeInsets.all(16),
-        itemCount: orders.length,
-        separatorBuilder: (_, __) => const SizedBox(height: 12),
-        itemBuilder: (context, index) {
-          final order = orders[index];
-          return Card(
-            child: InkWell(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => OrderDetailScreen(order: order)),
-                );
-              },
-              borderRadius: BorderRadius.circular(12),
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(order.orderId, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.primary)),
-                        _buildStatusBadge(order.status),
-                      ],
-                    ),
-                    const SizedBox(height: 10),
-                    Text(order.labName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-                    const SizedBox(height: 4),
-                    Text(
-                      '${order.items.length} gói dịch vụ • ${order.items.map((i) => i.filmName).join(', ')}',
-                      style: const TextStyle(fontSize: 12, color: AppColors.inkMuted),
-                    ),
-                    const Divider(height: 20),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text('${order.totalAmount.toInt()}đ', style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.ink)),
-                        const Row(
-                          children: [
-                            Text('Xem tiến độ SLA', style: TextStyle(fontSize: 12, color: AppColors.primary, fontWeight: FontWeight.w600)),
-                            Icon(Icons.chevron_right, size: 16, color: AppColors.primary),
-                          ],
-                        ),
-                      ],
-                    )
-                  ],
-                ),
-              ),
-            ),
-          );
-        },
+        child: Text(
+          label,
+          style: AppTypography.labelCaps.copyWith(
+            fontSize: 10,
+            color: isSelected ? Colors.white : AppColors.ink,
+            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+          ),
+        ),
       ),
     );
   }
-
-  Widget _buildStatusBadge(String status) {
-    Color bg = AppColors.neutralBg;
-    Color fg = AppColors.neutral;
-    String label = status;
-
-    switch (status) {
-      case 'READY_FOR_DOWNLOAD':
-        bg = AppColors.successBg;
-        fg = AppColors.success;
-        label = 'SẴN SÀNG TẢI';
-        break;
-      case 'PROCESSING':
-        bg = AppColors.warningBg;
-        fg = AppColors.warning;
-        label = 'ĐANG XỬ LÝ';
-        break;
-      case 'COMPLETED':
-        bg = Colors.blue.withOpacity(0.12);
-        fg = Colors.blue.shade800;
-        label = 'ĐÃ HOÀN TẤT';
-        break;
-    }
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-      decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(4)),
-      child: Text(label, style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: fg)),
-    );
-  }
 }
-

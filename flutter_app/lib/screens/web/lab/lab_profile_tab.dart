@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_typography.dart';
+import '../../../core/mock/mock_test_assets.dart';
 
 class LabProfileTab extends StatefulWidget {
   const LabProfileTab({super.key});
@@ -9,102 +11,175 @@ class LabProfileTab extends StatefulWidget {
 }
 
 class _LabProfileTabState extends State<LabProfileTab> {
-  final _nameController = TextEditingController(text: 'CropLab Hà Nội');
-  final _taglineController = TextEditingController(text: 'Chuyên gia tráng & scan chất lượng cao từ năm 2014');
-  final _addressController = TextEditingController(text: 'Số 10 ngõ 12 Đặng Thai Mai, Tây Hồ, Hà Nội');
-  final _phoneController = TextEditingController(text: '0904567890');
-  final _scannersController = TextEditingController(text: 'Noritsu HS-1800, Fuji Frontier SP-3000');
+  final _labNameCtrl = TextEditingController(text: 'CropLab Hà Nội & Sài Gòn');
+  final _phoneCtrl = TextEditingController(text: '0904567890');
+  final _emailCtrl = TextEditingController(text: 'hanoi@croplab.vn');
+  final _addressCtrl = TextEditingController(text: 'Số 10 ngõ 12 Đặng Thai Mai, Tây Hồ, Hà Nội');
+  final _negativeDaysCtrl = TextEditingController(text: '15');
+  final _scanDaysCtrl = TextEditingController(text: '60');
+  final _hoursCtrl = TextEditingController(text: '08:30 - 20:00 (Hàng ngày, kể cả Thứ Bảy & CN)');
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
+    return SingleChildScrollView(
       padding: const EdgeInsets.all(24.0),
-      child: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text('Cấu Hình Hồ Sơ Tiệm Film Lab Công Khai', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.ink)),
-            const SizedBox(height: 4),
-            const Text('Thông tin hiển thị cho nhiếp ảnh gia khi tìm kiếm, xem bảng giá và đặt lịch pickup giao nhận phim',
-                style: TextStyle(color: AppColors.inkMuted, fontSize: 13)),
-            const SizedBox(height: 24),
-
-            Container(
-              constraints: const BoxConstraints(maxWidth: 720),
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: AppColors.surfaceRaised,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColors.outline),
-              ),
-              child: Column(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
+                  Text('WEB-LAB-06 // HỒ SƠ TIỆM LAB CÔNG KHAI', style: AppTypography.labelCaps),
+                  SizedBox(height: 4),
+                  Text('Cấu hình Thông Tin Tiệm & Chính Sách Lưu Bản Âm', style: AppTypography.pageTitle),
+                ],
+              ),
+              ElevatedButton.icon(
+                onPressed: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Đã cập nhật hồ sơ công khai của tiệm lên app người dùng!')),
+                  );
+                },
+                icon: const Icon(Icons.save, size: 16),
+                label: const Text('Lưu thay đổi hồ sơ'),
+              ),
+            ],
+          ),
+          const SizedBox(height: 24),
+
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Form Details (Flex 6)
+              Expanded(
+                flex: 6,
+                child: Container(
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    color: AppColors.surfaceRaised,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: AppColors.outline),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(10),
-                        child: Image.network('https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=800', width: 90, height: 90, fit: BoxFit.cover),
-                      ),
-                      const SizedBox(width: 16),
-                      const Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                      const Text('THÔNG TIN LIÊN HỆ & ĐỊA ĐIỂM', style: AppTypography.labelCaps),
+                      const SizedBox(height: 12),
+                      TextField(controller: _labNameCtrl, decoration: const InputDecoration(labelText: 'TÊN THƯƠNG HIỆU LAB')),
+                      const SizedBox(height: 12),
+                      Row(
                         children: [
-                          Text('Ảnh đại diện tiệm Lab', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                          SizedBox(height: 4),
-                          Text('Định dạng JPG, PNG kích thước tối thiểu 800x800px', style: TextStyle(fontSize: 12, color: AppColors.inkMuted)),
-                          SizedBox(height: 8),
-                          Text('Đã xác thực giấy phép DKKD • SLA 12 giờ', style: TextStyle(fontSize: 11, color: AppColors.success, fontWeight: FontWeight.bold)),
+                          Expanded(child: TextField(controller: _phoneCtrl, decoration: const InputDecoration(labelText: 'HOTLINE TIỆM'))),
+                          const SizedBox(width: 12),
+                          Expanded(child: TextField(controller: _emailCtrl, decoration: const InputDecoration(labelText: 'EMAIL LIÊN HỆ'))),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      TextField(controller: _addressCtrl, decoration: const InputDecoration(labelText: 'ĐỊA CHỈ TRỤ SỞ CHÍNH')),
+                      const SizedBox(height: 12),
+                      TextField(controller: _hoursCtrl, decoration: const InputDecoration(labelText: 'GIỜ MỞ CỬA TIẾP NHẬN PHIM')),
+                      const SizedBox(height: 20),
+
+                      const Text('CHÍNH SÁCH LƯU TRỮ BẢO VỆ PHIM (RÀNG BUỘC PHÁP LÝ):', style: AppTypography.labelCaps),
+                      const SizedBox(height: 12),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              controller: _negativeDaysCtrl,
+                              decoration: const InputDecoration(
+                                labelText: 'LƯU GIỮ ÂM BẢN (NGÀY)',
+                                helperText: 'Thời hạn khách đến nhận lại cuộn phim cắt bao',
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: TextField(
+                              controller: _scanDaysCtrl,
+                              decoration: const InputDecoration(
+                                labelText: 'LƯU FILE CLOUD (NGÀY)',
+                                helperText: 'Thời hạn file scan gốc lưu trữ trên Cloud',
+                              ),
+                            ),
+                          ),
                         ],
                       ),
                     ],
                   ),
-                  const SizedBox(height: 24),
-
-                  const Text('TÊN FILM LAB HIỂN THỊ', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.inkMuted)),
-                  const SizedBox(height: 6),
-                  TextField(controller: _nameController),
-                  const SizedBox(height: 16),
-
-                  const Text('SLOGAN / LỜI GIỚI THIỆU NGẮN', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.inkMuted)),
-                  const SizedBox(height: 6),
-                  TextField(controller: _taglineController),
-                  const SizedBox(height: 16),
-
-                  const Text('ĐỊA CHỈ PHÒNG TỐI & QUẦY TIẾP NHẬN', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.inkMuted)),
-                  const SizedBox(height: 6),
-                  TextField(controller: _addressController),
-                  const SizedBox(height: 16),
-
-                  const Text('HOTLINE / ZALO TIẾP NHẬN', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.inkMuted)),
-                  const SizedBox(height: 6),
-                  TextField(controller: _phoneController),
-                  const SizedBox(height: 16),
-
-                  const Text('DANH SÁCH MÁY SCAN TRANG BỊ', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.inkMuted)),
-                  const SizedBox(height: 6),
-                  TextField(controller: _scannersController),
-                  const SizedBox(height: 24),
-
-                  SizedBox(
-                    width: double.infinity,
-                    height: 46,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Đã lưu hồ sơ tiệm Film Lab thành công!'), backgroundColor: AppColors.success),
-                        );
-                      },
-                      child: const Text('Lưu thông tin hồ sơ tiệm', style: TextStyle(fontWeight: FontWeight.bold)),
-                    ),
-                  )
-                ],
+                ),
               ),
-            ),
-          ],
-        ),
+              const SizedBox(width: 24),
+
+              // Right: Live App Preview Card (Flex 4)
+              Expanded(
+                flex: 4,
+                child: Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: AppColors.surfaceRaised,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: AppColors.outline),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('XEM TRƯỚC THẺ TIỆM TRÊN APP KHÁCH HÀNG', style: AppTypography.labelCaps),
+                      const SizedBox(height: 12),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: AppColors.surfaceSunken,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: AppColors.outline),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            MockTestAssets.image(
+                              MockTestAssets.labCoverCroplab,
+                              height: 110,
+                              width: double.infinity,
+                              borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(12.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Text(_labNameCtrl.text, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                                      const SizedBox(width: 4),
+                                      const Icon(Icons.verified, size: 14, color: AppColors.secondary),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(_addressCtrl.text, style: AppTypography.caption),
+                                  const SizedBox(height: 8),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text('Giữ âm bản: ${_negativeDaysCtrl.text} ngày', style: AppTypography.caption),
+                                      const Text('Đánh giá: 4.9 ★', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: AppColors.primary)),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
 }
-

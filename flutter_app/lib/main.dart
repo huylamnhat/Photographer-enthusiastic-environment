@@ -8,7 +8,7 @@ import 'providers/order_provider.dart';
 import 'providers/archive_provider.dart';
 import 'providers/marketplace_provider.dart';
 import 'providers/community_provider.dart';
-import 'screens/navigation_shell.dart';
+import 'screens/auth/login_screen.dart';
 import 'screens/web/web_login_screen.dart';
 
 void main() {
@@ -34,9 +34,27 @@ class MiniLabApp extends StatelessWidget {
         title: 'MiniLab - Nền tảng Nhiếp ảnh Phim',
         debugShowCheckedModeBanner: false,
         theme: AppTheme.lightTheme,
-        // On Web or Desktop: Start with Unified Web Login (Auto-routes to Admin, Lab, or Customer)
-        home: kIsWeb ? const WebLoginScreen() : const NavigationShell(),
+        // Tự động nhận diện thiết bị:
+        // - Màn hình máy tính (PC / Laptop / Web >= 720px): Vào Cổng Quản Trị Admin & Film Lab
+        // - Màn hình điện thoại (Mobile App hoặc Trình duyệt điện thoại < 720px): Vào App Khách Hàng
+        home: const PlatformAdaptiveGate(),
       ),
     );
+  }
+}
+
+class PlatformAdaptiveGate extends StatelessWidget {
+  const PlatformAdaptiveGate({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    if (!kIsWeb) {
+      return const LoginScreen();
+    }
+    final screenWidth = MediaQuery.of(context).size.width;
+    if (screenWidth < 720) {
+      return const LoginScreen();
+    }
+    return const WebLoginScreen();
   }
 }

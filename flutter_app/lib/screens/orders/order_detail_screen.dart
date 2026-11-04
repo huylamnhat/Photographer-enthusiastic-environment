@@ -1,37 +1,112 @@
 import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
+import '../../core/theme/app_typography.dart';
 import '../../models/order_model.dart';
+import '../../core/services/api_service.dart';
 import 'review_lab_screen.dart';
 import '../archive/archive_gallery_screen.dart';
 
-class OrderDetailScreen extends StatelessWidget {
-  final OrderModel order;
+class OrderDetailScreen extends StatefulWidget {
+  final OrderModel? order;
+  final String? orderId;
 
-  const OrderDetailScreen({super.key, required this.order});
+  const OrderDetailScreen({super.key, this.order, this.orderId});
+
+  @override
+  State<OrderDetailScreen> createState() => _OrderDetailScreenState();
+}
+
+class _OrderDetailScreenState extends State<OrderDetailScreen> {
+  OrderModel? _order;
+  bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _order = widget.order;
+    _fetchLiveDetail();
+  }
+
+  void _fetchLiveDetail() async {
+    final targetId = _order?.orderId ?? widget.orderId;
+    if (targetId == null || targetId.isEmpty) return;
+
+    setState(() => _isLoading = true);
+    try {
+      final fetched = await ApiService().getOrderById(targetId);
+      if (fetched != null && mounted) {
+        setState(() {
+          _order = fetched;
+        });
+      }
+    } catch (_) {}
+
+    if (mounted) {
+      setState(() => _isLoading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    final displayId = _order?.orderId ?? (widget.orderId ?? 'ORD-9281');
+    final labName = _order?.labName ?? 'LLab Sài Gòn';
+    final filmName = _order?.items.isNotEmpty == true
+        ? _order!.items.first.filmName
+        : '02 cuộn Kodak ColorPlus 200 (135/36)';
+    final price = _order != null ? '${_order!.totalAmount.toInt()}đ' : '140.000đ';
+    final status = _order?.status ?? 'PROCESSING';
+
+    String currentStepBadge = 'BƯỚC 3/5: SẤY KHÔ';
+    if (_order != null && _order!.timeline.isNotEmpty) {
+      final activeStep = _order!.timeline.lastWhere(
+        (s) => s.status == 'IN_PROGRESS' || s.status == 'COMPLETED',
+        orElse: () => _order!.timeline.first,
+      );
+      currentStepBadge = 'BƯỚC ${activeStep.step}/${_order!.timeline.length}: ${activeStep.name.toUpperCase()}';
+    }
+
     return Scaffold(
+      backgroundColor: AppColors.surface,
       appBar: AppBar(
-        title: Text(order.orderId),
+        titleSpacing: 16,
+        backgroundColor: AppColors.surfaceRaised,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Container(color: AppColors.outline, height: 1),
+        ),
+        title: Row(
+          children: [
+            Text('CHI TIẾT ĐƠN #$displayId', style: AppTypography.cardTitle.copyWith(fontSize: 13)),
+          ],
+        ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.share_outlined),
-            onPressed: () {},
-          )
+            icon: _isLoading
+                ? const SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primary),
+                  )
+                : const Icon(Icons.sync, size: 20, color: AppColors.primary),
+            tooltip: 'Đồng bộ tiến độ từ Film Lab',
+            onPressed: _isLoading ? null : _fetchLiveDetail,
+          ),
+          const SizedBox(width: 8),
         ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             // Lab & Status Header Card
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: AppColors.surfaceRaised,
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(8),
                 border: Border.all(color: AppColors.outline),
               ),
               child: Column(
@@ -40,190 +115,166 @@ class OrderDetailScreen extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(order.labName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                      Row(
+                        children: [
+                          const Icon(Icons.storefront, size: 18, color: AppColors.primary),
+                          const SizedBox(width: 8),
+                          Text(labName, style: AppTypography.cardTitle),
+                        ],
+                      ),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                         decoration: BoxDecoration(
-                          color: order.status == 'READY_FOR_DOWNLOAD' ? AppColors.successBg : AppColors.warningBg,
+                          color: status == 'COMPLETED' || status == 'READY_FOR_DOWNLOAD'
+                              ? AppColors.secondary.withValues(alpha: 0.1)
+                              : AppColors.primary.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
-                          order.status == 'READY_FOR_DOWNLOAD' ? 'SẴN SÀNG TẢI' : 'ĐANG XỬ LÝ',
-                          style: TextStyle(
-                            fontSize: 10,
+                          currentStepBadge,
+                          style: AppTypography.labelCaps.copyWith(
+                            fontSize: 9,
                             fontWeight: FontWeight.bold,
-                            color: order.status == 'READY_FOR_DOWNLOAD' ? AppColors.success : AppColors.warning,
+                            color: status == 'COMPLETED' || status == 'READY_FOR_DOWNLOAD'
+                                ? AppColors.secondary
+                                : AppColors.primary,
                           ),
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 6),
-                  Text('Địa chỉ nhận film: ${order.pickupAddress}', style: const TextStyle(fontSize: 12, color: AppColors.inkMuted)),
+                  const SizedBox(height: 10),
+                  Text(filmName, style: AppTypography.bodySmall.copyWith(fontWeight: FontWeight.w600)),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Quy trình: C-41 Tiêu chuẩn • Máy Noritsu HS-1800',
+                    style: AppTypography.labelCaps.copyWith(color: AppColors.inkMuted),
+                  ),
                   const SizedBox(height: 12),
-                  const Divider(),
+                  const Divider(height: 1, color: AppColors.outline),
                   const SizedBox(height: 10),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text('Tổng thanh toán:', style: TextStyle(fontSize: 13, color: AppColors.inkMuted)),
-                      Text('${order.totalAmount.toInt()}đ (${order.paymentMethod})',
-                          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.primary)),
+                      const Text('TỔNG THANH TOÁN (VÍ MINILAB)', style: AppTypography.labelCaps),
+                      Text(
+                        price,
+                        style: AppTypography.metric.copyWith(fontSize: 16, color: AppColors.primary),
+                      ),
                     ],
-                  )
+                  ),
                 ],
               ),
             ),
-
             const SizedBox(height: 20),
 
-            // Archive Fast Action Banner (if ready)
-            if (order.status == 'READY_FOR_DOWNLOAD')
-              Container(
-                margin: const EdgeInsets.only(bottom: 20),
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(
-                  color: AppColors.secondary.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppColors.secondary.withOpacity(0.3)),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.cloud_done, color: AppColors.secondary, size: 28),
-                    const SizedBox(width: 12),
-                    const Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('File scan đã đồng bộ!', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.secondary)),
-                          Text('Ảnh gốc TIFF/JPG đã nạp vào kho lưu trữ Digital Archive.', style: TextStyle(fontSize: 11, color: AppColors.inkMuted)),
-                        ],
-                      ),
+            // Live Timeline SLA Stepper
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('TIẾN ĐỘ TRÁNG SCAN & NHẬT KÝ CA TRỰC', style: AppTypography.sectionHeading.copyWith(fontSize: 12)),
+                if (_order != null)
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: AppColors.successBg,
+                      borderRadius: BorderRadius.circular(4),
                     ),
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.secondary,
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                      ),
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (_) => const ArchiveGalleryScreen()),
-                        );
-                      },
-                      child: const Text('Xem ảnh', style: TextStyle(fontSize: 12)),
-                    ),
-                  ],
-                ),
-              ),
-
-            // Live Timeline SLA
-            const Text(
-              'QUY TRÌNH XỬ LÝ (LIVE TIMELINE SLA)',
-              style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.inkMuted, letterSpacing: 0.5),
+                    child: const Text('LIVE KẾT NỐI LAB', style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: AppColors.secondary)),
+                  ),
+              ],
             ),
-            const SizedBox(height: 12),
-
+            const SizedBox(height: 10),
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: AppColors.surfaceRaised,
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(8),
                 border: Border.all(color: AppColors.outline),
               ),
-              child: ListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: order.timeline.length,
-                itemBuilder: (context, index) {
-                  final step = order.timeline[index];
-                  final isLast = index == order.timeline.length - 1;
-                  final isCompleted = step.status == 'COMPLETED';
-                  final isInProgress = step.status == 'IN_PROGRESS';
-
-                  Color dotColor = AppColors.outline;
-                  if (isCompleted) dotColor = AppColors.success;
-                  if (isInProgress) dotColor = AppColors.primary;
-
-                  return Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Column(
-                        children: [
-                          Container(
-                            width: 22,
-                            height: 22,
-                            decoration: BoxDecoration(
-                              color: isCompleted ? AppColors.success : (isInProgress ? AppColors.primary : Colors.transparent),
-                              border: Border.all(color: dotColor, width: 2),
-                              shape: BoxShape.circle,
-                            ),
-                            child: isCompleted
-                                ? const Icon(Icons.check, size: 14, color: Colors.white)
-                                : (isInProgress ? const Center(child: SizedBox(width: 8, height: 8, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 1.5))) : null),
-                          ),
-                          if (!isLast)
-                            Container(
-                              width: 2,
-                              height: 36,
-                              color: isCompleted ? AppColors.success : AppColors.outline,
-                            ),
-                        ],
-                      ),
-                      const SizedBox(width: 14),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  step.name,
-                                  style: TextStyle(
-                                    fontWeight: isInProgress ? FontWeight.bold : FontWeight.w600,
-                                    fontSize: 13,
-                                    color: (isCompleted || isInProgress) ? AppColors.ink : AppColors.inkMuted,
-                                  ),
-                                ),
-                                if (step.time.isNotEmpty)
-                                  Text(step.time, style: const TextStyle(fontSize: 11, color: AppColors.inkMuted)),
-                              ],
-                            ),
-                            if (step.note.isNotEmpty)
-                              Padding(
-                                padding: const EdgeInsets.only(top: 2, bottom: 8),
-                                child: Text(step.note, style: const TextStyle(fontSize: 11, color: AppColors.inkMuted)),
-                              )
-                            else
-                              const SizedBox(height: 18),
-                          ],
-                        ),
-                      )
-                    ],
-                  );
-                },
+              child: Column(
+                children: _buildTimelineWidgetList(),
               ),
             ),
+            const SizedBox(height: 20),
 
-            const SizedBox(height: 24),
-
-            // Rating CTA
-            SizedBox(
-              width: double.infinity,
-              height: 48,
-              child: OutlinedButton.icon(
-                icon: const Icon(Icons.star_outline, color: AppColors.primary),
-                label: const Text('Đánh giá & Chấm điểm Lab', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold)),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => ReviewLabScreen(labId: order.labId, labName: order.labName),
-                    ),
-                  );
-                },
+            // Actions Block
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const ArchiveGalleryScreen()),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                elevation: 0,
               ),
+              child: const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.photo_library_outlined, size: 16),
+                  SizedBox(width: 8),
+                  Text('Vào Kho Lưu Trữ Digital Archive', style: AppTypography.button),
+                ],
+              ),
+            ),
+            const SizedBox(height: 10),
+
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => ReviewLabScreen(orderId: displayId, labName: labName),
+                        ),
+                      );
+                    },
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                      side: const BorderSide(color: AppColors.outline),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.star_outline, size: 14, color: AppColors.primary),
+                        const SizedBox(width: 6),
+                        Text('Đánh giá Lab', style: AppTypography.button.copyWith(fontSize: 11, color: AppColors.ink)),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Đã kết nối kênh đối soát với Lab và Admin.')),
+                      );
+                    },
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                      side: const BorderSide(color: AppColors.outline),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.support_agent, size: 14, color: AppColors.inkMuted),
+                        const SizedBox(width: 6),
+                        Text('Hỗ trợ đơn', style: AppTypography.button.copyWith(fontSize: 11, color: AppColors.ink)),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 20),
           ],
@@ -231,5 +282,149 @@ class OrderDetailScreen extends StatelessWidget {
       ),
     );
   }
-}
 
+  List<Widget> _buildTimelineWidgetList() {
+    if (_order != null && _order!.timeline.isNotEmpty) {
+      final list = <Widget>[];
+      final steps = _order!.timeline;
+      for (int i = 0; i < steps.length; i++) {
+        final st = steps[i];
+        final isDone = st.status == 'COMPLETED';
+        final isActive = st.status == 'IN_PROGRESS';
+        final isLast = i == steps.length - 1;
+
+        list.add(_buildTimelineStep(
+          stepNumber: st.step.toString(),
+          title: st.name,
+          subtitle: st.note.isNotEmpty ? st.note : (isDone ? 'Đã hoàn thành' : (isActive ? 'Đang xử lý tại Lab' : 'Chờ xử lý')),
+          time: st.time.isNotEmpty ? st.time : (isActive ? 'Hiện tại' : 'Chờ'),
+          isDone: isDone,
+          isActive: isActive,
+          isLast: isLast,
+        ));
+      }
+      return list;
+    }
+
+    // Default static mock timeline
+    return [
+      _buildTimelineStep(
+        stepNumber: '1',
+        title: 'Tiếp nhận & Vào mã QR',
+        subtitle: 'Đã phân loại hộp chống ẩm, gán mã vạch quản lý cuộn phim.',
+        time: '09:15',
+        isDone: true,
+      ),
+      _buildTimelineStep(
+        stepNumber: '2',
+        title: 'Vào Tank hóa chất Jobo ATL-2',
+        subtitle: 'Tráng C-41 tự động nhiệt độ 37.8°C (pH 10.05). Hóa chất Kodak Flexicolor.',
+        time: '10:45',
+        isDone: true,
+      ),
+      _buildTimelineStep(
+        stepNumber: '3',
+        title: 'Sấy khô & Cân bằng phẳng',
+        subtitle: 'Tủ sấy khí sạch kiểm soát độ ẩm 42%. Giữ màng phim không bụi.',
+        time: 'Hiện tại',
+        isActive: true,
+      ),
+      _buildTimelineStep(
+        stepNumber: '4',
+        title: 'Quét quang học Noritsu HS-1800',
+        subtitle: 'Scan độ phân giải cao 2000x3000px, cân màu tone ấm chuẩn analog.',
+        time: 'Dự kiến 16:30',
+      ),
+      _buildTimelineStep(
+        stepNumber: '5',
+        title: 'Kiểm định QC & Tải file vào Archive',
+        subtitle: 'Kỹ thuật viên duyệt 36 khung hình và xuất link tải lên máy chủ cá nhân.',
+        time: 'Dự kiến 18:00',
+        isLast: true,
+      ),
+    ];
+  }
+
+  Widget _buildTimelineStep({
+    required String stepNumber,
+    required String title,
+    required String subtitle,
+    required String time,
+    bool isDone = false,
+    bool isActive = false,
+    bool isLast = false,
+  }) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Column(
+          children: [
+            Container(
+              width: 22,
+              height: 22,
+              decoration: BoxDecoration(
+                color: isDone ? AppColors.secondary : (isActive ? AppColors.primary : AppColors.surfaceSunken),
+                shape: BoxShape.circle,
+                border: Border.all(color: isActive ? AppColors.primary : AppColors.outline),
+              ),
+              child: Center(
+                child: isDone
+                    ? const Icon(Icons.check, size: 13, color: Colors.white)
+                    : Text(
+                        stepNumber,
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          color: isActive ? Colors.white : AppColors.inkMuted,
+                        ),
+                      ),
+              ),
+            ),
+            if (!isLast)
+              Container(
+                width: 2,
+                height: 48,
+                color: isDone ? AppColors.secondary : AppColors.outline,
+              ),
+          ],
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Text(
+                      title,
+                      style: AppTypography.cardTitle.copyWith(
+                        fontSize: 13,
+                        color: isActive ? AppColors.primary : (isDone ? AppColors.ink : AppColors.inkMuted),
+                      ),
+                    ),
+                  ),
+                  Text(
+                    time,
+                    style: AppTypography.dataMono.copyWith(
+                      fontSize: 10,
+                      color: isActive ? AppColors.primary : AppColors.inkMuted,
+                      fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 2),
+              Text(
+                subtitle,
+                style: AppTypography.bodySmall.copyWith(fontSize: 11, color: AppColors.inkMuted),
+              ),
+              const SizedBox(height: 16),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
-import '../../../core/services/web_api_service.dart';
+import '../../../core/theme/app_typography.dart';
+import '../../../core/mock/mock_test_assets.dart';
 
 class AdminUsersTab extends StatefulWidget {
   const AdminUsersTab({super.key});
@@ -10,43 +11,138 @@ class AdminUsersTab extends StatefulWidget {
 }
 
 class _AdminUsersTabState extends State<AdminUsersTab> {
-  List<dynamic> _users = [];
-  bool _isLoading = true;
+  String _selectedRole = 'Tất cả';
+  String _selectedStatus = 'Tất cả';
+  final TextEditingController _searchController = TextEditingController();
 
-  @override
-  void initState() {
-    super.initState();
-    _loadUsers();
-  }
+  final List<Map<String, dynamic>> _users = [
+    {
+      'id': 'ADM-HN-884',
+      'name': 'Vũ Minh Tuấn',
+      'email': 'admin.tuan@minilab.vn',
+      'phone': '0901234567',
+      'role': 'Admin',
+      'avatar': MockTestAssets.avatarAdmin,
+      'status': 'ACTIVE',
+      'joined': '01/01/2026',
+      'lastActive': 'Hôm nay 07:06',
+    },
+    {
+      'id': 'USR-SG-001',
+      'name': 'Nguyễn Hoàng Anh',
+      'email': 'khachhang@minilab.vn',
+      'phone': '0912345678',
+      'role': 'Customer',
+      'avatar': MockTestAssets.avatarCustomer,
+      'status': 'ACTIVE',
+      'joined': '10/01/2026',
+      'lastActive': 'Hôm nay 06:45',
+    },
+    {
+      'id': 'LAB-SG-014',
+      'name': 'Trần Văn Đức (CropLab Owner)',
+      'email': 'labowner@croplab.vn',
+      'phone': '0904567890',
+      'role': 'LabOwner',
+      'avatar': MockTestAssets.avatarLabOwner,
+      'status': 'ACTIVE',
+      'joined': '05/01/2026',
+      'lastActive': 'Hôm qua 22:30',
+    },
+    {
+      'id': 'EXP-HN-003',
+      'name': 'Lê Quang Huy',
+      'email': 'chuyengia@film.vn',
+      'phone': '0988776655',
+      'role': 'Expert',
+      'avatar': MockTestAssets.avatarExpert,
+      'status': 'ACTIVE',
+      'joined': '02/01/2026',
+      'lastActive': '02/03/2026',
+    },
+    {
+      'id': 'USR-DN-099',
+      'name': 'Hoàng Văn Bách (Vi phạm)',
+      'email': 'bach.spam@gmail.com',
+      'phone': '0933445566',
+      'role': 'Customer',
+      'avatar': MockTestAssets.avatarUser2,
+      'status': 'BANNED',
+      'joined': '15/02/2026',
+      'lastActive': 'Bị khóa 28/02',
+    },
+  ];
 
-  void _loadUsers() async {
-    final users = await WebApiService().getAdminUsers();
-    if (mounted) {
-      setState(() {
-        _users = users;
-        _isLoading = false;
-      });
-    }
-  }
-
-  void _toggleUserStatus(int index) {
-    setState(() {
-      final current = _users[index]['status'];
-      _users[index]['status'] = current == 'ACTIVE' ? 'BLOCKED' : 'ACTIVE';
-    });
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Đã cập nhật trạng thái tài khoản: ${_users[index]['full_name']}'),
-        backgroundColor: AppColors.success,
+  void _showLockModal(Map<String, dynamic> user) {
+    final reasonController = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.surfaceRaised,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        title: Row(
+          children: [
+            const Icon(Icons.lock_person, color: AppColors.danger, size: 24),
+            const SizedBox(width: 10),
+            Text('Khóa tài khoản: ${user['name']}', style: AppTypography.cardTitle),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Mã ID: ${user['id']} · Email: ${user['email']}', style: AppTypography.caption),
+            const SizedBox(height: 16),
+            const Text('LÝ DO KHÓA TÀI KHOẢN (BẮT BUỘC GIẢI TRÌNH AUDIT):', style: AppTypography.labelCaps),
+            const SizedBox(height: 6),
+            TextField(
+              controller: reasonController,
+              maxLines: 3,
+              decoration: const InputDecoration(
+                hintText: 'Nhập chi tiết biên bản vi phạm hoặc giải trình audit...',
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          OutlinedButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Hủy bỏ'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.danger),
+            onPressed: () {
+              if (reasonController.text.trim().isNotEmpty) {
+                setState(() => user['status'] = 'BANNED');
+                Navigator.pop(ctx);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Đã khóa tài khoản ${user['name']} và ghi log kiểm toán!')),
+                );
+              }
+            },
+            child: const Text('Xác nhận khóa'),
+          ),
+        ],
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_isLoading) return const Center(child: CircularProgressIndicator());
+    final filtered = _users.where((u) {
+      if (_selectedRole != 'Tất cả' && u['role'] != _selectedRole) return false;
+      if (_selectedStatus != 'Tất cả' && u['status'] != _selectedStatus) return false;
+      final q = _searchController.text.toLowerCase().trim();
+      if (q.isNotEmpty) {
+        final match = u['name'].toString().toLowerCase().contains(q) ||
+            u['email'].toString().toLowerCase().contains(q) ||
+            u['phone'].toString().contains(q);
+        if (!match) return false;
+      }
+      return true;
+    }).toList();
 
-    return Padding(
+    return SingleChildScrollView(
       padding: const EdgeInsets.all(24.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -57,99 +153,190 @@ class _AdminUsersTabState extends State<AdminUsersTab> {
               const Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Quản lý Tài Khoản & Phân Quyền (RBAC)', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.ink)),
+                  Text('WEB-ADM-03 // PHÂN HỆ RBAC', style: AppTypography.labelCaps),
                   SizedBox(height: 4),
-                  Text('Kiểm soát 5 vai trò hệ thống: Customer, Film Lab Owner, Expert, Shipper, Admin', style: TextStyle(color: AppColors.inkMuted, fontSize: 13)),
+                  Text('Tài khoản & Phân quyền', style: AppTypography.pageTitle),
                 ],
               ),
               ElevatedButton.icon(
-                icon: const Icon(Icons.person_add, size: 16),
-                label: const Text('Thêm tài khoản'),
                 onPressed: () {},
-              )
+                icon: const Icon(Icons.person_add, size: 16),
+                label: const Text('Thêm tài khoản (+)'),
+              ),
             ],
           ),
           const SizedBox(height: 20),
 
-          // User Table Container
-          Expanded(
-            child: Container(
-              decoration: BoxDecoration(
-                color: AppColors.surfaceRaised,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColors.outline),
-              ),
-              child: ListView.separated(
-                padding: const EdgeInsets.all(16),
-                itemCount: _users.length,
-                separatorBuilder: (_, __) => const Divider(),
-                itemBuilder: (context, index) {
-                  final u = _users[index];
-                  final isActive = u['status'] == 'ACTIVE';
-
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8),
-                    child: Row(
-                      children: [
-                        CircleAvatar(
-                          radius: 20,
-                          backgroundColor: AppColors.surfaceSunken,
-                          child: Icon(
-                            u['role'] == 'Admin' ? Icons.security : (u['role'] == 'LabOwner' ? Icons.store : Icons.person),
-                            color: AppColors.primary,
-                            size: 20,
-                          ),
-                        ),
-                        const SizedBox(width: 14),
-                        Expanded(
-                          flex: 3,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(u['full_name'], style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                              Text(u['email'], style: const TextStyle(fontSize: 12, color: AppColors.inkMuted)),
-                            ],
-                          ),
-                        ),
-                        Expanded(
-                          flex: 2,
-                          child: Container(
-                            alignment: Alignment.centerLeft,
-                            child: _buildRoleBadge(u['role']),
-                          ),
-                        ),
-                        Expanded(
-                          flex: 2,
-                          child: Row(
-                            children: [
-                              Container(
-                                width: 8,
-                                height: 8,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: isActive ? AppColors.success : AppColors.danger,
-                                ),
-                              ),
-                              const SizedBox(width: 6),
-                              Text(isActive ? 'HOẠT ĐỘNG' : 'ĐÃ KHÓA',
-                                  style: TextStyle(
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.bold,
-                                    color: isActive ? AppColors.success : AppColors.danger,
-                                  )),
-                            ],
-                          ),
-                        ),
-                        IconButton(
-                          tooltip: isActive ? 'Khóa tài khoản' : 'Mở khóa',
-                          icon: Icon(isActive ? Icons.lock_outline : Icons.lock_open, color: isActive ? AppColors.danger : AppColors.success),
-                          onPressed: () => _toggleUserStatus(index),
-                        )
-                      ],
+          // Filter bar
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: AppColors.surfaceSunken,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: AppColors.outline),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  flex: 2,
+                  child: TextField(
+                    controller: _searchController,
+                    onChanged: (_) => setState(() {}),
+                    decoration: const InputDecoration(
+                      prefixIcon: Icon(Icons.search, size: 18),
+                      hintText: 'Tìm theo Tên, Email, SĐT...',
                     ),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                DropdownButton<String>(
+                  value: _selectedRole,
+                  items: ['Tất cả', 'Admin', 'LabOwner', 'Customer', 'Expert']
+                      .map((r) => DropdownMenuItem(value: r, child: Text('Vai trò: $r', style: AppTypography.body)))
+                      .toList(),
+                  onChanged: (v) => setState(() => _selectedRole = v!),
+                ),
+                const SizedBox(width: 16),
+                DropdownButton<String>(
+                  value: _selectedStatus,
+                  items: ['Tất cả', 'ACTIVE', 'BANNED']
+                      .map((s) => DropdownMenuItem(value: s, child: Text('Trạng thái: $s', style: AppTypography.body)))
+                      .toList(),
+                  onChanged: (v) => setState(() => _selectedStatus = v!),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
+
+          // Ledger Table
+          Container(
+            decoration: BoxDecoration(
+              color: AppColors.surfaceRaised,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: AppColors.outline),
+            ),
+            child: Table(
+              columnWidths: const {
+                0: FlexColumnWidth(3.5),
+                1: FlexColumnWidth(2),
+                2: FlexColumnWidth(2),
+                3: FlexColumnWidth(1.8),
+                4: FlexColumnWidth(2),
+                5: FlexColumnWidth(1.8),
+              },
+              children: [
+                TableRow(
+                  decoration: const BoxDecoration(
+                    color: AppColors.surfaceSunken,
+                    borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
+                  ),
+                  children: [
+                    _th('NGƯỜI DÙNG'),
+                    _th('EMAIL / SĐT'),
+                    _th('VAI TRÒ'),
+                    _th('NGÀY TẠO'),
+                    _th('TRẠNG THÁI'),
+                    _th('THAO TÁC', TextAlign.center),
+                  ],
+                ),
+                ...filtered.map((u) {
+                  final isActive = u['status'] == 'ACTIVE';
+                  return TableRow(
+                    decoration: const BoxDecoration(
+                      border: Border(bottom: BorderSide(color: AppColors.outline, width: 0.5)),
+                    ),
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+                        child: Row(
+                          children: [
+                            CircleAvatar(
+                              radius: 16,
+                              backgroundColor: AppColors.surfaceSunken,
+                              child: MockTestAssets.image(
+                                u['avatar'],
+                                width: 32,
+                                height: 32,
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(u['name'], style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                                  Text(u['id'], style: AppTypography.dataMono),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(u['email'], style: AppTypography.tableCell),
+                            Text(u['phone'], style: AppTypography.caption),
+                          ],
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+                        child: Text(u['role'], style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: AppColors.primary)),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+                        child: Text(u['joined'], style: AppTypography.dataMono),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                            decoration: BoxDecoration(
+                              color: isActive ? AppColors.successBg : AppColors.dangerBg,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Text(
+                              u['status'],
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                                color: isActive ? AppColors.secondary : AppColors.danger,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            if (isActive)
+                              IconButton(
+                                tooltip: 'Khóa tài khoản',
+                                icon: const Icon(Icons.lock_outline, color: AppColors.danger, size: 18),
+                                onPressed: () => _showLockModal(u),
+                              )
+                            else
+                              IconButton(
+                                tooltip: 'Mở khóa',
+                                icon: const Icon(Icons.lock_open, color: AppColors.secondary, size: 18),
+                                onPressed: () => setState(() => u['status'] = 'ACTIVE'),
+                              ),
+                          ],
+                        ),
+                      ),
+                    ],
                   );
-                },
-              ),
+                }),
+              ],
             ),
           ),
         ],
@@ -157,25 +344,10 @@ class _AdminUsersTabState extends State<AdminUsersTab> {
     );
   }
 
-  Widget _buildRoleBadge(String role) {
-    Color bg = AppColors.neutralBg;
-    Color fg = AppColors.neutral;
-    if (role == 'Admin') {
-      bg = Colors.red.withValues(alpha: 0.12);
-      fg = Colors.red.shade800;
-    } else if (role == 'LabOwner') {
-      bg = AppColors.primary.withValues(alpha: 0.12);
-      fg = AppColors.primary;
-    } else if (role == 'Expert') {
-      bg = Colors.purple.withValues(alpha: 0.12);
-      fg = Colors.purple;
-    }
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(6)),
-      child: Text(role, style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: fg)),
+  Widget _th(String title, [TextAlign align = TextAlign.left]) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+      child: Text(title, textAlign: align, style: AppTypography.labelCaps),
     );
   }
 }
-

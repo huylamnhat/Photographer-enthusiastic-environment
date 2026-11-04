@@ -7,8 +7,13 @@ const {
 } = require('../data/mockStore');
 
 exports.getLabKanban = (req, res) => {
-  const labId = req.user?.lab_id || 'lab-001';
-  const orders = mockOrders.filter(o => o.lab_id === labId);
+  const labId = req.query.lab_id || req.user?.lab_id || 'lab-001';
+  let orders = mockOrders.filter(o => o.lab_id === labId);
+
+  // If no orders match the specific labId, fallback to all mockOrders so test orders placed from mobile are always visible
+  if (orders.length === 0) {
+    orders = mockOrders;
+  }
 
   const columns = {
     QUEUE: orders.filter(o => o.kanban_column === 'QUEUE' || o.status === 'RECEIVED' || o.status === 'PENDING_FILM'),
