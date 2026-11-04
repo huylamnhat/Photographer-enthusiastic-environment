@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'core/theme/app_theme.dart';
@@ -8,6 +9,7 @@ import 'providers/archive_provider.dart';
 import 'providers/marketplace_provider.dart';
 import 'providers/community_provider.dart';
 import 'screens/navigation_shell.dart';
+import 'screens/web/web_login_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -32,9 +34,9 @@ class MiniLabApp extends StatelessWidget {
         title: 'MiniLab - Nền tảng Nhiếp ảnh Phim',
         debugShowCheckedModeBanner: false,
         theme: AppTheme.lightTheme,
-        home: const NavigationShell(),
+        // On Web or Desktop: Start with Unified Web Login (Auto-routes to Admin, Lab, or Customer)
+        home: kIsWeb ? const WebLoginScreen() : const NavigationShell(),
       ),
     );
   }
 }
-
