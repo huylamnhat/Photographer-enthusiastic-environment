@@ -208,6 +208,7 @@ class _AdminOverviewTabState extends State<AdminOverviewTab> {
                   _buildKpiCard(
                     title: 'TỔNG NGƯỜI DÙNG',
                     value: '14,820',
+                    fontSize: 46, // <-- CỠ SỐ Ô 1 (Thay đổi số 32 ở đây)
                     delta: '+8%',
                     icon: Icons.group_outlined,
                     iconColor: AppColors.inkMuted,
@@ -218,6 +219,7 @@ class _AdminOverviewTabState extends State<AdminOverviewTab> {
                   _buildKpiCard(
                     title: 'ĐANG TRÁNG & QUÉT',
                     value: '1,428',
+                    fontSize: 46, // <-- CỠ SỐ Ô 2 (Thay đổi số 32 ở đây)
                     delta: 'cuộn phim',
                     icon: Icons.motion_photos_on_outlined,
                     iconColor: AppColors.primary,
@@ -229,6 +231,7 @@ class _AdminOverviewTabState extends State<AdminOverviewTab> {
                   _buildKpiCard(
                     title: 'TỶ LỆ TUÂN THỦ SLA',
                     value: '96.4%',
+                    fontSize: 46, // <-- CỠ SỐ Ô 3 (Thay đổi số 32 ở đây)
                     delta: '+1.2%',
                     icon: Icons.verified_outlined,
                     iconColor: AppColors.secondary,
@@ -239,6 +242,7 @@ class _AdminOverviewTabState extends State<AdminOverviewTab> {
                   _buildKpiCard(
                     title: 'CẦN XỬ LÝ GẤP',
                     value: '23',
+                    fontSize: 46, // <-- CỠ SỐ Ô 4 (Thay đổi số 32 ở đây)
                     delta: 'CẦN DUYỆT',
                     icon: Icons.error_outline,
                     iconColor: AppColors.danger,
@@ -342,6 +346,7 @@ class _AdminOverviewTabState extends State<AdminOverviewTab> {
     required String subtext,
     required String footnote,
     Color? valueColor,
+    double fontSize = 32,
     bool isPositive = false,
     bool deltaIsText = false,
     bool isDangerBadge = false,
@@ -378,7 +383,7 @@ class _AdminOverviewTabState extends State<AdminOverviewTab> {
             children: [
               Text(
                 value,
-                style: AppTypography.metric.copyWith(color: valueColor ?? AppColors.ink),
+                style: AppTypography.metric.copyWith(color: valueColor ?? AppColors.ink, fontSize: fontSize),
               ),
               if (isDangerBadge)
                 Container(

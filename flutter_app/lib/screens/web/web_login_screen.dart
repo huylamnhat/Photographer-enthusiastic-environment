@@ -15,48 +15,11 @@ class WebLoginScreen extends StatefulWidget {
 class _WebLoginScreenState extends State<WebLoginScreen> {
   // Mode: 0 for Admin Portal (WEB-ADM-01), 1 for Film Lab Portal (WEB-LAB-02)
   int _loginMode = 0; // 0 = Admin, 1 = Lab
-  int _selectedLabIndex = 0; // 0: CropLab HN, 1: LLab SG, 2: Nadar HN
 
   final _emailController = TextEditingController(text: 'admin.tuan@minilab.vn');
   final _passwordController = TextEditingController(text: 'password123');
   bool _obscurePassword = true;
   bool _isLoading = false;
-
-  final List<Map<String, dynamic>> _labPresets = [
-    {
-      'id': 'lab-001',
-      'name': 'CropLab Hà Nội',
-      'badge': '⭐ NHẬN ĐƠN MẶC ĐỊNH TỪ APP',
-      'badgeColor': AppColors.secondary,
-      'isDefault': true,
-      'email': 'croplab@minilab.vn',
-      'branch': 'Số 10 Đặng Thai Mai, Tây Hồ, Hà Nội',
-      'equipment': 'Máy Noritsu HS-1800 · Tráng C-41 & B&W',
-      'description': 'Tiệm lab chính kết nối với ứng dụng khách hàng di động',
-    },
-    {
-      'id': 'lab-002',
-      'name': 'LLab Film Sài Gòn',
-      'badge': 'CHI NHÁNH PHÍA NAM',
-      'badgeColor': AppColors.inkMuted,
-      'isDefault': false,
-      'email': 'saigon.lab@minilab.vn',
-      'branch': '40/2 Phan Văn Trị, Bình Thạnh, TP.HCM',
-      'equipment': 'Máy Fuji Frontier SP-3000 · Tráng C-41',
-      'description': 'Phòng tối khu vực TP.HCM tráng nhanh trong ngày',
-    },
-    {
-      'id': 'lab-003',
-      'name': 'Nadar Darkroom Atelier',
-      'badge': 'PHÒNG TỐI FINE-ART',
-      'badgeColor': AppColors.inkMuted,
-      'isDefault': false,
-      'email': 'nadar.lab@minilab.vn',
-      'branch': '15 Tràng Tiền, Hoàn Kiếm, Hà Nội',
-      'equipment': 'Máy Jobo ATL-1500 · Tráng thủ công B&W & E-6',
-      'description': 'Phòng tối nghệ thuật chuyên phim đen trắng cao cấp',
-    },
-  ];
 
   void _switchMode(int mode) {
     setState(() {
@@ -65,17 +28,9 @@ class _WebLoginScreenState extends State<WebLoginScreen> {
         _emailController.text = 'admin.tuan@minilab.vn';
         _passwordController.text = 'password123';
       } else {
-        _emailController.text = _labPresets[_selectedLabIndex]['email'];
+        _emailController.text = 'saigon.lab@minilab.vn';
         _passwordController.text = 'password123';
       }
-    });
-  }
-
-  void _selectLab(int index) {
-    setState(() {
-      _selectedLabIndex = index;
-      _emailController.text = _labPresets[index]['email'];
-      _passwordController.text = 'password123';
     });
   }
 
@@ -98,15 +53,9 @@ class _WebLoginScreenState extends State<WebLoginScreen> {
           MaterialPageRoute(builder: (_) => const AdminPortalShell()),
         );
       } else {
-        final currentLab = _labPresets[_selectedLabIndex];
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(
-            builder: (_) => LabPortalShell(
-              labId: currentLab['id'],
-              labName: currentLab['name'],
-            ),
-          ),
+          MaterialPageRoute(builder: (_) => const LabPortalShell()),
         );
       }
     } catch (_) {
@@ -118,15 +67,9 @@ class _WebLoginScreenState extends State<WebLoginScreen> {
           MaterialPageRoute(builder: (_) => const AdminPortalShell()),
         );
       } else {
-        final currentLab = _labPresets[_selectedLabIndex];
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(
-            builder: (_) => LabPortalShell(
-              labId: currentLab['id'],
-              labName: currentLab['name'],
-            ),
-          ),
+          MaterialPageRoute(builder: (_) => const LabPortalShell()),
         );
       }
     }
@@ -134,8 +77,6 @@ class _WebLoginScreenState extends State<WebLoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final activeLab = _labPresets[_selectedLabIndex];
-
     return Scaffold(
       backgroundColor: AppColors.surface,
       body: Center(
@@ -181,7 +122,7 @@ class _WebLoginScreenState extends State<WebLoginScreen> {
 
               // Primary Authentication Dossier Card
               Container(
-                constraints: BoxConstraints(maxWidth: _loginMode == 1 ? 540 : 460),
+                constraints: const BoxConstraints(maxWidth: 480),
                 decoration: BoxDecoration(
                   color: AppColors.surfaceRaised,
                   borderRadius: BorderRadius.circular(12),
@@ -262,14 +203,14 @@ class _WebLoginScreenState extends State<WebLoginScreen> {
                           Text(
                             _loginMode == 0
                                 ? 'Đăng nhập Quản trị Hệ thống'
-                                : 'Đăng nhập Cổng Film Lab',
+                                : 'Đăng nhập Cổng Vận hành Film Lab',
                             style: AppTypography.pageTitle.copyWith(fontSize: 18),
                           ),
                           const SizedBox(height: 4),
                           Text(
                             _loginMode == 0
                                 ? 'Hệ thống kiểm soát và điều phối toàn sàn MiniLab.'
-                                : 'Tiếp nhận đơn tráng scan từ khách hàng, cập nhật Kanban và giao file.',
+                                : 'Quản lý tiếp nhận tráng scan, vận hành phòng tối và tải file.',
                             style: AppTypography.bodySmall,
                           ),
                         ],
@@ -286,11 +227,11 @@ class _WebLoginScreenState extends State<WebLoginScreen> {
                       child: Row(
                         children: [
                           Expanded(
-                            child: _buildModeTab(0, 'Admin Console', Icons.security),
+                            child: _buildModeTab(0, 'Admin Console (Quản trị)', Icons.security),
                           ),
                           const SizedBox(width: 8),
                           Expanded(
-                            child: _buildModeTab(1, 'Cổng Film Lab (Nhận đơn)', Icons.storefront),
+                            child: _buildModeTab(1, 'Cổng Tiệm Film Lab', Icons.storefront),
                           ),
                         ],
                       ),
@@ -302,164 +243,66 @@ class _WebLoginScreenState extends State<WebLoginScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          // LAB PICKER (EXCLUSIVELY WHEN LAB MODE IS ACTIVE)
-                          if (_loginMode == 1) ...[
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          // Role Description Banner
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: _loginMode == 0
+                                  ? AppColors.primary.withValues(alpha: 0.08)
+                                  : AppColors.secondary.withValues(alpha: 0.08),
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                color: _loginMode == 0
+                                    ? AppColors.primary.withValues(alpha: 0.3)
+                                    : AppColors.secondary.withValues(alpha: 0.3),
+                              ),
+                            ),
+                            child: Row(
                               children: [
-                                const Text(
-                                  'BƯỚC 1: CHỌN TIỆM FILM LAB ĐỂ XEM ĐƠN',
-                                  style: TextStyle(
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.bold,
-                                    color: AppColors.primary,
-                                    letterSpacing: 0.5,
-                                  ),
+                                Icon(
+                                  _loginMode == 0 ? Icons.shield_outlined : Icons.science_outlined,
+                                  size: 18,
+                                  color: _loginMode == 0 ? AppColors.primary : AppColors.secondary,
                                 ),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                  decoration: BoxDecoration(
-                                    color: AppColors.primary.withValues(alpha: 0.1),
-                                    borderRadius: BorderRadius.circular(4),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        _loginMode == 0 ? 'KHÔNG GIAN: ADMIN TỔNG SÀN' : 'KHÔNG GIAN: PHÒNG TỐI FILM LAB',
+                                        style: TextStyle(
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.bold,
+                                          color: _loginMode == 0 ? AppColors.primary : AppColors.secondary,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        _loginMode == 0
+                                            ? 'Quản lý thẩm định đối tác lab, kiểm duyệt bài chợ và khiếu nại.'
+                                            : 'Vận hành bảng Kanban tiếp nhận, sấy khô, scan và kiểm định QC.',
+                                        style: const TextStyle(fontSize: 11, color: AppColors.inkMuted),
+                                      ),
+                                    ],
                                   ),
-                                  child: const Text('BẮT BUỘC', style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: AppColors.primary)),
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 8),
+                          ),
+                          const SizedBox(height: 18),
 
-                            // List of 3 Lab Cards
-                            ...List.generate(_labPresets.length, (idx) {
-                              final lab = _labPresets[idx];
-                              final isSelected = _selectedLabIndex == idx;
-
-                              return Container(
-                                margin: const EdgeInsets.only(bottom: 8),
-                                child: InkWell(
-                                  onTap: () => _selectLab(idx),
-                                  borderRadius: BorderRadius.circular(8),
-                                  child: Container(
-                                    padding: const EdgeInsets.all(12),
-                                    decoration: BoxDecoration(
-                                      color: isSelected
-                                          ? AppColors.secondary.withValues(alpha: 0.08)
-                                          : AppColors.surfaceRaised,
-                                      borderRadius: BorderRadius.circular(8),
-                                      border: Border.all(
-                                        color: isSelected ? AppColors.secondary : AppColors.outline,
-                                        width: isSelected ? 2 : 1,
-                                      ),
-                                    ),
-                                    child: Row(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Icon(
-                                          isSelected ? Icons.radio_button_checked : Icons.radio_button_off,
-                                          color: isSelected ? AppColors.secondary : AppColors.outline,
-                                          size: 18,
-                                        ),
-                                        const SizedBox(width: 10),
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              Row(
-                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                children: [
-                                                  Text(
-                                                    lab['name'],
-                                                    style: TextStyle(
-                                                      fontWeight: FontWeight.bold,
-                                                      fontSize: 13,
-                                                      color: isSelected ? AppColors.secondary : AppColors.ink,
-                                                    ),
-                                                  ),
-                                                  Container(
-                                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                                    decoration: BoxDecoration(
-                                                      color: isSelected ? AppColors.successBg : AppColors.surfaceSunken,
-                                                      borderRadius: BorderRadius.circular(4),
-                                                    ),
-                                                    child: Text(
-                                                      lab['badge'],
-                                                      style: TextStyle(
-                                                        fontSize: 9,
-                                                        fontWeight: FontWeight.bold,
-                                                        color: isSelected ? AppColors.secondary : AppColors.inkMuted,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                              const SizedBox(height: 3),
-                                              Text(
-                                                lab['branch'],
-                                                style: const TextStyle(fontSize: 11, color: AppColors.inkMuted),
-                                              ),
-                                              const SizedBox(height: 2),
-                                              Text(
-                                                'Mã: ${lab['id']} • Email: ${lab['email']}',
-                                                style: const TextStyle(fontSize: 11, fontFamilyFallback: AppTypography.fontMono, color: AppColors.ink),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              );
-                            }),
-
-                            const SizedBox(height: 8),
-
-                            // Guidance Callout Banner
-                            Container(
-                              padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                color: AppColors.successBg,
-                                borderRadius: BorderRadius.circular(8),
-                                border: Border.all(color: AppColors.secondary.withValues(alpha: 0.3)),
-                              ),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Icon(Icons.lightbulb_outline, size: 16, color: AppColors.secondary),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: RichText(
-                                      text: TextSpan(
-                                        style: const TextStyle(fontSize: 11, color: AppColors.ink, height: 1.4),
-                                        children: [
-                                          const TextSpan(text: 'Khuyên dùng: Khi đặt đơn trên ứng dụng di động, đơn gửi mặc định về tiệm '),
-                                          TextSpan(
-                                            text: 'CropLab Hà Nội (lab-001)',
-                                            style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.primary),
-                                          ),
-                                          const TextSpan(text: '. Đăng nhập vào tiệm này bạn sẽ thấy ngay mã đơn vừa tạo!'),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(height: 16),
-                            const Divider(height: 1, color: AppColors.outline),
-                            const SizedBox(height: 16),
-                          ],
-
-                          // Step 2: Email & Credentials
+                          // Email Field
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                _loginMode == 0 ? 'TÀI KHOẢN ADMIN TỔNG' : 'TÀI KHOẢN LAB ĐÃ CHỌN',
+                                _loginMode == 0 ? 'TÀI KHOẢN ADMIN' : 'TÀI KHOẢN KỸ THUẬT VIÊN / LAB',
                                 style: AppTypography.labelCaps,
                               ),
                               Text(
-                                _loginMode == 0 ? 'ADM-HN-884' : '${activeLab['id'].toUpperCase()} · ĐÃ TỰ ĐIỀN',
-                                style: AppTypography.dataMono.copyWith(fontSize: 10, color: AppColors.secondary, fontWeight: FontWeight.bold),
+                                _loginMode == 0 ? 'ID: ADM-HN-884' : 'ID: LAB-SG-01',
+                                style: AppTypography.dataMono.copyWith(fontSize: 10, color: AppColors.inkMuted),
                               ),
                             ],
                           ),
@@ -467,14 +310,14 @@ class _WebLoginScreenState extends State<WebLoginScreen> {
                           TextField(
                             controller: _emailController,
                             style: AppTypography.bodyMedium,
-                            decoration: InputDecoration(
-                              prefixIcon: const Icon(Icons.badge_outlined, size: 18, color: AppColors.inkMuted),
+                            decoration: const InputDecoration(
+                              prefixIcon: Icon(Icons.badge_outlined, size: 18, color: AppColors.inkMuted),
                               hintText: 'email@minilab.vn',
                               isDense: true,
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                              contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                             ),
                           ),
-                          const SizedBox(height: 14),
+                          const SizedBox(height: 16),
 
                           // Password Field
                           Row(
@@ -507,7 +350,7 @@ class _WebLoginScreenState extends State<WebLoginScreen> {
                               ),
                             ),
                           ),
-                          const SizedBox(height: 20),
+                          const SizedBox(height: 22),
 
                           // Login Submit Button
                           SizedBox(
@@ -515,9 +358,7 @@ class _WebLoginScreenState extends State<WebLoginScreen> {
                             child: ElevatedButton(
                               onPressed: _isLoading ? null : _handleLogin,
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: _loginMode == 0
-                                    ? AppColors.primary
-                                    : AppColors.secondary,
+                                backgroundColor: _loginMode == 0 ? AppColors.primary : AppColors.secondary,
                                 foregroundColor: Colors.white,
                                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                                 elevation: 0,
@@ -537,16 +378,14 @@ class _WebLoginScreenState extends State<WebLoginScreen> {
                                         ),
                                         const SizedBox(width: 8),
                                         Text(
-                                          _loginMode == 0
-                                              ? 'Đăng nhập Quản Trị Viên Sàn'
-                                              : 'Vào Bảng Điều Phối ${activeLab['name']}',
+                                          _loginMode == 0 ? 'Vào Bảng Quản Trị Admin' : 'Vào Cổng Vận Hành Film Lab',
                                           style: AppTypography.button.copyWith(fontSize: 13),
                                         ),
                                       ],
                                     ),
                             ),
                           ),
-                          const SizedBox(height: 14),
+                          const SizedBox(height: 16),
 
                           // Quick Test Preset Buttons
                           Container(
@@ -559,15 +398,15 @@ class _WebLoginScreenState extends State<WebLoginScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text('CHUYỂN NHANH TÀI KHOẢN (1 CHẠM):', style: AppTypography.labelCaps),
+                                const Text('CHỌN NHANH TÀI KHOẢN MẪU:', style: AppTypography.labelCaps),
                                 const SizedBox(height: 8),
                                 Wrap(
                                   spacing: 6,
                                   runSpacing: 6,
                                   children: [
-                                    _buildQuickChip('👑 Admin Sàn', 0, 'admin.tuan@minilab.vn', null),
-                                    _buildQuickChip('🏢 CropLab Hà Nội (lab-001)', 1, 'croplab@minilab.vn', 0),
-                                    _buildQuickChip('🏢 LLab Sài Gòn (lab-002)', 1, 'saigon.lab@minilab.vn', 1),
+                                    _buildQuickChip('👑 Admin Sàn', 0, 'admin.tuan@minilab.vn'),
+                                    _buildQuickChip('🏢 Tiệm Lab Sài Gòn', 1, 'saigon.lab@minilab.vn'),
+                                    _buildQuickChip('🏢 Tiệm CropLab Hà Nội', 1, 'croplab@minilab.vn'),
                                   ],
                                 ),
                               ],
@@ -585,10 +424,10 @@ class _WebLoginScreenState extends State<WebLoginScreen> {
                         borderRadius: BorderRadius.vertical(bottom: Radius.circular(11)),
                         border: Border(top: BorderSide(color: AppColors.outline)),
                       ),
-                      child: Row(
+                      child: const Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Row(
+                          Row(
                             children: [
                               Icon(Icons.shield_outlined, size: 14, color: AppColors.inkMuted),
                               SizedBox(width: 6),
@@ -598,22 +437,9 @@ class _WebLoginScreenState extends State<WebLoginScreen> {
                               ),
                             ],
                           ),
-                          Row(
-                            children: [
-                              Container(
-                                width: 6,
-                                height: 6,
-                                decoration: const BoxDecoration(
-                                  color: AppColors.secondary,
-                                  shape: BoxShape.circle,
-                                ),
-                              ),
-                              const SizedBox(width: 6),
-                              const Text(
-                                'BACKEND ONLINE (PORT 5000)',
-                                style: TextStyle(fontSize: 10, color: AppColors.secondary, fontWeight: FontWeight.bold),
-                              ),
-                            ],
+                          Text(
+                            'STANDALONE MODULES',
+                            style: TextStyle(fontSize: 10, color: AppColors.secondary, fontWeight: FontWeight.bold),
                           ),
                         ],
                       ),
@@ -669,18 +495,14 @@ class _WebLoginScreenState extends State<WebLoginScreen> {
     );
   }
 
-  Widget _buildQuickChip(String label, int mode, String email, int? labIndex) {
-    final isCurrent = _loginMode == mode && (labIndex == null || _selectedLabIndex == labIndex);
+  Widget _buildQuickChip(String label, int mode, String email) {
+    final isCurrent = _loginMode == mode && _emailController.text == email;
 
     return InkWell(
       onTap: () {
         _switchMode(mode);
-        if (labIndex != null) {
-          _selectLab(labIndex);
-        } else {
-          _emailController.text = email;
-          _passwordController.text = 'password123';
-        }
+        _emailController.text = email;
+        _passwordController.text = 'password123';
       },
       borderRadius: BorderRadius.circular(4),
       child: Container(

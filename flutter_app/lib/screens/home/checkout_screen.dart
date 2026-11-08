@@ -3,7 +3,6 @@ import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_typography.dart';
 import '../../models/lab_model.dart';
 import 'payment_receipt_screen.dart';
-import '../../core/services/api_service.dart';
 
 class CheckoutScreen extends StatefulWidget {
   final LabModel lab;
@@ -39,37 +38,11 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
   void _handlePayment() async {
     setState(() => _isProcessing = true);
-
-    String assignedOrderId = 'ORD-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}';
-
-    try {
-      final created = await ApiService().createOrder({
-        'lab_id': widget.lab.labId,
-        'shipping_method': 'DROP_OFF',
-        'pickup_address': 'Quầy tiếp nhận ${widget.lab.name}',
-        'payment_method': _selectedPayment,
-        'note': 'Gói: ${widget.packageName}, Đẩy/kéo: ${widget.pushPull}',
-        'items': [
-          {
-            'package_id': 'pkg-001',
-            'film_name': widget.filmName,
-            'quantity': widget.quantity,
-            'price': widget.totalPrice / (widget.quantity > 0 ? widget.quantity : 1),
-            'options': {
-              'push_pull': widget.pushPull,
-              'cut_negatives': widget.cutOption,
-            }
-          }
-        ]
-      });
-
-      if (created != null && created.orderId.isNotEmpty) {
-        assignedOrderId = created.orderId;
-      }
-    } catch (_) {}
-
+    await Future.delayed(const Duration(milliseconds: 300));
     if (!mounted) return;
     setState(() => _isProcessing = false);
+
+    final assignedOrderId = 'ORD-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}';
 
     Navigator.pushReplacement(
       context,

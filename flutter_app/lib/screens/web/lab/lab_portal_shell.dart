@@ -10,10 +10,7 @@ import 'lab_claims_tab.dart';
 import 'lab_sla_report_tab.dart';
 
 class LabPortalShell extends StatefulWidget {
-  final String? labId;
-  final String? labName;
-
-  const LabPortalShell({super.key, this.labId, this.labName});
+  const LabPortalShell({super.key});
 
   @override
   State<LabPortalShell> createState() => _LabPortalShellState();
@@ -21,50 +18,15 @@ class LabPortalShell extends StatefulWidget {
 
 class _LabPortalShellState extends State<LabPortalShell> {
   int _selectedTabIndex = 0;
-  late String _currentLabId;
-  late String _currentLabName;
-  late String _currentBranch;
+  final String _currentBranch = 'CropLab Sài Gòn - Chi nhánh Q.3';
 
-  final List<Map<String, String>> _availableLabs = [
-    {
-      'id': 'lab-001',
-      'name': 'CropLab Hà Nội',
-      'branch': 'Số 10 Đặng Thai Mai, Tây Hồ, Hà Nội',
-      'badge': '⭐ Nhận đơn từ Mobile App',
-    },
-    {
-      'id': 'lab-002',
-      'name': 'LLab Film Sài Gòn',
-      'branch': '40/2 Phan Văn Trị, Bình Thạnh, TP.HCM',
-      'badge': 'Chi nhánh Miền Nam',
-    },
-    {
-      'id': 'lab-003',
-      'name': 'Nadar Darkroom Atelier',
-      'branch': '15 Tràng Tiền, Hoàn Kiếm, Hà Nội',
-      'badge': 'Phòng tối Fine-Art',
-    },
-  ];
-
-  @override
-  void initState() {
-    super.initState();
-    _currentLabId = widget.labId ?? 'lab-001';
-    _currentLabName = widget.labName ?? 'CropLab Hà Nội';
-    final matched = _availableLabs.firstWhere(
-      (l) => l['id'] == _currentLabId,
-      orElse: () => _availableLabs[0],
-    );
-    _currentBranch = matched['branch']!;
-  }
-
-  List<Widget> get _tabs => [
-    LabKanbanTab(key: ValueKey(_currentLabId), labId: _currentLabId, labName: _currentLabName),
-    const LabUploadScanTab(),
-    const LabServicesTab(),
-    const LabProfileTab(),
-    const LabClaimsTab(),
-    const LabSlaReportTab(),
+  final List<Widget> _tabs = const [
+    LabKanbanTab(),
+    LabUploadScanTab(),
+    LabServicesTab(),
+    LabProfileTab(),
+    LabClaimsTab(),
+    LabSlaReportTab(),
   ];
 
   final List<Map<String, String>> _menuItems = [
@@ -92,7 +54,7 @@ class _LabPortalShellState extends State<LabPortalShell> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Header with current Lab Name
+                // Header
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
                   decoration: const BoxDecoration(
@@ -102,32 +64,19 @@ class _LabPortalShellState extends State<LabPortalShell> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              _currentLabName.toUpperCase(),
-                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, letterSpacing: 0.5),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            const SizedBox(height: 2),
-                            Row(
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
-                                  decoration: BoxDecoration(
-                                    color: AppColors.successBg,
-                                    borderRadius: BorderRadius.circular(3),
-                                  ),
-                                  child: Text(_currentLabId.toUpperCase(), style: const TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: AppColors.secondary)),
-                                ),
-                                const SizedBox(width: 6),
-                                const Text('CỔNG VẬN HÀNH', style: TextStyle(fontSize: 10, color: AppColors.primary, fontWeight: FontWeight.bold)),
-                              ],
-                            ),
-                          ],
-                        ),
+                      const Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'CROPLAB SÀI GÒN',
+                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, letterSpacing: 0.5),
+                          ),
+                          SizedBox(height: 2),
+                          Text(
+                            'CỔNG VẬN HÀNH FILM LAB',
+                            style: TextStyle(fontSize: 10, color: AppColors.primary, fontWeight: FontWeight.bold),
+                          ),
+                        ],
                       ),
                       Container(
                         padding: const EdgeInsets.all(6),
@@ -200,7 +149,7 @@ class _LabPortalShellState extends State<LabPortalShell> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('$_currentLabId // v4.8.2', style: AppTypography.dataMono),
+                      const Text('LAB-OPS // v4.8.2', style: AppTypography.dataMono),
                       Row(
                         children: [
                           Container(width: 8, height: 8, decoration: const BoxDecoration(color: AppColors.secondary, shape: BoxShape.circle)),
@@ -230,86 +179,20 @@ class _LabPortalShellState extends State<LabPortalShell> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      // Interactive Lab Switcher Dropdown
-                      PopupMenuButton<Map<String, String>>(
-                        tooltip: 'Bấm vào đây để chuyển tiệm Lab',
-                        onSelected: (lab) {
-                          setState(() {
-                            _currentLabId = lab['id']!;
-                            _currentLabName = lab['name']!;
-                            _currentBranch = lab['branch']!;
-                          });
-                        },
-                        itemBuilder: (ctx) => _availableLabs.map((lab) {
-                          final isCurrent = lab['id'] == _currentLabId;
-                          return PopupMenuItem(
-                            value: lab,
-                            child: Row(
-                              children: [
-                                Icon(
-                                  isCurrent ? Icons.check_circle : Icons.storefront_outlined,
-                                  size: 18,
-                                  color: isCurrent ? AppColors.secondary : AppColors.inkMuted,
-                                ),
-                                const SizedBox(width: 8),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Text(
-                                      lab['name']!,
-                                      style: TextStyle(
-                                        fontWeight: isCurrent ? FontWeight.bold : FontWeight.w600,
-                                        color: isCurrent ? AppColors.primary : AppColors.ink,
-                                        fontSize: 13,
-                                      ),
-                                    ),
-                                    Text(
-                                      '${lab['id']} • ${lab['badge']}',
-                                      style: const TextStyle(fontSize: 10, color: AppColors.inkMuted),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          );
-                        }).toList(),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                          decoration: BoxDecoration(
-                            color: AppColors.surfaceSunken,
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
-                          ),
-                          child: Row(
-                            children: [
-                              const Icon(Icons.storefront, size: 16, color: AppColors.primary),
-                              const SizedBox(width: 8),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Row(
-                                    children: [
-                                      Text(_currentLabName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-                                      const SizedBox(width: 6),
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
-                                        decoration: BoxDecoration(
-                                          color: AppColors.successBg,
-                                          borderRadius: BorderRadius.circular(4),
-                                        ),
-                                        child: Text(_currentLabId.toUpperCase(), style: const TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: AppColors.secondary)),
-                                      ),
-                                    ],
-                                  ),
-                                  Text(_currentBranch, style: const TextStyle(fontSize: 10, color: AppColors.inkMuted)),
-                                ],
-                              ),
-                              const SizedBox(width: 10),
-                              const Icon(Icons.swap_horiz, size: 16, color: AppColors.primary),
-                            ],
-                          ),
+                      // Branch Indicator
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: AppColors.surfaceSunken,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: AppColors.outline),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.location_on, size: 16, color: AppColors.primary),
+                            const SizedBox(width: 8),
+                            Text(_currentBranch, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+                          ],
                         ),
                       ),
 
@@ -346,12 +229,12 @@ class _LabPortalShellState extends State<LabPortalShell> {
                                 child: const Text('LAB', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 11)),
                               ),
                               const SizedBox(width: 8),
-                              Column(
+                              const Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(_currentLabName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
-                                  const Text('KỸ THUẬT VIÊN TRỰC CA', style: TextStyle(fontSize: 10, color: AppColors.secondary, fontWeight: FontWeight.bold)),
+                                  Text('CropLab Sài Gòn', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                                  Text('KỸ THUẬT VIÊN TRỰC CA', style: TextStyle(fontSize: 10, color: AppColors.secondary, fontWeight: FontWeight.bold)),
                                 ],
                               ),
                             ],

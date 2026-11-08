@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_typography.dart';
 import 'order_detail_screen.dart';
-import '../../core/services/api_service.dart';
 
 class OrderListScreen extends StatefulWidget {
   const OrderListScreen({super.key});
@@ -12,47 +11,6 @@ class OrderListScreen extends StatefulWidget {
 }
 
 class _OrderListScreenState extends State<OrderListScreen> {
-  @override
-  void initState() {
-    super.initState();
-    _fetchLiveOrders();
-  }
-
-  void _fetchLiveOrders() async {
-    try {
-      final orders = await ApiService().getOrders();
-      if (orders.isNotEmpty && mounted) {
-        setState(() {
-          for (var o in orders) {
-            final existingIndex = _mockOrders.indexWhere((x) => x['id'] == o.orderId);
-            final stepName = o.timeline.isNotEmpty
-                ? o.timeline.lastWhere((s) => s.status == 'IN_PROGRESS' || s.status == 'COMPLETED', orElse: () => o.timeline.first).name
-                : 'Đang xử lý tại Lab';
-            final isCompleted = o.status == 'COMPLETED' || o.status == 'READY_FOR_DOWNLOAD';
-
-            if (existingIndex == -1) {
-              _mockOrders.insert(0, {
-                'id': o.orderId,
-                'lab': o.labName,
-                'film': o.items.isNotEmpty ? o.items[0].filmName : 'Phim 135 Color',
-                'process': o.items.isNotEmpty ? o.items[0].name : 'C-41 Standard',
-                'step': stepName,
-                'status': o.status,
-                'statusLabel': isCompleted ? 'HOÀN TẤT' : 'ĐANG XỬ LÝ',
-                'slaText': 'Dự kiến trả scan trong 24h',
-                'price': '${o.totalAmount.toStringAsFixed(0)}đ',
-                'time': 'Vừa cập nhật',
-              });
-            } else {
-              _mockOrders[existingIndex]['status'] = o.status;
-              _mockOrders[existingIndex]['statusLabel'] = isCompleted ? 'HOÀN TẤT' : 'ĐANG XỬ LÝ';
-              _mockOrders[existingIndex]['step'] = stepName;
-            }
-          }
-        });
-      }
-    } catch (_) {}
-  }
   int _activeTab = 0; // 0 = Tất cả, 1 = Đang xử lý, 2 = Sẵn sàng tải, 3 = Hoàn tất
 
   final List<Map<String, dynamic>> _mockOrders = [
@@ -131,14 +89,7 @@ class _OrderListScreenState extends State<OrderListScreen> {
             ),
           ],
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.sync, size: 20, color: AppColors.primary),
-            tooltip: 'Đồng bộ đơn Live',
-            onPressed: _fetchLiveOrders,
-          ),
-          const SizedBox(width: 8),
-        ],
+        
       ),
       body: Column(
         children: [
@@ -167,7 +118,7 @@ class _OrderListScreenState extends State<OrderListScreen> {
                     child: Text('Không có đơn hàng nào trong mục này', style: AppTypography.bodySmall),
                   )
                 : RefreshIndicator(
-                    onRefresh: () async => _fetchLiveOrders(),
+                    onRefresh: () async => await Future.delayed(const Duration(milliseconds: 300)),
                     child: ListView.separated(
                       physics: const AlwaysScrollableScrollPhysics(),
                       padding: const EdgeInsets.all(16),

@@ -1,19 +1,15 @@
 ﻿import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
-import '../../../core/services/api_service.dart';
 
 class LabKanbanTab extends StatefulWidget {
-  final String? labId;
-  final String? labName;
-  const LabKanbanTab({super.key, this.labId, this.labName});
+  const LabKanbanTab({super.key});
 
   @override
   State<LabKanbanTab> createState() => _LabKanbanTabState();
 }
 
 class _LabKanbanTabState extends State<LabKanbanTab> {
-  bool _isSyncing = false;
   // 5 Columns matching Stitch WEB-LAB-03
   final Map<String, List<Map<String, dynamic>>> _kanbanData = {
     '1. Tiếp nhận': [
@@ -150,115 +146,16 @@ class _LabKanbanTabState extends State<LabKanbanTab> {
     ],
   };
 
-  @override
-  void initState() {
-    super.initState();
-    _fetchLiveKanban();
-  }
-
-  void _fetchLiveKanban({bool showToast = false}) async {
-    setState(() => _isSyncing = true);
-    int addedCount = 0;
-    try {
-      final res = await ApiService().getLabKanban(labId: widget.labId);
-      if (res.isNotEmpty && mounted) {
-        final queue = res['QUEUE'] as List? ?? [];
-        final dev = res['DEVELOPING'] as List? ?? [];
-
-        setState(() {
-          for (var o in queue) {
-            final orderId = (o['order_id'] ?? '').toString();
-            if (orderId.isNotEmpty && !_kanbanData['1. Tiếp nhận']!.any((x) => x['id'] == orderId || x['id'] == '#$orderId')) {
-              _kanbanData['1. Tiếp nhận']!.insert(0, {
-                'id': '#$orderId',
-                'customer': o['pickup_address'] ?? 'Khách đặt qua App',
-                'film': o['items']?[0]?['film_name'] ?? 'Phim 135 Color (C-41)',
-                'tags': ['Đơn Live từ Điện thoại', o['items']?[0]?['name'] ?? 'C-41 Standard'],
-                'slaRemaining': 'còn 23h59',
-                'isUrgent': true,
-                'statusNote': 'Khách vừa đặt từ điện thoại',
-                'nextStep': 'Chuyển Tank →',
-              });
-              addedCount++;
-            }
-          }
-
-          for (var o in dev) {
-            final orderId = (o['order_id'] ?? '').toString();
-            if (orderId.isNotEmpty && 
-                !_kanbanData['2. Tank hóa chất']!.any((x) => x['id'] == orderId || x['id'] == '#$orderId') &&
-                !_kanbanData['1. Tiếp nhận']!.any((x) => x['id'] == orderId || x['id'] == '#$orderId')) {
-              _kanbanData['1. Tiếp nhận']!.insert(0, {
-                'id': '#$orderId',
-                'customer': o['pickup_address'] ?? 'Khách đặt qua App',
-                'film': o['items']?[0]?['film_name'] ?? 'Phim 135 Color (C-41)',
-                'tags': ['Đơn Live từ Điện thoại', o['items']?[0]?['name'] ?? 'C-41 Standard'],
-                'slaRemaining': 'còn 23h59',
-                'isUrgent': true,
-                'statusNote': 'Khách vừa đặt từ điện thoại',
-                'nextStep': 'Chuyển Tank →',
-              });
-              addedCount++;
-            }
-          }
-        });
-
-        if (showToast && mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(addedCount > 0 
-                ? '✅ Đã đồng bộ thành công! Tìm thấy $addedCount đơn hàng mới từ App.' 
-                : 'ℹ️ Đã kết nối Backend: Bảng Kanban đang đồng bộ mới nhất.'),
-              backgroundColor: addedCount > 0 ? AppColors.secondary : AppColors.ink,
-              duration: const Duration(seconds: 3),
-            ),
-          );
-        }
-      } else if (showToast && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('⚠️ Server trả về dữ liệu trống. Kiểm tra tài khoản hoặc đơn hàng.'),
-            backgroundColor: AppColors.warning,
-          ),
-        );
-      }
-    } catch (e) {
-      if (showToast && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('⚠️ Lỗi: Không thể kết nối tới Backend server (Cổng 5000). Vui lòng đảm bảo server Node.js đang chạy!'),
-            backgroundColor: AppColors.danger,
-            duration: Duration(seconds: 4),
-          ),
-        );
-      }
-    } finally {
-      if (mounted) setState(() => _isSyncing = false);
-    }
-  }
-
   void _moveCard(String fromCol, String toCol, Map<String, dynamic> card) {
     setState(() {
       _kanbanData[fromCol]?.remove(card);
       _kanbanData[toCol]?.insert(0, card);
     });
-
-    String backendCol = 'DEVELOPING';
-    if (toCol.contains('Tráng') || toCol.contains('Tank')) {
-      backendCol = 'DEVELOPING';
-    } else if (toCol.contains('Sấy') || toCol.contains('Scan')) {
-      backendCol = 'SCANNING';
-    } else if (toCol.contains('QC') || toCol.contains('Kiểm định')) {
-      backendCol = 'QC';
-    } else if (toCol.contains('Hoàn tất') || toCol.contains('Sẵn sàng')) {
-      backendCol = 'READY';
-    }
-
-    final cleanId = (card['id'] ?? '').toString().replaceAll('#', '');
-    ApiService().updateKanbanStep(cleanId, backendCol);
-
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Đã cập nhật đơn $cleanId sang $toCol lên hệ thống')),
+      SnackBar(
+        content: Text('Đã chuyển đơn ${card['id']} sang $toCol'),
+        duration: const Duration(seconds: 1),
+      ),
     );
   }
 
@@ -276,7 +173,7 @@ class _LabKanbanTabState extends State<LabKanbanTab> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('MINILAB OPS // TIỆM: ' + (widget.labName ?? 'CropLab Hà Nội').toUpperCase() + ' [' + (widget.labId ?? 'LAB-001').toUpperCase() + '] - TỰ ĐỘNG NHẬN ĐƠN TỪ MOBILE APP', style: AppTypography.labelCaps.copyWith(color: AppColors.primary, fontWeight: FontWeight.bold)),
+                  const Text('MINILAB OPS // TRẠM XỬ LÝ TRUNG TÂM', style: AppTypography.labelCaps),
                   const SizedBox(height: 4),
                   Row(
                     children: [
@@ -312,15 +209,9 @@ class _LabKanbanTabState extends State<LabKanbanTab> {
               Row(
                 children: [
                   OutlinedButton.icon(
-                    icon: _isSyncing
-                        ? const SizedBox(
-                            width: 14,
-                            height: 14,
-                            child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.secondary),
-                          )
-                        : const Icon(Icons.sync, size: 16, color: AppColors.secondary),
-                    label: Text(_isSyncing ? 'Đang kết nối Server...' : 'Đồng bộ Đơn Live (Từ App)'),
-                    onPressed: _isSyncing ? null : () => _fetchLiveKanban(showToast: true),
+                    onPressed: () {},
+                    icon: const Icon(Icons.filter_list, size: 16),
+                    label: const Text('Lọc ca trực'),
                   ),
                   const SizedBox(width: 12),
                   ElevatedButton.icon(
