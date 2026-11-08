@@ -7,7 +7,8 @@ class ApiConstants {
 
   static String get baseUrl {
     if (kIsWeb) {
-      return 'http://localhost:$port/api';
+      final host = Uri.base.host.isNotEmpty ? Uri.base.host : 'localhost';
+      return 'http://$host:$port/api';
     }
     // Khi chạy native app trên điện thoại thật kết nối cùng Wi-Fi với máy tính
     return 'http://$serverIp:$port/api';

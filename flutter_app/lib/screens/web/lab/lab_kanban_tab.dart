@@ -13,6 +13,7 @@ class LabKanbanTab extends StatefulWidget {
 }
 
 class _LabKanbanTabState extends State<LabKanbanTab> {
+  bool _isSyncing = false;
   // 5 Columns matching Stitch WEB-LAB-03
   final Map<String, List<Map<String, dynamic>>> _kanbanData = {
     '1. Tiếp nhận': [
@@ -155,11 +156,15 @@ class _LabKanbanTabState extends State<LabKanbanTab> {
     _fetchLiveKanban();
   }
 
-  void _fetchLiveKanban() async {
+  void _fetchLiveKanban({bool showToast = false}) async {
+    setState(() => _isSyncing = true);
+    int addedCount = 0;
     try {
       final res = await ApiService().getLabKanban(labId: widget.labId);
       if (res.isNotEmpty && mounted) {
         final queue = res['QUEUE'] as List? ?? [];
+        final dev = res['DEVELOPING'] as List? ?? [];
+
         setState(() {
           for (var o in queue) {
             final orderId = (o['order_id'] ?? '').toString();
@@ -174,11 +179,62 @@ class _LabKanbanTabState extends State<LabKanbanTab> {
                 'statusNote': 'Khách vừa đặt từ điện thoại',
                 'nextStep': 'Chuyển Tank →',
               });
+              addedCount++;
+            }
+          }
+
+          for (var o in dev) {
+            final orderId = (o['order_id'] ?? '').toString();
+            if (orderId.isNotEmpty && 
+                !_kanbanData['2. Tank hóa chất']!.any((x) => x['id'] == orderId || x['id'] == '#$orderId') &&
+                !_kanbanData['1. Tiếp nhận']!.any((x) => x['id'] == orderId || x['id'] == '#$orderId')) {
+              _kanbanData['1. Tiếp nhận']!.insert(0, {
+                'id': '#$orderId',
+                'customer': o['pickup_address'] ?? 'Khách đặt qua App',
+                'film': o['items']?[0]?['film_name'] ?? 'Phim 135 Color (C-41)',
+                'tags': ['Đơn Live từ Điện thoại', o['items']?[0]?['name'] ?? 'C-41 Standard'],
+                'slaRemaining': 'còn 23h59',
+                'isUrgent': true,
+                'statusNote': 'Khách vừa đặt từ điện thoại',
+                'nextStep': 'Chuyển Tank →',
+              });
+              addedCount++;
             }
           }
         });
+
+        if (showToast && mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(addedCount > 0 
+                ? '✅ Đã đồng bộ thành công! Tìm thấy $addedCount đơn hàng mới từ App.' 
+                : 'ℹ️ Đã kết nối Backend: Bảng Kanban đang đồng bộ mới nhất.'),
+              backgroundColor: addedCount > 0 ? AppColors.secondary : AppColors.ink,
+              duration: const Duration(seconds: 3),
+            ),
+          );
+        }
+      } else if (showToast && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('⚠️ Server trả về dữ liệu trống. Kiểm tra tài khoản hoặc đơn hàng.'),
+            backgroundColor: AppColors.warning,
+          ),
+        );
       }
-    } catch (_) {}
+    } catch (e) {
+      if (showToast && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('⚠️ Lỗi: Không thể kết nối tới Backend server (Cổng 5000). Vui lòng đảm bảo server Node.js đang chạy!'),
+            backgroundColor: AppColors.danger,
+            duration: Duration(seconds: 4),
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isSyncing = false);
+    }
   }
 
   void _moveCard(String fromCol, String toCol, Map<String, dynamic> card) {
@@ -256,9 +312,15 @@ class _LabKanbanTabState extends State<LabKanbanTab> {
               Row(
                 children: [
                   OutlinedButton.icon(
-                    icon: const Icon(Icons.sync, size: 16, color: AppColors.secondary),
-                    label: const Text('Đồng bộ Đơn Live (Từ App)'),
-                    onPressed: _fetchLiveKanban,
+                    icon: _isSyncing
+                        ? const SizedBox(
+                            width: 14,
+                            height: 14,
+                            child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.secondary),
+                          )
+                        : const Icon(Icons.sync, size: 16, color: AppColors.secondary),
+                    label: Text(_isSyncing ? 'Đang kết nối Server...' : 'Đồng bộ Đơn Live (Từ App)'),
+                    onPressed: _isSyncing ? null : () => _fetchLiveKanban(showToast: true),
                   ),
                   const SizedBox(width: 12),
                   ElevatedButton.icon(
