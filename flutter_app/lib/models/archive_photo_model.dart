@@ -6,6 +6,7 @@ class ArchivePhotoModel {
   final String title;
   final String imageUrl;
   final String thumbnailUrl;
+  final String driveLink;
   final String albumName;
   bool isFavorite;
   final String createdAt;
@@ -19,6 +20,7 @@ class ArchivePhotoModel {
     required this.title,
     required this.imageUrl,
     required this.thumbnailUrl,
+    this.driveLink = '',
     required this.albumName,
     required this.isFavorite,
     required this.createdAt,
@@ -34,6 +36,7 @@ class ArchivePhotoModel {
       title: json['title'] ?? 'Ảnh scan',
       imageUrl: json['image_url'] ?? '',
       thumbnailUrl: json['thumbnail_url'] ?? '',
+      driveLink: (json['drive_link'] ?? json['metadata']?['drive_link'] ?? '').toString(),
       albumName: json['album_name'] ?? 'Chung',
       isFavorite: json['is_favorite'] ?? false,
       createdAt: json['created_at'] ?? '',

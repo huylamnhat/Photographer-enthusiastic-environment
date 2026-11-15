@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_typography.dart';
+import '../../core/services/api_service.dart';
 
 class ReviewLabScreen extends StatefulWidget {
   final String? labId;
@@ -20,9 +21,7 @@ class ReviewLabScreen extends StatefulWidget {
 
 class _ReviewLabScreenState extends State<ReviewLabScreen> {
   int _rating = 5;
-  final _commentController = TextEditingController(
-    text: 'Màu scan máy Noritsu rất đẹp và trong trẻo, thời gian xử lý nhanh đúng cam kết SLA 24h.',
-  );
+  final _commentController = TextEditingController();
   bool _submitted = false;
 
   final List<String> _tags = [
@@ -32,7 +31,7 @@ class _ReviewLabScreenState extends State<ReviewLabScreen> {
     'Bao bọc cẩn thận',
     'Tư vấn nhiệt tình',
   ];
-  final Set<String> _selectedTags = {'Màu sắc chuẩn analog', 'Đúng hẹn SLA'};
+  final Set<String> _selectedTags = {};
 
   @override
   Widget build(BuildContext context) {
@@ -192,7 +191,27 @@ class _ReviewLabScreenState extends State<ReviewLabScreen> {
             SizedBox(
               height: 44,
               child: ElevatedButton(
-                onPressed: () => setState(() => _submitted = true),
+                onPressed: () async {
+                  final cleanOrderId = (widget.orderId ?? '').replaceAll('#', '').trim();
+                  final ok = await ApiService().submitReview({
+                    'lab_id': widget.labId ?? 'lab-001',
+                    if (cleanOrderId.isNotEmpty) 'order_id': cleanOrderId,
+                    'rating': _rating,
+                    'comment': _commentController.text.trim(),
+                    'service_name': _selectedTags.join(', '),
+                  });
+                  if (!mounted) return;
+                  if (ok) {
+                    setState(() => _submitted = true);
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        backgroundColor: AppColors.danger,
+                        content: Text('Không thể gửi đánh giá lên máy chủ. Vui lòng thử lại!'),
+                      ),
+                    );
+                  }
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
                   foregroundColor: Colors.white,

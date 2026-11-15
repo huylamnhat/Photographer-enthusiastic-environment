@@ -9,6 +9,7 @@ router.get('/posts/:id', communityController.getPostById);
 router.post('/posts/create', authenticate, communityController.createPost);
 router.post('/posts/:id/comments', authenticate, communityController.addComment);
 router.post('/posts/:id/like', authenticate, communityController.toggleLike);
+router.post('/posts/:id/report', authenticate, communityController.reportPost);
 
 // Events
 router.get('/events', communityController.getAllEvents);

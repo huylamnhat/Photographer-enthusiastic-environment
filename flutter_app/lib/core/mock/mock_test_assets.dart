@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import '../constants/api_constants.dart';
 
 /// Centralized repository for all mock test assets and image references.
 /// Isolates all image paths to this single file per system design requirement.
@@ -75,20 +77,58 @@ class MockTestAssets {
     BoxFit fit = BoxFit.cover,
     BorderRadius? borderRadius,
   }) {
-    Widget img = Image.network(
-      url,
-      width: width,
-      height: height,
-      fit: fit,
-      errorBuilder: (context, error, stackTrace) => Container(
+    Widget img;
+    if (url.startsWith('data:image')) {
+      try {
+        final cleanBase64 = url.split(',').last;
+        final bytes = base64Decode(cleanBase64);
+        img = Image.memory(
+          bytes,
+          width: width,
+          height: height,
+          fit: fit,
+          errorBuilder: (context, error, stackTrace) => Container(
+            width: width,
+            height: height,
+            color: const Color(0xFFF2EFE9),
+            child: const Center(
+              child: Icon(Icons.photo_camera_back, size: 24, color: Color(0xFF5F5A52)),
+            ),
+          ),
+        );
+      } catch (_) {
+        img = Container(
+          width: width,
+          height: height,
+          color: const Color(0xFFF2EFE9),
+          child: const Center(
+            child: Icon(Icons.photo_camera_back, size: 24, color: Color(0xFF5F5A52)),
+          ),
+        );
+      }
+    } else {
+      String resolvedUrl = url;
+      final serverOrigin = ApiConstants.baseUrl.replaceFirst(RegExp(r'/api/v1/?$'), '');
+      if (resolvedUrl.startsWith('http://localhost:5000')) {
+        resolvedUrl = resolvedUrl.replaceFirst('http://localhost:5000', serverOrigin);
+      } else if (resolvedUrl.startsWith('/uploads/')) {
+        resolvedUrl = '$serverOrigin$resolvedUrl';
+      }
+      img = Image.network(
+        resolvedUrl,
         width: width,
         height: height,
-        color: const Color(0xFFF2EFE9),
-        child: const Center(
-          child: Icon(Icons.photo_camera_back, size: 24, color: Color(0xFF5F5A52)),
+        fit: fit,
+        errorBuilder: (context, error, stackTrace) => Container(
+          width: width,
+          height: height,
+          color: const Color(0xFFF2EFE9),
+          child: const Center(
+            child: Icon(Icons.photo_camera_back, size: 24, color: Color(0xFF5F5A52)),
+          ),
         ),
-      ),
-    );
+      );
+    }
 
     if (borderRadius != null) {
       return ClipRRect(borderRadius: borderRadius, child: img);

@@ -80,6 +80,7 @@ class CommentModel {
 class EventModel {
   final String eventId;
   final String organizerName;
+  final String type;
   final String title;
   final String date;
   final String location;
@@ -93,6 +94,7 @@ class EventModel {
   EventModel({
     required this.eventId,
     required this.organizerName,
+    this.type = 'PHOTOWALK',
     required this.title,
     required this.date,
     required this.location,
@@ -105,18 +107,23 @@ class EventModel {
   });
 
   factory EventModel.fromJson(Map<String, dynamic> json) {
+    final rawFee = json['fee'];
+    final feeStr = (rawFee == null || rawFee == 0 || rawFee == '0')
+        ? 'MIỄN PHÍ'
+        : (rawFee is num ? '${rawFee.toInt()}đ / người' : rawFee.toString());
     return EventModel(
-      eventId: json['event_id'] ?? '',
-      organizerName: json['organizer_name'] ?? '',
-      title: json['title'] ?? '',
-      date: json['date'] ?? '',
-      location: json['location'] ?? '',
-      registeredCount: json['registered_count'] ?? 0,
-      maxSlots: json['max_slots'] ?? 30,
-      fee: json['fee'] ?? 'Miễn phí',
-      coverImage: json['cover_image'] ?? '',
-      description: json['description'] ?? '',
-      isRegistered: json['is_registered'] ?? false,
+      eventId: (json['event_id'] ?? '').toString(),
+      organizerName: (json['organizer_name'] ?? json['host_name'] ?? '').toString(),
+      type: (json['type'] ?? 'PHOTOWALK').toString(),
+      title: (json['title'] ?? '').toString(),
+      date: (json['date'] ?? '').toString().split('T').first,
+      location: (json['location'] ?? '').toString(),
+      registeredCount: (json['registered_count'] ?? json['current_participants'] ?? 0) as int,
+      maxSlots: (json['max_slots'] ?? json['max_participants'] ?? 30) as int,
+      fee: feeStr,
+      coverImage: (json['cover_image'] ?? '').toString(),
+      description: (json['description'] ?? '').toString(),
+      isRegistered: json['is_registered'] == true,
     );
   }
 }

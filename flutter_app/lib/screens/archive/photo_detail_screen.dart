@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_typography.dart';
 import '../../core/mock/mock_test_assets.dart';
+import '../../core/utils/local_image_picker.dart';
 import '../../models/archive_photo_model.dart';
 
 class PhotoDetailScreen extends StatefulWidget {
@@ -34,8 +36,15 @@ class _PhotoDetailScreenState extends State<PhotoDetailScreen> {
     final exif = widget.photo != null
         ? '${widget.photo!.metadata.shutterSpeed} • ${widget.photo!.metadata.aperture} • ISO ${widget.photo!.metadata.iso}'
         : (widget.photoData?['exif'] ?? '1/250s • f/2.8 • ISO 400');
-    final dimensions = widget.photo?.metadata.dimensions ?? '6048 x 4032 (24.1 MP)';
-    final fileSize = widget.photo?.metadata.fileSize ?? (widget.photoData?['fileSize'] ?? '18.4 MB TIFF');
+    final dimensions = (widget.photo?.metadata.dimensions.isNotEmpty == true)
+        ? widget.photo!.metadata.dimensions
+        : '1080 x 720 (HD Scan)';
+    final fileSize = widget.photo?.metadata.fileSize ?? (widget.photoData?['fileSize'] ?? '2.4 MB (1080x720)');
+    final driveLink = (widget.photo?.driveLink.isNotEmpty == true &&
+            !widget.photo!.driveLink.contains('1FilmLabArchive') &&
+            !widget.photo!.driveLink.contains('/file/d/'))
+        ? widget.photo!.driveLink
+        : (widget.photoData?['driveLink']?.toString() ?? '');
 
     return Scaffold(
       backgroundColor: Colors.black,
@@ -58,9 +67,11 @@ class _PhotoDetailScreenState extends State<PhotoDetailScreen> {
           ),
           IconButton(
             icon: const Icon(Icons.share_outlined, color: Colors.white, size: 20),
-            onPressed: () {
+            onPressed: () async {
+              final clean = await copyTextSafe(driveLink);
+              if (!mounted) return;
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Đã tạo liên kết chia sẻ bảo mật (hết hạn sau 7 ngày)')),
+                SnackBar(content: Text('Đã sao chép link Google Drive chia sẻ: $clean')),
               );
             },
           ),
@@ -143,7 +154,61 @@ class _PhotoDetailScreenState extends State<PhotoDetailScreen> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 12),
+
+                  // Google Drive Share Link Box (only shown if a Drive link was shared to this customer)
+                  if (driveLink.isNotEmpty) ...[
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFE3F2FD),
+                        borderRadius: BorderRadius.circular(6),
+                        border: Border.all(color: const Color(0xFF1565C0).withValues(alpha: 0.3)),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.add_to_drive, size: 16, color: Color(0xFF1565C0)),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'LINK GOOGLE DRIVE GỬI KHÁCH',
+                                  style: AppTypography.labelCaps.copyWith(fontSize: 8, color: const Color(0xFF1565C0)),
+                                ),
+                                SelectableText(
+                                  sanitizeGoogleDriveUrl(driveLink),
+                                  style: AppTypography.dataMono.copyWith(fontSize: 10, color: const Color(0xFF0D47A1), fontWeight: FontWeight.bold),
+                                ),
+                              ],
+                            ),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.open_in_new, size: 16, color: Color(0xFF1565C0)),
+                            padding: const EdgeInsets.only(right: 8),
+                            constraints: const BoxConstraints(),
+                            onPressed: () {
+                              openUrlInNewTab(driveLink);
+                            },
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.copy, size: 16, color: Color(0xFF1565C0)),
+                            padding: EdgeInsets.zero,
+                            constraints: const BoxConstraints(),
+                            onPressed: () async {
+                              final clean = await copyTextSafe(driveLink);
+                              if (!mounted) return;
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('Đã sao chép link Google Drive: $clean')),
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                  ],
 
                   // Download Original File Button
                   SizedBox(

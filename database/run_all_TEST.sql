@@ -1,4 +1,4 @@
-﻿-- FILMLAB ISSUE #21 - FRESH TEST DATABASE ONLY
+-- FILMLAB ISSUE #21 - FRESH TEST DATABASE ONLY
 -- KHONG CHAY TREN FilmLabPlatform. KHONG XOA DATABASE.
 USE master;
 GO
@@ -13,8 +13,6 @@ IF DB_ID(N'FilmLabPlatform_Test') IS NULL
     EXEC(N'CREATE DATABASE FilmLabPlatform_Test COLLATE Vietnamese_100_CI_AS');
 GO
 USE FilmLabPlatform_Test;
-GO
-
 GO
 
 -- ===============================================
@@ -37,11 +35,14 @@ CREATE TABLE Roles (
 -- 2. Users
 CREATE TABLE Users (
     user_id        INT IDENTITY(1,1) NOT NULL,
+    user_code      VARCHAR(30)    NULL,               -- Mã định danh đồng bộ App/Backend (VD: usr-001)
     email          NVARCHAR(255)  NOT NULL,
     phone          VARCHAR(20)    NULL,
     password_hash  VARCHAR(255)   NOT NULL,           -- bcrypt/argon2, KHÔNG lưu mật khẩu thô
     full_name      NVARCHAR(150)  NOT NULL,
     avatar_url     VARCHAR(500)   NULL,
+    address_text   NVARCHAR(500)  NULL,               -- Địa chỉ hiển thị nhanh trên hồ sơ
+    bio            NVARCHAR(2000) NULL,               -- Giới thiệu ngắn của người dùng/chuyên gia
     status         VARCHAR(20)    NOT NULL CONSTRAINT DF_Users_Status DEFAULT 'PENDING_VERIFY',
     email_verified BIT            NOT NULL CONSTRAINT DF_Users_EmailVerified DEFAULT 0,
     locked_reason  NVARCHAR(500)  NULL,
@@ -58,6 +59,7 @@ CREATE TABLE Users (
     CONSTRAINT CK_Users_Locked CHECK (status <> 'LOCKED' OR (locked_at IS NOT NULL AND locked_by IS NOT NULL))
 );
 CREATE UNIQUE INDEX UX_Users_Phone ON Users(phone) WHERE phone IS NOT NULL;
+CREATE UNIQUE INDEX UX_Users_Code  ON Users(user_code) WHERE user_code IS NOT NULL;
 
 -- 3. User_Roles (N-N: User <-> Role)
 CREATE TABLE User_Roles (
@@ -127,7 +129,6 @@ CREATE TABLE Delivery_Partner_Profile (
     CONSTRAINT CK_DP_Status   CHECK (approval_status IN ('PENDING','APPROVED','REJECTED','SUSPENDED')),
     CONSTRAINT CK_DP_Rating   CHECK (avg_rating BETWEEN 0 AND 5)
 );
-
 GO
 
 -- ===============================================
@@ -170,11 +171,14 @@ CREATE TABLE Film_Stock (
 -- 8. Lab_Profile
 CREATE TABLE Lab_Profile (
     lab_id              INT IDENTITY(1,1) NOT NULL,
+    lab_code            VARCHAR(30)    NULL,               -- Mã định danh đồng bộ App/Backend (VD: lab-001)
     owner_id            INT            NOT NULL,
     lab_name            NVARCHAR(200)  NOT NULL,
     slug                VARCHAR(220)   NOT NULL,
+    tagline             NVARCHAR(300)  NULL,               -- Khẩu hiệu hiển thị trên App/Web
     description         NVARCHAR(2000) NULL,
     phone               VARCHAR(20)    NOT NULL,
+    email               NVARCHAR(255)  NULL,
     province            NVARCHAR(100)  NOT NULL,
     district            NVARCHAR(100)  NOT NULL,
     street_address      NVARCHAR(255)  NOT NULL,
@@ -186,10 +190,15 @@ CREATE TABLE Lab_Profile (
     cover_url           VARCHAR(500)   NULL,
     opening_time        TIME(0)        NULL,
     closing_time        TIME(0)        NULL,
+    turnaround_hours    SMALLINT       NOT NULL CONSTRAINT DF_Lab_Turnaround DEFAULT 12,
+    price_range         NVARCHAR(100)  NULL,
+    scanner_models      NVARCHAR(500)  NULL,               -- Danh sách máy scan (JSON/text)
+    supported_processes NVARCHAR(500)  NULL,               -- Danh sách quy trình tráng hỗ trợ
     supports_pickup     BIT            NOT NULL CONSTRAINT DF_Lab_Pickup DEFAULT 0,
     avg_rating          DECIMAL(3,2)   NOT NULL CONSTRAINT DF_Lab_Rating DEFAULT 0,   -- denormalized, cập nhật bằng trigger/job
     review_count        INT            NOT NULL CONSTRAINT DF_Lab_RvCount DEFAULT 0,  -- denormalized
     approval_status     VARCHAR(20)    NOT NULL CONSTRAINT DF_Lab_Approval DEFAULT 'PENDING',
+    inspection_note     NVARCHAR(1000) NULL,
     reviewed_by         INT            NULL,
     reviewed_at         DATETIME2(0)   NULL,
     reject_reason       NVARCHAR(500)  NULL,
@@ -205,6 +214,7 @@ CREATE TABLE Lab_Profile (
     CONSTRAINT CK_Lab_Reject CHECK (approval_status <> 'REJECTED' OR reject_reason IS NOT NULL)
 );
 CREATE UNIQUE INDEX UX_Lab_License ON Lab_Profile(business_license_no) WHERE business_license_no IS NOT NULL;
+CREATE UNIQUE INDEX UX_Lab_Code    ON Lab_Profile(lab_code) WHERE lab_code IS NOT NULL;
 
 -- 9. Lab_Film_Format (N-N)
 CREATE TABLE Lab_Film_Format (
@@ -218,6 +228,7 @@ CREATE TABLE Lab_Film_Format (
 -- 10. Service_Package
 CREATE TABLE Service_Package (
     package_id           INT IDENTITY(1,1) NOT NULL,
+    package_code         VARCHAR(30)    NULL,        -- Mã gói đồng bộ App/Backend (VD: pkg-001)
     lab_id               INT            NOT NULL,
     service_type         VARCHAR(20)    NOT NULL,
     name                 NVARCHAR(200)  NOT NULL,
@@ -225,11 +236,13 @@ CREATE TABLE Service_Package (
     format_id            SMALLINT       NOT NULL,
     process_type_id      SMALLINT       NULL,        -- NULL khi chỉ scan
     scan_quality         VARCHAR(20)    NULL,        -- NULL khi chỉ tráng
+    scan_resolution      NVARCHAR(100)  NULL,        -- VD: M (3000x2000px), L (6000x4000px TIFF)
     scan_dpi             SMALLINT       NULL,
     output_format        VARCHAR(20)    NULL,
     price                DECIMAL(15,2)  NOT NULL,
     price_unit           VARCHAR(20)    NOT NULL CONSTRAINT DF_SP_Unit DEFAULT 'PER_ROLL',
-    est_processing_days  TINYINT        NOT NULL,
+    est_processing_days  TINYINT        NOT NULL CONSTRAINT DF_SP_Days DEFAULT 1,
+    estimated_hours      SMALLINT       NOT NULL CONSTRAINT DF_SP_Hours DEFAULT 12,
     is_active            BIT            NOT NULL CONSTRAINT DF_SP_Active DEFAULT 1,
     created_at           DATETIME2(0)   NOT NULL CONSTRAINT DF_SP_Created DEFAULT SYSUTCDATETIME(),
     updated_at           DATETIME2(0)   NOT NULL CONSTRAINT DF_SP_Updated DEFAULT SYSUTCDATETIME(),
@@ -252,7 +265,7 @@ CREATE TABLE Service_Package (
         (service_type = 'PRINT')
     )
 );
-
+CREATE UNIQUE INDEX UX_SP_Code ON Service_Package(package_code) WHERE package_code IS NOT NULL;
 GO
 
 -- ===============================================
@@ -263,18 +276,23 @@ GO
 -- 13. Orders
 CREATE TABLE Orders (
     order_id                BIGINT IDENTITY(1,1) NOT NULL,
-    order_code              VARCHAR(20)   NOT NULL,                 -- VD: FL-20261027-0001
+    order_code              VARCHAR(20)   NOT NULL,                 -- VD: ORD-2026-8801
     customer_id             INT           NOT NULL,
     lab_id                  INT           NOT NULL,
     status                  VARCHAR(25)   NOT NULL CONSTRAINT DF_Orders_Status DEFAULT 'PENDING_PAYMENT',
+    kanban_column           VARCHAR(20)   NOT NULL CONSTRAINT DF_Orders_Kanban DEFAULT 'QUEUE',
     receive_method          VARCHAR(20)   NOT NULL,
-    return_method           VARCHAR(20)   NOT NULL,
+    return_method           VARCHAR(20)   NOT NULL CONSTRAINT DF_Orders_Return DEFAULT 'DIGITAL_ONLY',
+    pickup_address          NVARCHAR(500) NULL,
+    payment_status          VARCHAR(20)   NOT NULL CONSTRAINT DF_Orders_PayStatus DEFAULT 'PENDING',
+    payment_method          VARCHAR(20)   NULL,
     subtotal                DECIMAL(15,2) NOT NULL CONSTRAINT DF_Orders_Sub DEFAULT 0,
     shipping_fee            DECIMAL(15,2) NOT NULL CONSTRAINT DF_Orders_Ship DEFAULT 0,
     platform_fee            DECIMAL(15,2) NOT NULL CONSTRAINT DF_Orders_Fee DEFAULT 0,
     discount_amount         DECIMAL(15,2) NOT NULL CONSTRAINT DF_Orders_Disc DEFAULT 0,
     total_amount            DECIMAL(15,2) NOT NULL CONSTRAINT DF_Orders_Total DEFAULT 0,
     expected_completion_date DATE         NULL,
+    sla_deadline            DATETIME2(0)  NULL,
     customer_note           NVARCHAR(1000) NULL,
     cancel_reason           NVARCHAR(500) NULL,
     cancelled_by            INT           NULL,
@@ -290,8 +308,10 @@ CREATE TABLE Orders (
     CONSTRAINT FK_Orders_CancelBy FOREIGN KEY (cancelled_by) REFERENCES Users(user_id),
     CONSTRAINT CK_Orders_Status CHECK (status IN (
         'PENDING_PAYMENT','PENDING_LAB_CONFIRM','PICKING_UP','RECEIVED_AT_LAB',
-        'PROCESSING','COMPLETED','DELIVERING','CLOSED','CANCELLED')),
-    CONSTRAINT CK_Orders_Receive CHECK (receive_method IN ('SELF_DROP_OFF','PICKUP')),
+        'PROCESSING','COMPLETED','DELIVERING','CLOSED','CANCELLED',
+        'PENDING_FILM','RECEIVED','DRYING','SCANNING','QC_CHECK','READY_FOR_DOWNLOAD')),
+    CONSTRAINT CK_Orders_Kanban CHECK (kanban_column IN ('QUEUE','DEVELOPING','SCANNING','QC','READY')),
+    CONSTRAINT CK_Orders_Receive CHECK (receive_method IN ('SELF_DROP_OFF','DROP_AT_LAB','PICKUP')),
     CONSTRAINT CK_Orders_Return  CHECK (return_method  IN ('SELF_PICKUP','DELIVERY','DIGITAL_ONLY')),
     CONSTRAINT CK_Orders_Money   CHECK (subtotal >= 0 AND shipping_fee >= 0 AND platform_fee >= 0
                                         AND discount_amount >= 0 AND total_amount >= 0),
@@ -302,12 +322,17 @@ CREATE TABLE Orders (
 -- 14. Order_Item
 CREATE TABLE Order_Item (
     order_item_id BIGINT IDENTITY(1,1) NOT NULL,
+    item_code     VARCHAR(30)   NULL,                                       -- VD: item-101
     order_id      BIGINT        NOT NULL,
     package_id    INT           NOT NULL,
     film_stock_id INT           NULL,
+    film_name     NVARCHAR(150) NULL,                                       -- Tên film hiển thị (VD: Kodak Portra 400)
+    roll_code     VARCHAR(50)   NULL,                                       -- Mã cuộn (VD: ROLL-PORTRA400-01)
     quantity      SMALLINT      NOT NULL CONSTRAINT DF_OI_Qty DEFAULT 1,   -- số cuộn
     unit_price    DECIMAL(15,2) NOT NULL,                                   -- snapshot giá tại thời điểm đặt
     line_total    DECIMAL(15,2) NOT NULL,
+    push_pull     NVARCHAR(50)  NULL,                                       -- Normal / +1 Stop / +2 Stops
+    cut_negatives NVARCHAR(100) NULL,                                       -- Cắt 6 frames/dải / Để nguyên cuộn
     note          NVARCHAR(500) NULL,
     status        VARCHAR(20)   NOT NULL CONSTRAINT DF_OI_Status DEFAULT 'PENDING',
     CONSTRAINT PK_Order_Item PRIMARY KEY (order_item_id),
@@ -337,7 +362,7 @@ CREATE TABLE Order_Status_History (
 CREATE TABLE Payment (
     payment_id      BIGINT IDENTITY(1,1) NOT NULL,
     order_id        BIGINT        NOT NULL,
-    gateway         VARCHAR(10)   NOT NULL,
+    gateway         VARCHAR(20)   NOT NULL,
     txn_ref         VARCHAR(64)   NOT NULL,          -- mã tham chiếu gửi sang cổng
     gateway_txn_no  VARCHAR(64)   NULL,              -- mã giao dịch phía VNPay/MoMo
     amount          DECIMAL(15,2) NOT NULL,
@@ -349,12 +374,11 @@ CREATE TABLE Payment (
     CONSTRAINT PK_Payment PRIMARY KEY (payment_id),
     CONSTRAINT UQ_Payment_TxnRef UNIQUE (txn_ref),     -- chống xử lý trùng callback (idempotent)
     CONSTRAINT FK_Payment_Order FOREIGN KEY (order_id) REFERENCES Orders(order_id),
-    CONSTRAINT CK_Payment_Gateway CHECK (gateway IN ('VNPAY','MOMO')),
-    CONSTRAINT CK_Payment_Status  CHECK (status IN ('PENDING','SUCCESS','FAILED','CANCELLED','REFUNDED')),
+    CONSTRAINT CK_Payment_Gateway CHECK (gateway IN ('VNPAY','MOMO','BANK_TRANSFER')),
+    CONSTRAINT CK_Payment_Status  CHECK (status IN ('PENDING','SUCCESS','PAID','FAILED','CANCELLED','REFUNDED')),
     CONSTRAINT CK_Payment_Amount  CHECK (amount > 0),
-    CONSTRAINT CK_Payment_Paid    CHECK (status <> 'SUCCESS' OR paid_at IS NOT NULL)
+    CONSTRAINT CK_Payment_Paid    CHECK (status NOT IN ('SUCCESS','PAID') OR paid_at IS NOT NULL)
 );
-
 GO
 
 -- ===============================================
@@ -428,8 +452,11 @@ CREATE UNIQUE INDEX UX_DFA_OrderItem ON Digital_Film_Archive(order_item_id) WHER
 -- 23. Archive_Photo
 CREATE TABLE Archive_Photo (
     photo_id      BIGINT IDENTITY(1,1) NOT NULL,
+    photo_code    VARCHAR(30)   NULL,               -- Mã định danh đồng bộ App/Backend (VD: pho-001)
     archive_id    BIGINT        NOT NULL,
     scan_file_id  BIGINT        NULL,               -- liên kết với file gốc do Lab giao
+    roll_code     VARCHAR(50)   NULL,               -- Mã cuộn film hiển thị trên App
+    title         NVARCHAR(200) NULL,               -- Tiêu đề bức ảnh
     file_name     NVARCHAR(255) NOT NULL,
     storage_key   VARCHAR(500)  NOT NULL,           -- đường dẫn file scan gốc trong File Storage
     thumbnail_key VARCHAR(500)  NULL,               -- đường dẫn ảnh thu nhỏ (/uploads/thumbnails/...)
@@ -448,6 +475,7 @@ CREATE TABLE Archive_Photo (
     CONSTRAINT CK_AP_Size    CHECK (size_bytes > 0)
 );
 CREATE UNIQUE INDEX UX_AP_ScanFile ON Archive_Photo(scan_file_id) WHERE scan_file_id IS NOT NULL;
+CREATE UNIQUE INDEX UX_AP_Code     ON Archive_Photo(photo_code)   WHERE photo_code IS NOT NULL;
 
 -- 24. Photo_Metadata (1-1 với Archive_Photo)
 CREATE TABLE Photo_Metadata (
@@ -455,6 +483,7 @@ CREATE TABLE Photo_Metadata (
     camera_brand     NVARCHAR(100) NULL,
     camera_model     NVARCHAR(100) NULL,
     lens             NVARCHAR(150) NULL,
+    focal_length     VARCHAR(20)   NULL,            -- '35mm', '50mm'
     film_stock_id    INT           NULL,
     iso              SMALLINT      NULL,
     aperture         DECIMAL(4,1)  NULL,            -- f/1.4 .. f/32
@@ -492,7 +521,6 @@ CREATE TABLE Photo_Tag (
     CONSTRAINT FK_PT_Photo FOREIGN KEY (photo_id) REFERENCES Archive_Photo(photo_id) ON DELETE CASCADE,
     CONSTRAINT FK_PT_Tag   FOREIGN KEY (tag_id)   REFERENCES Tag(tag_id) ON DELETE CASCADE
 );
-
 GO
 
 -- ===============================================
@@ -503,20 +531,21 @@ GO
 -- 18. Dispute_Complaint (tạo trước Refund vì Refund tham chiếu)
 CREATE TABLE Dispute_Complaint (
     dispute_id             BIGINT IDENTITY(1,1) NOT NULL,
-    dispute_code           VARCHAR(20)   NOT NULL,
-    order_id               BIGINT        NOT NULL,
-    complainant_id         INT           NOT NULL,
-    reason_type            VARCHAR(20)   NOT NULL,
+    dispute_code           VARCHAR(20)    NOT NULL,
+    order_id               BIGINT         NOT NULL,
+    complainant_id         INT            NOT NULL,
+    reason_type            VARCHAR(20)    NOT NULL,
+    issue_title            NVARCHAR(200)  NULL,
     description            NVARCHAR(2000) NOT NULL,
-    requested_amount       DECIMAL(15,2) NULL,
-    status                 VARCHAR(20)   NOT NULL CONSTRAINT DF_Disp_Status DEFAULT 'OPEN',
-    negotiation_deadline   DATETIME2(0)  NULL,
-    assigned_admin_id      INT           NULL,
-    approved_refund_amount DECIMAL(15,2) NULL,
+    requested_amount       DECIMAL(15,2)  NULL,
+    status                 VARCHAR(20)    NOT NULL CONSTRAINT DF_Disp_Status DEFAULT 'OPEN',
+    negotiation_deadline   DATETIME2(0)   NULL,
+    assigned_admin_id      INT            NULL,
+    approved_refund_amount DECIMAL(15,2)  NULL,
     decision_note          NVARCHAR(1000) NULL,
-    created_at             DATETIME2(0)  NOT NULL CONSTRAINT DF_Disp_Created DEFAULT SYSUTCDATETIME(),
-    escalated_at           DATETIME2(0)  NULL,
-    resolved_at            DATETIME2(0)  NULL,
+    created_at             DATETIME2(0)   NOT NULL CONSTRAINT DF_Disp_Created DEFAULT SYSUTCDATETIME(),
+    escalated_at           DATETIME2(0)   NULL,
+    resolved_at            DATETIME2(0)   NULL,
     CONSTRAINT PK_Dispute_Complaint PRIMARY KEY (dispute_id),
     CONSTRAINT UQ_Dispute_Code UNIQUE (dispute_code),
     CONSTRAINT FK_Disp_Order FOREIGN KEY (order_id)          REFERENCES Orders(order_id),
@@ -525,7 +554,7 @@ CREATE TABLE Dispute_Complaint (
     CONSTRAINT CK_Disp_Reason CHECK (reason_type IN
         ('QUALITY','LOST_FILM','DAMAGED_FILM','LATE','WRONG_SERVICE','OTHER')),
     CONSTRAINT CK_Disp_Status CHECK (status IN
-        ('OPEN','NEGOTIATING','ESCALATED','RESOLVED_REFUNDED','RESOLVED_REJECTED','WITHDRAWN','CLOSED')),
+        ('OPEN','NEGOTIATING','ESCALATED','RESOLVED','REFUNDED','RESOLVED_REFUNDED','RESOLVED_REJECTED','WITHDRAWN','CLOSED')),
     CONSTRAINT CK_Disp_Amount CHECK (requested_amount IS NULL OR requested_amount >= 0),
     CONSTRAINT CK_Disp_Approved CHECK (approved_refund_amount IS NULL OR approved_refund_amount >= 0),
     CONSTRAINT CK_Disp_Escalate CHECK (status <> 'ESCALATED' OR escalated_at IS NOT NULL)
@@ -669,7 +698,6 @@ CREATE TABLE System_Config (
     CONSTRAINT PK_System_Config PRIMARY KEY (config_key),
     CONSTRAINT FK_SC_User FOREIGN KEY (updated_by) REFERENCES Users(user_id)
 );
-
 GO
 
 -- ===============================================
@@ -690,6 +718,7 @@ CREATE TABLE Equipment_Category (
 -- 28. Equipment_Listing
 CREATE TABLE Equipment_Listing (
     listing_id      BIGINT IDENTITY(1,1) NOT NULL,
+    listing_code    VARCHAR(30)    NULL,            -- Mã tin đăng đồng bộ App/Backend (VD: mkt-001)
     seller_id       INT            NOT NULL,
     category_id     INT            NOT NULL,
     listing_type    VARCHAR(10)    NOT NULL CONSTRAINT DF_EL_Type DEFAULT 'SELL',
@@ -698,6 +727,7 @@ CREATE TABLE Equipment_Listing (
     brand           NVARCHAR(100)  NULL,
     model           NVARCHAR(100)  NULL,
     item_condition  VARCHAR(15)    NOT NULL,
+    condition_note  NVARCHAR(255)  NULL,            -- Mô tả tình trạng chi tiết (VD: 98% Sưu tầm)
     price           DECIMAL(15,2)  NULL,            -- NULL khi chỉ trao đổi
     is_negotiable   BIT            NOT NULL CONSTRAINT DF_EL_Neg DEFAULT 0,
     location_text   NVARCHAR(255)  NULL,
@@ -718,11 +748,12 @@ CREATE TABLE Equipment_Listing (
     CONSTRAINT CK_EL_Type   CHECK (listing_type IN ('SELL','TRADE','BUY')),
     CONSTRAINT CK_EL_Cond   CHECK (item_condition IN ('NEW','LIKE_NEW','GOOD','FAIR','FOR_PARTS')),
     CONSTRAINT CK_EL_Status CHECK (status IN
-        ('PENDING_APPROVAL','ACTIVE','REJECTED','SOLD','EXPIRED','HIDDEN')),
+        ('PENDING_APPROVAL','PENDING_REVIEW','ACTIVE','REJECTED','SOLD','EXPIRED','HIDDEN')),
     CONSTRAINT CK_EL_Price  CHECK (price IS NULL OR price >= 0),
     CONSTRAINT CK_EL_PriceReq CHECK (listing_type = 'TRADE' OR price IS NOT NULL),
     CONSTRAINT CK_EL_Reject CHECK (status <> 'REJECTED' OR reject_reason IS NOT NULL)
 );
+CREATE UNIQUE INDEX UX_EL_Code ON Equipment_Listing(listing_code) WHERE listing_code IS NOT NULL;
 
 -- 29. Listing_Image
 CREATE TABLE Listing_Image (
@@ -764,10 +795,12 @@ CREATE TABLE Marketplace_Transaction (
 -- 32. Review (đánh giá Lab hoặc Người bán)
 CREATE TABLE Review (
     review_id    BIGINT IDENTITY(1,1) NOT NULL,
+    review_code  VARCHAR(30)    NULL,     -- VD: rev-001
     reviewer_id  INT            NOT NULL,
     review_type  VARCHAR(10)    NOT NULL,
     order_id     BIGINT         NULL,     -- khi review_type = 'LAB'
     txn_id       BIGINT         NULL,     -- khi review_type = 'SELLER'
+    service_name NVARCHAR(200)  NULL,     -- Tên gói dịch vụ đã đánh giá
     rating       TINYINT        NOT NULL,
     comment      NVARCHAR(2000) NULL,
     reply_text   NVARCHAR(1000) NULL,     -- Lab/Seller phản hồi
@@ -791,6 +824,7 @@ CREATE TABLE Review (
 -- Mỗi đơn / mỗi giao dịch chỉ được đánh giá 1 lần
 CREATE UNIQUE INDEX UX_Review_Order ON Review(order_id) WHERE order_id IS NOT NULL;
 CREATE UNIQUE INDEX UX_Review_Txn   ON Review(txn_id)   WHERE txn_id   IS NOT NULL;
+CREATE UNIQUE INDEX UX_Review_Code  ON Review(review_code) WHERE review_code IS NOT NULL;
 
 -- 33. Post_Category
 CREATE TABLE Post_Category (
@@ -805,6 +839,7 @@ CREATE TABLE Post_Category (
 -- 34. Post_Article (hậu kiểm bởi Admin)
 CREATE TABLE Post_Article (
     post_id          BIGINT IDENTITY(1,1) NOT NULL,
+    post_code        VARCHAR(30)    NULL,            -- VD: post-001
     author_id        INT            NOT NULL,
     post_category_id INT            NULL,
     post_type        VARCHAR(10)    NOT NULL,
@@ -813,7 +848,11 @@ CREATE TABLE Post_Article (
     summary          NVARCHAR(500)  NULL,
     content          NVARCHAR(MAX)  NOT NULL,
     cover_image_url  VARCHAR(500)   NULL,
-    status           VARCHAR(10)    NOT NULL CONSTRAINT DF_Post_Status DEFAULT 'DRAFT',
+    likes_count      INT            NOT NULL CONSTRAINT DF_Post_Likes DEFAULT 0,
+    comments_count   INT            NOT NULL CONSTRAINT DF_Post_Comments DEFAULT 0,
+    report_count     INT            NOT NULL CONSTRAINT DF_Post_Reports DEFAULT 0,
+    report_reason    NVARCHAR(500)  NULL,
+    status           VARCHAR(15)    NOT NULL CONSTRAINT DF_Post_Status DEFAULT 'DRAFT',
     moderated_by     INT            NULL,
     moderation_note  NVARCHAR(500)  NULL,
     view_count       INT            NOT NULL CONSTRAINT DF_Post_Views DEFAULT 0,
@@ -826,9 +865,10 @@ CREATE TABLE Post_Article (
     CONSTRAINT FK_Post_Category FOREIGN KEY (post_category_id) REFERENCES Post_Category(post_category_id),
     CONSTRAINT FK_Post_Mod      FOREIGN KEY (moderated_by)     REFERENCES Users(user_id),
     CONSTRAINT CK_Post_Type   CHECK (post_type IN ('ARTICLE','TUTORIAL','REVIEW','QNA')),
-    CONSTRAINT CK_Post_Status CHECK (status IN ('DRAFT','PUBLISHED','HIDDEN','REMOVED')),
+    CONSTRAINT CK_Post_Status CHECK (status IN ('DRAFT','PUBLISHED','ACTIVE','REPORTED','HIDDEN','REMOVED')),
     CONSTRAINT CK_Post_Pub    CHECK (status <> 'PUBLISHED' OR published_at IS NOT NULL)
 );
+CREATE UNIQUE INDEX UX_Post_Code ON Post_Article(post_code) WHERE post_code IS NOT NULL;
 
 -- 35. Post_Tag (N-N)
 CREATE TABLE Post_Tag (
@@ -842,6 +882,7 @@ CREATE TABLE Post_Tag (
 -- 36. Post_Comment (bình luận lồng nhau)
 CREATE TABLE Post_Comment (
     comment_id        BIGINT IDENTITY(1,1) NOT NULL,
+    comment_code      VARCHAR(30)    NULL,
     post_id           BIGINT         NOT NULL,
     user_id           INT            NOT NULL,
     parent_comment_id BIGINT         NULL,
@@ -857,18 +898,20 @@ CREATE TABLE Post_Comment (
 
 -- 37. Event (Workshop / Photowalk)
 CREATE TABLE Event (
-    event_id    INT IDENTITY(1,1) NOT NULL,
-    host_id     INT            NOT NULL,
-    event_type  VARCHAR(10)    NOT NULL,
-    title       NVARCHAR(250)  NOT NULL,
-    description NVARCHAR(4000) NULL,
-    venue       NVARCHAR(255)  NOT NULL,
-    start_at    DATETIME2(0)   NOT NULL,
-    end_at      DATETIME2(0)   NOT NULL,
-    capacity    SMALLINT       NOT NULL,
-    fee         DECIMAL(15,2)  NOT NULL CONSTRAINT DF_Event_Fee DEFAULT 0,
-    status      VARCHAR(10)    NOT NULL CONSTRAINT DF_Event_Status DEFAULT 'DRAFT',
-    created_at  DATETIME2(0)   NOT NULL CONSTRAINT DF_Event_Created DEFAULT SYSUTCDATETIME(),
+    event_id        INT IDENTITY(1,1) NOT NULL,
+    event_code      VARCHAR(30)    NULL,            -- VD: evt-001
+    host_id         INT            NOT NULL,
+    event_type      VARCHAR(10)    NOT NULL,
+    title           NVARCHAR(250)  NOT NULL,
+    description     NVARCHAR(4000) NULL,
+    venue           NVARCHAR(255)  NOT NULL,
+    cover_image_url VARCHAR(500)   NULL,
+    start_at        DATETIME2(0)   NOT NULL,
+    end_at          DATETIME2(0)   NOT NULL,
+    capacity        SMALLINT       NOT NULL,
+    fee             DECIMAL(15,2)  NOT NULL CONSTRAINT DF_Event_Fee DEFAULT 0,
+    status          VARCHAR(10)    NOT NULL CONSTRAINT DF_Event_Status DEFAULT 'DRAFT',
+    created_at      DATETIME2(0)   NOT NULL CONSTRAINT DF_Event_Created DEFAULT SYSUTCDATETIME(),
     CONSTRAINT PK_Event PRIMARY KEY (event_id),
     CONSTRAINT FK_Event_Host FOREIGN KEY (host_id) REFERENCES Users(user_id),
     CONSTRAINT CK_Event_Type   CHECK (event_type IN ('WORKSHOP','PHOTOWALK')),
@@ -877,6 +920,7 @@ CREATE TABLE Event (
     CONSTRAINT CK_Event_Cap    CHECK (capacity > 0),
     CONSTRAINT CK_Event_Fee    CHECK (fee >= 0)
 );
+CREATE UNIQUE INDEX UX_Event_Code ON Event(event_code) WHERE event_code IS NOT NULL;
 
 -- 38. Event_Registration (N-N)
 CREATE TABLE Event_Registration (
@@ -891,7 +935,6 @@ CREATE TABLE Event_Registration (
     CONSTRAINT FK_ER_User  FOREIGN KEY (user_id)  REFERENCES Users(user_id),
     CONSTRAINT CK_ER_Status CHECK (status IN ('REGISTERED','CANCELLED','ATTENDED'))
 );
-
 GO
 
 -- ===============================================
@@ -933,7 +976,6 @@ CREATE INDEX IX_Disp_Status     ON Dispute_Complaint(status, created_at);
 CREATE INDEX IX_Disp_Order      ON Dispute_Complaint(order_id);
 CREATE INDEX IX_Notif_User      ON Notification(user_id, is_read, created_at DESC);
 CREATE INDEX IX_Audit_Entity    ON Audit_Log(entity_name, entity_id, created_at DESC);
-
 GO
 
 -- ===============================================
@@ -941,6 +983,10 @@ GO
 -- ===============================================
 USE FilmLabPlatform_Test;
 GO
+
+-- =====================================================================
+-- 1. SEED DANH MỤC HỆ THỐNG CỐ ĐỊNH
+-- =====================================================================
 INSERT INTO Roles (role_id, role_code, role_name, description) VALUES
 (1, 'CUSTOMER',         N'Khách hàng / Nhiếp ảnh gia', N'Đặt dịch vụ, quản lý Archive, mua bán thiết bị'),
 (2, 'LAB_OWNER',        N'Chủ Film Lab',               N'Quản lý dịch vụ, đơn hàng, upload file scan'),
@@ -948,7 +994,7 @@ INSERT INTO Roles (role_id, role_code, role_name, description) VALUES
 (4, 'DELIVERY_PARTNER', N'Đối tác vận chuyển',         N'Nhận đơn pickup, giao nhận film'),
 (5, 'ADMIN',            N'Quản trị hệ thống',          N'Duyệt lab, kiểm duyệt, xử lý khiếu nại');
 
-INSERT INTO Film_Format (name) VALUES ('35mm'),('120'),('110'),('APS'),('4x5'),('8x10');
+INSERT INTO Film_Format (name) VALUES ('135'),('35mm'),('120'),('220'),('110'),('APS'),('4x5'),('8x10');
 
 INSERT INTO Process_Type (code, name) VALUES
 ('C41',  N'C-41 (Phim màu âm bản)'),
@@ -957,23 +1003,389 @@ INSERT INTO Process_Type (code, name) VALUES
 ('ECN2', N'ECN-2 (Phim điện ảnh)'),
 ('XPRO', N'Cross-process');
 
+INSERT INTO Film_Stock (brand, name, iso, format_id, film_type) VALUES
+(N'Kodak',    N'Kodak Portra 400',     400, 1, 'COLOR_NEG'),
+(N'Fujifilm', N'Fujifilm Pro 400H',    400, 1, 'COLOR_NEG'),
+(N'Ilford',   N'Ilford HP5 Plus 400',  400, 1, 'BW'),
+(N'Kodak',    N'Kodak Ektar 100',      100, 3, 'COLOR_NEG'),
+(N'Kodak',    N'Kodak Gold 200',       200, 1, 'COLOR_NEG'),
+(N'Kodak',    N'Kodak Vision3 500T',   500, 1, 'CINE');
+
 INSERT INTO Equipment_Category (parent_id, name) VALUES
-(NULL, N'Máy ảnh film'), (NULL, N'Ống kính'), (NULL, N'Film (phim)'),
-(NULL, N'Phụ kiện'),     (NULL, N'Thiết bị phòng tối / Scanner');
+(NULL, N'Máy ảnh film'),
+(NULL, N'Máy ảnh Rangefinder'),
+(NULL, N'Máy ảnh SLR cơ khí'),
+(NULL, N'Ống kính'),
+(NULL, N'Film (phim)'),
+(NULL, N'Phụ kiện'),
+(NULL, N'Thiết bị phòng tối / Scanner');
 
 INSERT INTO Post_Category (name, slug) VALUES
+(N'Kỹ thuật chụp',      'ky-thuat-chup'),
 (N'Hướng dẫn kỹ thuật', 'huong-dan-ky-thuat'),
 (N'Review thiết bị',    'review-thiet-bi'),
 (N'Review Film Lab',    'review-film-lab'),
-(N'Hỏi đáp cộng đồng',  'hoi-dap');
+(N'Hỏi đáp cộng đồng',  'hoi-dap'),
+(N'Spam',               'spam');
 
 INSERT INTO System_Config (config_key, config_value, description) VALUES
-('PLATFORM_FEE_PERCENT',        '5',  N'Phí nền tảng thu trên mỗi đơn (%)'),
+('PLATFORM_FEE_PERCENT',        '10', N'Phí nền tảng thu trên mỗi đơn (%)'),
 ('NEGOTIATION_DEADLINE_DAYS',   '3',  N'Số ngày Khách & Lab tự thương lượng trước khi chuyển Admin'),
 ('LISTING_EXPIRE_DAYS',         '30', N'Số ngày tin Marketplace tự hết hạn'),
 ('PAYMENT_TIMEOUT_MINUTES',     '15', N'Thời gian chờ thanh toán trước khi tự hủy đơn'),
 ('ARCHIVE_FREE_STORAGE_GB',     '5',  N'Dung lượng Archive miễn phí / khách hàng');
 
+-- =====================================================================
+-- 2. SEED NGƯỜI DÙNG & PHÂN QUYỀN (Tất cả dữ liệu từ Backend & Frontend)
+-- =====================================================================
+SET IDENTITY_INSERT Users ON;
+INSERT INTO Users (user_id, user_code, email, phone, password_hash, full_name, avatar_url, address_text, bio, status, email_verified, locked_reason, locked_by, locked_at) VALUES
+(1,  'usr-000',     N'admin@minilab.vn',       '0900000000', 'password123', N'Quản trị viên Hệ thống (System Admin)', 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150', N'Văn phòng MiniLab HQ, Hoàn Kiếm, Hà Nội', NULL, 'ACTIVE', 1, NULL, NULL, NULL),
+(2,  'usr-000b',    N'admin.tuan@minilab.vn',  '0900000001', 'password123', N'Lê Tuấn (Tổng Quản Trị MiniLab)',       'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150', N'Văn phòng MiniLab HQ, Hoàn Kiếm, Hà Nội', NULL, 'ACTIVE', 1, NULL, NULL, NULL),
+(3,  'usr-002',     N'croplab@minilab.vn',     '0987654321', 'password123', N'CropLab Hà Nội (Lab Quản Trị)',         'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=150', N'Số 10 ngõ 12 Đặng Thai Mai, Tây Hồ, Hà Nội', NULL, 'ACTIVE', 1, NULL, NULL, NULL),
+(4,  'usr-002b',    N'saigon.lab@minilab.vn',  '0987654322', 'password123', N'LLab Film Sài Gòn (Lab Manager)',       'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=150', N'40/2 Phan Văn Trị, Phường 12, Bình Thạnh, TP.HCM', NULL, 'ACTIVE', 1, NULL, NULL, NULL),
+(5,  'usr-001',     N'khachhang@minilab.vn',   '0912345678', 'password123', N'Nguyễn Hoàng Anh',                      'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150', N'123 Phố Huế, Hai Bà Trưng, Hà Nội', NULL, 'ACTIVE', 1, NULL, NULL, NULL),
+(6,  'usr-003',     N'chuyengia@film.vn',      '0909123456', 'password123', N'Lê Quang Huy',                          'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=150', N'Tây Hồ, Hà Nội', N'Nhiếp ảnh gia phim tài liệu với 12 năm kinh nghiệm chụp medium format và tráng film thủ công.', 'ACTIVE', 1, NULL, NULL, NULL),
+(7,  'usr-005',     N'contact@nadarlab.com',   '0918776655', 'password123', N'Nadar Darkroom & Lab Owner',            'https://images.unsplash.com/photo-1542038784456-1ea8e935640e?w=200', N'15 Tràng Tiền, Hoàn Kiếm, Hà Nội', NULL, 'ACTIVE', 1, NULL, NULL, NULL),
+(8,  'usr-008',     N'trong.tran@minilab.vn',  '0999888777', 'password123', N'Trần Đình Trọng',                     'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150', N'Hà Nội', NULL, 'LOCKED', 1, N'Phát tán link spam tài chính cá độ trái phép trên cộng đồng', 1, '2026-03-02T11:00:00'),
+(9,  'usr-901',     N'retro.hanoi@gmail.com',  '0945667788', 'password123', N'Phạm Gia Huy',                          'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150', N'Số 22 ngõ Huyện, Hàng Trống, Hoàn Kiếm, Hà Nội', NULL, 'ACTIVE', 1, NULL, NULL, NULL),
+(10, 'usr-902',     N'analog.saigon@gmail.com','0919334455', 'password123', N'Võ Thành Nam',                          'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150', N'88 Nguyễn Đình Chiểu, Phường Đa Kao, Quận 1, TP.HCM', NULL, 'ACTIVE', 1, NULL, NULL, NULL),
+(11, 'ADM-HN-884',  N'tuan.vu@minilab.vn',     '0988776655', 'password123', N'Vũ Minh Tuấn',                          'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150', N'Hà Nội', NULL, 'ACTIVE', 1, NULL, NULL, NULL),
+(12, 'USR-DN-099',  N'bach.hoang@gmail.com',   '0977123123', 'password123', N'Hoàng Văn Bách',                        'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150', N'Đà Nẵng', NULL, 'LOCKED', 1, N'Vi phạm chính sách thanh lý thiết bị & lừa đảo đặt cọc', 1, '2026-02-20T10:00:00'),
+(13, 'APP-EXP-301', N'khoa.nguyen@photo.vn',   '0903445566', 'password123', N'Nguyễn Trọng Khoa',                     'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=150', N'Quận 3, TP.HCM', N'12 năm chụp ảnh tạp chí thời trang bằng máy Medium Format Hasselblad 500C/M. Đã xuất bản 2 photobook cá nhân.', 'ACTIVE', 1, NULL, NULL, NULL),
+(14, 'usr-014',     N'nam.le@gmail.com',       '0913222333', 'password123', N'Lê Hoàng Nam',                          'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150', N'Quận 1, TP.HCM', NULL, 'ACTIVE', 1, NULL, NULL, NULL),
+(15, 'usr-015',     N'thutrang.pham@gmail.com','0914333444', 'password123', N'Phạm Thu Trang',                         'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150', N'Đống Đa, Hà Nội', NULL, 'ACTIVE', 1, NULL, NULL, NULL),
+(16, 'usr-016',     N'khoi.pham@gmail.com',    '0915444555', 'password123', N'Phạm Hoàng Khôi',                       'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150', N'Cầu Giấy, Hà Nội', NULL, 'ACTIVE', 1, NULL, NULL, NULL),
+(17, 'usr-017',     N'nghia.do@gmail.com',     '0977889900', 'password123', N'Đỗ Hữu Nghĩa',                          'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150', N'Đống Đa, Hà Nội', NULL, 'ACTIVE', 1, NULL, NULL, NULL),
+(18, 'usr-018',     N'songhan.lab@minilab.vn', '0905112233', 'password123', N'Sông Hàn Film Studio Owner',            'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=150', N'Hải Châu, Đà Nẵng', NULL, 'ACTIVE', 1, NULL, NULL, NULL),
+(19, 'usr-019',     N'tayho.lab@minilab.vn',   '0904223344', 'password123', N'Tây Hồ Analog Master Owner',            'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=150', N'Tây Hồ, Hà Nội', NULL, 'ACTIVE', 1, NULL, NULL, NULL),
+(20, 'usr-020',     N'cholon.lab@minilab.vn',  '0908334455', 'password123', N'Chợ Lớn Film Lab Owner',                'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=150', N'Quận 5, TP.HCM', NULL, 'ACTIVE', 1, NULL, NULL, NULL);
+SET IDENTITY_INSERT Users OFF;
+
+INSERT INTO User_Roles (user_id, role_id) VALUES
+(1, 5),  -- usr-000: ADMIN
+(2, 5),  -- usr-000b: ADMIN
+(3, 2),  -- usr-002: LAB_OWNER
+(4, 2),  -- usr-002b: LAB_OWNER
+(5, 1),  -- usr-001: CUSTOMER
+(6, 3),  -- usr-003: EXPERT
+(6, 1),  -- usr-003: CUSTOMER
+(7, 2),  -- usr-005: LAB_OWNER
+(8, 1),  -- usr-008: CUSTOMER
+(9, 2),  -- usr-901: LAB_OWNER
+(10, 2), -- usr-902: LAB_OWNER
+(11, 5), -- ADM-HN-884: ADMIN
+(12, 1), -- USR-DN-099: CUSTOMER
+(13, 3), -- APP-EXP-301: EXPERT
+(13, 1), -- APP-EXP-301: CUSTOMER
+(14, 1), -- usr-014: CUSTOMER
+(15, 1), -- usr-015: CUSTOMER
+(16, 1), -- usr-016: CUSTOMER
+(17, 1), -- usr-017: CUSTOMER
+(18, 2), -- usr-018: LAB_OWNER
+(19, 2), -- usr-019: LAB_OWNER
+(20, 2); -- usr-020: LAB_OWNER
+
+INSERT INTO Expert_Profile (user_id, bio, specialties, portfolio_url, years_experience, verification_status, verified_by) VALUES
+(6,  N'Nhiếp ảnh gia phim tài liệu với 12 năm kinh nghiệm chụp medium format và tráng film thủ công.', N'Medium Format, B&W Darkroom', 'https://behance.net/quanghuy-analog', 12, 'VERIFIED', 1),
+(13, N'12 năm chụp ảnh tạp chí thời trang bằng máy Medium Format Hasselblad 500C/M. Đã xuất bản 2 photobook cá nhân.', N'Chân dung ánh sáng tự nhiên, Phim dương bản Slide (E-6), Phóng ảnh phòng tối truyền thống', 'https://behance.net/khoa-analog-archive', 12, 'PENDING', NULL);
+
+-- =====================================================================
+-- 3. SEED FILM LABS & GÓI DỊCH VỤ
+-- =====================================================================
+SET IDENTITY_INSERT Lab_Profile ON;
+INSERT INTO Lab_Profile (
+    lab_id, lab_code, owner_id, lab_name, slug, tagline, description, phone, email,
+    province, district, street_address, business_license_no, logo_url, cover_url,
+    turnaround_hours, price_range, scanner_models, supported_processes, supports_pickup,
+    avg_rating, review_count, approval_status, inspection_note, reviewed_by, reviewed_at
+) VALUES
+(1, 'lab-001', 3, N'CropLab Hà Nội', 'croplab-ha-noi',
+    N'Chuyên gia tráng & scan chất lượng cao từ năm 2014',
+    N'CropLab cung cấp dịch vụ tráng và scan phim màu C-41, đen trắng B&W thủ công với hóa chất chuẩn Kodak & Ilford. Scan máy Noritsu HS-1800 cho độ phân giải sắc nét và dải màu trung thực.',
+    '0904567890', N'hanoi@croplab.vn', N'Hà Nội', N'Tây Hồ', N'Số 10 ngõ 12 Đặng Thai Mai, Tây Hồ, Hà Nội',
+    'DKKD-0101234567', 'https://images.unsplash.com/photo-1495745966610-2a67f2297e5e?w=200', 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=800',
+    12, N'45.000đ - 120.000đ', N'["Noritsu HS-1800","Fuji Frontier SP-3000"]', N'["C-41","B&W","ECN-2","E-6 Slide"]', 1,
+    4.90, 328, 'APPROVED', NULL, 1, SYSUTCDATETIME()),
+(2, 'lab-002', 4, N'LLab Film Sài Gòn', 'llab-film-sai-gon',
+    N'Màu sắc ấm áp, tốc độ siêu nhanh trong ngày',
+    N'LLab là điểm đến quen thuộc của cộng đồng film Sài Gòn với phong cách chỉnh màu Frontier tươi tắn đặc trưng và dịch vụ nhận trả film tận nơi.',
+    '0938112233', N'saigon@llab.vn', N'TP.HCM', N'Bình Thạnh', N'40/2 Phan Văn Trị, Phường 12, Bình Thạnh, TP.HCM',
+    'DKKD-0301234568', 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=200', 'https://images.unsplash.com/photo-1452784444945-3f422708fe5e?w=800',
+    8, N'50.000đ - 110.000đ', N'["Fuji Frontier SP-3000"]', N'["C-41","B&W","ECN-2"]', 1,
+    4.80, 512, 'APPROVED', NULL, 1, SYSUTCDATETIME()),
+(3, 'lab-003', 7, N'Nadar Darkroom & Lab', 'nadar-darkroom-lab',
+    N'Phòng tối tráng phim Fine-Art & In ấn thủ công',
+    N'Chuyên dòng phim đen trắng nghệ thuật, tráng tay kiểm soát từng vùng sáng tối và scan độ phân giải cực đại TIFF 16-bit.',
+    '0918776655', N'contact@nadarlab.com', N'Hà Nội', N'Hoàn Kiếm', N'15 Tràng Tiền, Hoàn Kiếm, Hà Nội',
+    'DKKD-0101234569', 'https://images.unsplash.com/photo-1542038784456-1ea8e935640e?w=200', 'https://images.unsplash.com/photo-1471341971476-ae15ff5dd4ea?w=800',
+    24, N'70.000đ - 250.000đ', N'["Hasselblad Flextight X5","Noritsu HS-1800"]', N'["B&W Thủ công","C-41 Pro","E-6"]', 1,
+    5.00, 145, 'APPROVED', NULL, 1, SYSUTCDATETIME()),
+(4, 'app-lab-901', 9, N'Retro Hanoi Darkroom', 'retro-hanoi-darkroom',
+    N'Hồ sơ đăng ký mở tiệm Film Lab',
+    N'Đã nộp đầy đủ giấy phép kinh doanh hóa chất tráng ảnh và hợp đồng xử lý chất thải môi trường.',
+    '0945667788', N'retro.hanoi@gmail.com', N'Hà Nội', N'Hoàn Kiếm', N'Số 22 ngõ Huyện, Hàng Trống, Hoàn Kiếm, Hà Nội',
+    'DKKD-0109923481', NULL, NULL,
+    12, N'50.000đ - 100.000đ', N'["Noritsu LS-600","Epson V850 Pro"]', N'["C-41","B&W"]', 0,
+    0, 0, 'PENDING', N'Đã nộp đầy đủ giấy phép kinh doanh hóa chất tráng ảnh và hợp đồng xử lý chất thải môi trường.', NULL, NULL),
+(5, 'app-lab-902', 10, N'Analog Saigon Space', 'analog-saigon-space',
+    N'Hồ sơ đăng ký mở tiệm Film Lab',
+    N'Hồ sơ chờ xác minh máy scan thực tế và phòng tối sấy buồng kín.',
+    '0919334455', N'analog.saigon@gmail.com', N'TP.HCM', N'Quận 1', N'88 Nguyễn Đình Chiểu, Phường Đa Kao, Quận 1, TP.HCM',
+    'DKKD-0318829102', NULL, NULL,
+    12, N'50.000đ - 100.000đ', N'["Fuji Frontier SP-3000"]', N'["C-41","ECN-2 Cine"]', 0,
+    0, 0, 'PENDING', N'Hồ sơ chờ xác minh máy scan thực tế và phòng tối sấy buồng kín.', NULL, NULL),
+(6, 'lab-004', 18, N'Sông Hàn Film Studio', 'song-han-film-studio',
+    N'Không gian tráng và lưu trữ ảnh film miền Trung',
+    N'Phục vụ cộng đồng nhiếp ảnh film Đà Nẵng - Hội An với quy trình C-41 và ECN-2 tiêu chuẩn.',
+    '0905112233', N'songhan.lab@minilab.vn', N'Đà Nẵng', N'Hải Châu', N'112 Bạch Đằng, Hải Châu, Đà Nẵng',
+    'DKKD-0401122334', 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=200', 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=800',
+    16, N'45.000đ - 95.000đ', N'["Noritsu HS-1800"]', N'["C-41","ECN-2"]', 1,
+    4.70, 96, 'APPROVED', NULL, 1, SYSUTCDATETIME()),
+(7, 'lab-005', 19, N'Tây Hồ Analog Master', 'tay-ho-analog-master',
+    N'Chuyên trị film slide E-6 và B&W thủ công',
+    N'Phòng lab ven hồ Tây chuyên xử lý các dòng phim dương bản và medium format.',
+    '0904223344', N'tayho.lab@minilab.vn', N'Hà Nội', N'Tây Hồ', N'45 Quảng An, Tây Hồ, Hà Nội',
+    'DKKD-0105566778', 'https://images.unsplash.com/photo-1495745966610-2a67f2297e5e?w=200', 'https://images.unsplash.com/photo-1495745966610-2a67f2297e5e?w=800',
+    18, N'55.000đ - 150.000đ', N'["Fuji Frontier SP-3000","Epson V850 Pro"]', N'["C-41","B&W","E-6"]', 1,
+    4.60, 82, 'APPROVED', NULL, 1, SYSUTCDATETIME()),
+(8, 'app-lab-903', 20, N'Chợ Lớn Film Lab', 'cho-lon-film-lab',
+    N'Hồ sơ đăng ký mở tiệm Film Lab khu vực Quận 5',
+    N'Đang chờ kiểm tra hệ thống xử lý hóa chất tráng rửa định kỳ.',
+    '0908334455', N'cholon.lab@minilab.vn', N'TP.HCM', N'Quận 5', N'210 Trần Hưng Đạo, Quận 5, TP.HCM',
+    'DKKD-0319988776', NULL, NULL,
+    12, N'45.000đ - 100.000đ', N'["Noritsu LS-600"]', N'["C-41","B&W"]', 0,
+    0, 0, 'PENDING', N'Đang chờ kiểm tra hệ thống xử lý hóa chất tráng rửa định kỳ.', NULL, NULL);
+SET IDENTITY_INSERT Lab_Profile OFF;
+
+INSERT INTO Lab_Film_Format (lab_id, format_id) VALUES
+(1, 1), (1, 3), (1, 4), (1, 7),
+(2, 1), (2, 3),
+(3, 1), (3, 3), (3, 7), (3, 8),
+(6, 1), (6, 3),
+(7, 1), (7, 3);
+
+SET IDENTITY_INSERT Service_Package ON;
+INSERT INTO Service_Package (
+    package_id, package_code, lab_id, service_type, name, description,
+    format_id, process_type_id, scan_quality, scan_resolution, output_format,
+    price, est_processing_days, estimated_hours, is_active
+) VALUES
+(1, 'pkg-001', 1, 'DEVELOP_SCAN', N'Tráng & Scan 135 Color (C-41) - Chuẩn M',
+    N'Gói tráng và scan tiêu chuẩn cho cuộn film 35mm màu phổ thông (Kodak Gold, ColorPlus, Fuji C200, UltraMax).',
+    1, 1, 'STANDARD', N'M (3000x2000px)', 'JPEG', 50000, 1, 12, 1),
+(2, 'pkg-002', 1, 'DEVELOP_SCAN', N'Tráng & Scan 135 Color (C-41) - Scan Cao Cấp L (TIFF/JPG)',
+    N'Độ phân giải lớn nhất từ Noritsu HS-1800, lưu giữ toàn bộ chi tiết hạt grain và màu sắc chân thực.',
+    1, 1, 'PRO', N'L (6000x4000px TIFF)', 'TIFF', 85000, 1, 16, 1),
+(3, 'pkg-003', 1, 'DEVELOP_SCAN', N'Tráng & Scan 135 B&W (Đen Trắng Thủ Công)',
+    N'Tráng với thuốc Kodak D-76 hoặc Ilford ID-11, kiểm soát độ tương phản và chi tiết vùng tối.',
+    1, 3, 'STANDARD', N'M (3000x2000px)', 'JPEG', 65000, 1, 24, 1),
+(4, 'pkg-004', 1, 'DEVELOP_SCAN', N'Tráng & Scan Cine Film ECN-2 (Tẩy than)',
+    N'Xử lý cuộn film điện ảnh Kodak Vision3 (50D, 250D, 500T), tẩy than remjet sạch sẽ.',
+    1, 4, 'STANDARD', N'M (3000x2000px)', 'JPEG', 75000, 1, 24, 1),
+(5, 'pkg-005', 1, 'DEVELOP_SCAN', N'Tráng & Scan Medium Format 120 (C-41)',
+    N'Dành cho máy ảnh khổ vuông 6x6, 6x7, 6x4.5 (Hasselblad, Rolleiflex, Pentax 67).',
+    3, 1, 'HIGH', N'L (4800x4800px)', 'JPEG', 80000, 1, 12, 1),
+(6, 'pkg-006', 2, 'DEVELOP_SCAN', N'Tráng + Scan C-41 Tiêu Chuẩn (SP-3000)',
+    N'Gói tráng và scan màu chất ảnh Frontier SP-3000 ấm áp tại LLab Film Sài Gòn.',
+    1, 1, 'STANDARD', N'M (3000x2000px)', 'JPEG', 60000, 1, 8, 1),
+(7, 'pkg-007', 3, 'DEVELOP_SCAN', N'Tráng Thủ Công B&W + Scan Cực Đại X5',
+    N'Tráng tay phòng tối Nadar Darkroom và scan Hasselblad Flextight X5 16-bit TIFF.',
+    3, 3, 'PRO', N'XL (Hasselblad X5 TIFF 16-bit)', 'TIFF', 180000, 1, 24, 1);
+SET IDENTITY_INSERT Service_Package OFF;
+
+-- =====================================================================
+-- 4. SEED ĐƠN HÀNG, CUỘN FILM, TIẾN ĐỘ & THANH TOÁN
+-- =====================================================================
+SET IDENTITY_INSERT Orders ON;
+INSERT INTO Orders (
+    order_id, order_code, customer_id, lab_id, status, kanban_column,
+    receive_method, return_method, pickup_address, payment_status, payment_method,
+    subtotal, total_amount, sla_deadline, created_at
+) VALUES
+(1, 'ORD-2026-8801', 5,  1, 'READY_FOR_DOWNLOAD', 'READY',      'PICKUP',      'DIGITAL_ONLY', N'123 Phố Huế, Hai Bà Trưng, Hà Nội', 'PAID', 'MOMO',          135000, 135000, '2026-03-02T12:00:00', '2026-03-01T09:30:00'),
+(2, 'ORD-2026-8802', 5,  1, 'PROCESSING',         'DEVELOPING', 'DROP_AT_LAB', 'DIGITAL_ONLY', N'123 Phố Huế, Hai Bà Trưng, Hà Nội', 'PAID', 'BANK_TRANSFER', 65000,  65000,  '2026-03-03T18:00:00', '2026-03-02T14:10:00'),
+(3, 'ORD-2026-8803', 6,  1, 'RECEIVED',           'QUEUE',      'PICKUP',      'DIGITAL_ONLY', N'Tây Hồ, Hà Nội',                    'PAID', 'VNPAY',         80000,  80000,  '2026-03-03T20:00:00', '2026-03-03T08:00:00'),
+(4, 'ORD-2026-8841', 5,  1, 'RECEIVED',           'QUEUE',      'PICKUP',      'DIGITAL_ONLY', N'123 Phố Huế, Hai Bà Trưng, Hà Nội', 'PAID', 'MOMO',          100000, 100000, '2026-03-04T18:00:00', '2026-03-03T09:15:00'),
+(5, 'ORD-2026-8839', 14, 1, 'PROCESSING',         'DEVELOPING', 'DROP_AT_LAB', 'DIGITAL_ONLY', N'Quận 1, TP.HCM',                    'PAID', 'VNPAY',         65000,  65000,  '2026-03-04T15:00:00', '2026-03-03T07:30:00'),
+(6, 'ORD-2026-8838', 15, 1, 'PROCESSING',         'SCANNING',   'PICKUP',      'DIGITAL_ONLY', N'Đống Đa, Hà Nội',                   'PAID', 'MOMO',          85000,  85000,  '2026-03-04T12:00:00', '2026-03-02T16:45:00'),
+(7, 'ORD-2026-8835', 16, 1, 'COMPLETED',          'READY',      'DROP_AT_LAB', 'DIGITAL_ONLY', N'Cầu Giấy, Hà Nội',                  'PAID', 'BANK_TRANSFER', 75000,  75000,  '2026-03-02T20:00:00', '2026-03-01T15:00:00'),
+(8, 'ORD-2026-8819', 14, 2, 'COMPLETED',          'READY',      'PICKUP',      'DIGITAL_ONLY', N'Quận 1, TP.HCM',                    'PAID', 'MOMO',          180000, 180000, '2026-03-02T18:00:00', '2026-03-01T11:20:00');
+SET IDENTITY_INSERT Orders OFF;
+
+SET IDENTITY_INSERT Order_Item ON;
+INSERT INTO Order_Item (
+    order_item_id, item_code, order_id, package_id, film_stock_id, film_name, roll_code,
+    quantity, unit_price, line_total, push_pull, cut_negatives, status
+) VALUES
+(1, 'item-101', 1, 1, 1, N'Kodak Portra 400',     'ROLL-PORTRA400-01', 1, 50000, 50000,  N'Normal (Box speed)',       N'Cắt 6 frames/dải',          'DONE'),
+(2, 'item-102', 1, 2, 2, N'Fujifilm Pro 400H',    'ROLL-FUJI400-02',   1, 85000, 85000,  N'+1 Stop (Push)',           N'Để nguyên cuộn không cắt',  'DONE'),
+(3, 'item-103', 2, 3, 3, N'Ilford HP5 Plus 400',  'ROLL-ILFORD-03',    1, 65000, 65000,  N'+2 Stops (Push ISO 1600)', N'Cắt 6 frames/dải',          'PROCESSING'),
+(4, 'item-104', 3, 5, 4, N'Kodak Ektar 100',      'ROLL-EKTAR-04',     1, 80000, 80000,  N'Normal',                   N'Cắt 4 frames/dải',          'RECEIVED'),
+(5, 'item-105', 4, 1, 5, N'Kodak Gold 200 (x2)',  'ROLL-GOLD200-05',   2, 50000, 100000, N'Normal (Box speed)',       N'Cắt 6 frames/dải',          'RECEIVED'),
+(6, 'item-106', 5, 3, 3, N'Ilford HP5 Plus 400',  'ROLL-ILFORD-06',    1, 65000, 65000,  N'+1 Stop (Push ISO 800)',   N'Cắt 6 frames/dải',          'PROCESSING'),
+(7, 'item-107', 6, 2, 1, N'Kodak Portra 400',     'ROLL-PORTRA400-07', 1, 85000, 85000,  N'Normal (Box speed)',       N'Cắt 6 frames/dải',          'PROCESSING'),
+(8, 'item-108', 7, 4, 6, N'Kodak Vision3 500T',   'ROLL-VISION3-08',   1, 75000, 75000,  N'Normal (Box speed)',       N'Cắt 6 frames/dải',          'DONE'),
+(9, 'item-109', 8, 6, 1, N'Kodak Portra 400 (x3)','ROLL-PORTRA400-09', 3, 60000, 180000, N'Normal (Box speed)',       N'Cắt 6 frames/dải',          'DONE');
+SET IDENTITY_INSERT Order_Item OFF;
+
+INSERT INTO Payment (order_id, gateway, txn_ref, amount, status, paid_at) VALUES
+(1, 'MOMO',          'TXN-ORD-2026-8801', 135000, 'SUCCESS', '2026-03-01T09:30:00'),
+(2, 'BANK_TRANSFER', 'TXN-ORD-2026-8802', 65000,  'SUCCESS', '2026-03-02T14:10:00'),
+(3, 'VNPAY',         'TXN-ORD-2026-8803', 80000,  'SUCCESS', '2026-03-03T08:00:00'),
+(4, 'MOMO',          'TXN-ORD-2026-8841', 100000, 'SUCCESS', '2026-03-03T09:15:00'),
+(5, 'VNPAY',         'TXN-ORD-2026-8839', 65000,  'SUCCESS', '2026-03-03T07:30:00'),
+(6, 'MOMO',          'TXN-ORD-2026-8838', 85000,  'SUCCESS', '2026-03-02T16:45:00'),
+(7, 'BANK_TRANSFER', 'TXN-ORD-2026-8835', 75000,  'SUCCESS', '2026-03-01T15:00:00'),
+(8, 'MOMO',          'TXN-ORD-2026-8819', 180000, 'SUCCESS', '2026-03-01T11:20:00');
+
+-- =====================================================================
+-- 5. SEED DIGITAL FILM ARCHIVE & METADATA
+-- =====================================================================
+SET IDENTITY_INSERT Digital_Film_Archive ON;
+INSERT INTO Digital_Film_Archive (archive_id, owner_id, order_item_id, title, film_stock_id, visibility) VALUES
+(1, 5, 1, N'Mùa thu Hà Nội 2026', 1, 'PRIVATE');
+SET IDENTITY_INSERT Digital_Film_Archive OFF;
+
+SET IDENTITY_INSERT Archive_Photo ON;
+INSERT INTO Archive_Photo (
+    photo_id, photo_code, archive_id, roll_code, title, file_name,
+    storage_key, thumbnail_key, mime_type, size_bytes, width_px, height_px, is_favorite, uploaded_at
+) VALUES
+(1, 'pho-001', 1, 'ROLL-PORTRA400-01', N'Nắng chiều Phố Cổ Hà Nội', N'pho_001.tiff',
+    'https://images.unsplash.com/photo-1528127269322-539801943592?w=1200',
+    'https://images.unsplash.com/photo-1528127269322-539801943592?w=400',
+    'image/tiff', 19293798, 6048, 4032, 1, '2026-03-01T17:15:00'),
+(2, 'pho-002', 1, 'ROLL-PORTRA400-01', N'Gánh hoa bên góc đường Phan Đình Phùng', N'pho_002.tiff',
+    'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=1200',
+    'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=400',
+    'image/tiff', 17616076, 6048, 4032, 1, '2026-03-01T17:15:00');
+SET IDENTITY_INSERT Archive_Photo OFF;
+
+INSERT INTO Photo_Metadata (
+    photo_id, camera_brand, camera_model, lens, focal_length, film_stock_id,
+    iso, aperture, shutter_speed, process_type_id, scan_device, notes
+) VALUES
+(1, N'Leica', N'Leica M6 Classic', N'Summicron 35mm f/2 ASPH', '35mm', 1, 400, 2.8, '1/250s', 1, N'C-41 Noritsu HS-1800', N'CropLab Hà Nội | 18.4 MB TIFF'),
+(2, N'Leica', N'Leica M6 Classic', N'Summicron 35mm f/2 ASPH', '35mm', 1, 400, 4.0, '1/500s', 1, N'C-41 Noritsu HS-1800', N'CropLab Hà Nội | 16.8 MB TIFF');
+
+-- =====================================================================
+-- 6. SEED MARKETPLACE, CỘNG ĐỒNG, SỰ KIỆN, KHIẾU NẠI, ĐÁNH GIÁ & AUDIT LOG
+-- =====================================================================
+SET IDENTITY_INSERT Equipment_Listing ON;
+INSERT INTO Equipment_Listing (
+    listing_id, listing_code, seller_id, category_id, listing_type, title, description,
+    item_condition, condition_note, price, location_text, contact_phone, contact_zalo, status, reviewed_by, created_at
+) VALUES
+(1, 'mkt-001', 5, 2, 'SELL', N'Máy ảnh Film Canon QL17 GIII (Black Limited Edition)',
+    N'Cần nhượng lại Canon QL17 GIII bản đen hiếm. Kính trong vắt, không mốc xước, đo sáng nhạy chuẩn pin PX625 adapter.',
+    'LIKE_NEW', N'98% Sưu tầm, cơ tốc đo sáng hoàn hảo', 4800000, N'Hoàn Kiếm, Hà Nội', '0912345678', '0912345678', 'ACTIVE', 1, '2026-02-28T10:00:00'),
+(2, 'mkt-002', 6, 3, 'SELL', N'Bộ máy ảnh Olympus OM-1 + Lens Zuiko 50mm f/1.4',
+    N'Huyền thoại cơ khí OM-1 màn trập lụa êm ái. Chờ Admin kiểm duyệt tiền kiểm 100%.',
+    'GOOD', N'95% Nguyên bản, view sáng rõ', 3600000, N'Bình Thạnh, TP.HCM', '0909123456', '0909123456', 'PENDING_REVIEW', NULL, '2026-03-02T15:30:00'),
+(3, 'MKT-POST-902', 6, 2, 'SELL', N'Máy ảnh Leica M6 Classic Chrome 0.72x (Bản Wetzlar 1986)',
+    N'Máy hoạt động hoàn hảo mọi tốc độ, đo sáng LED chuẩn xác, buồng phim sạch sẽ không lọt sáng. Đi kèm dây đeo da thủ công và nắp body zin.',
+    'LIKE_NEW', N'Mint 98% - Đo sáng hoạt động hoàn hảo', 58500000, N'Quận 3, TP.HCM', '0909112233', '0909112233', 'PENDING_REVIEW', NULL, '2026-03-03T10:15:00'),
+(4, 'MKT-POST-903', 17, 2, 'SELL', N'Canon Canonet QL17 GIII 40mm f/1.7 (Rangefinder Nhật)',
+    N'Dòng máy rangefinder quốc dân cho người mới chơi film. Đã CLA lau dầu chỉnh nét tại thợ uy tín, về chỉ việc lắp film chụp.',
+    'GOOD', N'Khá 90% - Kính trong, cơ tốc chuẩn', 3800000, N'Đống Đa, Hà Nội', '0977889900', '0977889900', 'PENDING_REVIEW', NULL, '2026-03-03T11:00:00');
+SET IDENTITY_INSERT Equipment_Listing OFF;
+
+INSERT INTO Listing_Image (listing_id, image_url, sort_order) VALUES
+(1, 'https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=800', 0),
+(2, 'https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=800', 0),
+(3, 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=800', 0),
+(4, 'https://images.unsplash.com/photo-1495745966610-2a67f2297e5e?w=800', 0);
+
+SET IDENTITY_INSERT Post_Article ON;
+INSERT INTO Post_Article (
+    post_id, post_code, author_id, post_category_id, post_type, title, slug, content,
+    likes_count, comments_count, report_count, report_reason, status, published_at, created_at
+) VALUES
+(1, 'post-001', 6, 1, 'TUTORIAL', N'Bí quyết chọn điểm đo sáng khi chụp phim âm bản màu (Color Negative)',
+    'bi-quyet-chon-diem-do-sang-color-negative',
+    N'Phim âm bản màu như Kodak Portra hay Fuji Superia có khả năng giữ chi tiết vùng sáng cực tốt nhưng lại rất sợ thiếu sáng vùng tối (shadow). Hãy luôn đo sáng vào vùng tối và bù sáng +1 stop...',
+    89, 14, 0, NULL, 'ACTIVE', '2026-03-01T10:00:00', '2026-03-01T10:00:00'),
+(2, 'post-002', 8, 6, 'ARTICLE', N'Rao bán hàng cấm và link spam tài chính cá độ',
+    'rao-ban-hang-cam-spam',
+    N'Click vào link nhận tiền thưởng ngay...',
+    0, 0, 5, N'Spam quảng cáo sai quy định cộng đồng', 'REPORTED', NULL, '2026-03-02T11:00:00'),
+(3, 'REP-COM-104', 12, 6, 'ARTICLE', N'Thanh lý lô máy ảnh phim giá siêu rẻ chuyển khoản cọc trước 50%',
+    'thanh-ly-lo-may-anh-phim-gia-sieu-re',
+    N'Mình có lô Leica M6 và Contax T2 giá chỉ 2 triệu/máy, ai mua inbox chuyển khoản cọc trước mình giữ hàng nhé, không nhận COD hay giao dịch trực tiếp...',
+    0, 0, 7, N'Nghi vấn lừa đảo đặt cọc (Scam) & Spam link ngoài', 'REPORTED', NULL, '2026-03-03T08:30:00'),
+(4, 'REP-COM-105', 17, 4, 'REVIEW', N'Bóc phốt lab X làm cháy cuộn phim kỷ niệm không đền bù thỏa đáng',
+    'boc-phot-lab-x-lam-chay-cuon-phim',
+    N'Bài viết sử dụng nhiều từ ngữ bức xúc khi chưa có kết luận kiểm tra kỹ thuật từ bộ phận phân xử của nền tảng.',
+    2, 5, 3, N'Ngôn từ công kích chưa rõ bằng chứng đối soát', 'REPORTED', NULL, '2026-03-03T09:45:00');
+SET IDENTITY_INSERT Post_Article OFF;
+
+SET IDENTITY_INSERT Event ON;
+INSERT INTO Event (
+    event_id, event_code, host_id, event_type, title, description, venue,
+    cover_image_url, start_at, end_at, capacity, fee, status
+) VALUES
+(1, 'evt-001', 6, 'PHOTOWALK', N'Photowalk Mùa Hoa Sưa - Dạo Phố Cùng Máy Cơ',
+    N'Buổi giao lưu chụp ảnh đường phố đầu xuân, hướng dẫn đo sáng bằng mắt (Sunny 16) và bố cục đời thường.',
+    N'Quanh Hồ Gươm & Phố Cổ Hà Nội',
+    'https://images.unsplash.com/photo-1528127269322-539801943592?w=800',
+    '2026-03-15T07:30:00', '2026-03-15T11:30:00', 30, 0, 'OPEN'),
+(2, 'evt-002', 6, 'WORKSHOP', N'Workshop Phòng Tối: Tự Tay Tráng Cuộn Phim Đen Trắng Đầu Tiên',
+    N'Trải nghiệm quy trình pha thuốc Ilford ID-11, cuốn film vào tank trong túi tối và kiểm soát thời gian tráng chuẩn xác tại Nadar Darkroom.',
+    N'Nadar Darkroom - 15 Tràng Tiền, Hoàn Kiếm, Hà Nội',
+    'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=800',
+    '2026-03-22T14:00:00', '2026-03-22T17:30:00', 12, 250000, 'OPEN');
+SET IDENTITY_INSERT Event OFF;
+
+INSERT INTO Event_Registration (event_id, user_id, status) VALUES
+(1, 5,  'REGISTERED'),
+(1, 14, 'REGISTERED'),
+(1, 15, 'REGISTERED'),
+(2, 5,  'REGISTERED'),
+(2, 16, 'REGISTERED');
+
+SET IDENTITY_INSERT Dispute_Complaint ON;
+INSERT INTO Dispute_Complaint (
+    dispute_id, dispute_code, order_id, complainant_id, reason_type, issue_title,
+    description, requested_amount, status, assigned_admin_id, created_at, escalated_at
+) VALUES
+(1, 'DSP-2026-001', 1, 5, 'QUALITY', N'Trầy xước phim / Lỗi scan màu',
+    N'Cuộn Portra 400 có 2 khung hình bị vệt xước dọc, muốn thương lượng scan lại độ phân giải TIFF hoặc hoàn phí tráng 50k.',
+    50000, 'NEGOTIATING', NULL, '2026-03-02T14:00:00', NULL),
+(2, 'DSP-2026-002', 8, 14, 'DAMAGED_FILM', N'Lọt sáng / Cháy film toàn bộ cuộn Kodak Portra 400',
+    N'Khách hàng phản ánh toàn bộ 36 kiểu ảnh bị đen trắng bất thường và có vệt hóa chất loang lổ. Lab cho rằng do máy ảnh của khách bị hở buồng tối trước khi gửi.',
+    180000, 'ESCALATED', 1, '2026-03-02T16:30:00', '2026-03-03T09:00:00');
+SET IDENTITY_INSERT Dispute_Complaint OFF;
+
+INSERT INTO Dispute_Message (dispute_id, sender_id, content, created_at) VALUES
+(1, 5, N'Chào lab, khung hình số 12 và 13 bị vệt bụi dài ở góc phải.', '2026-03-02T14:05:00'),
+(1, 3, N'Dạ CropLab chào bạn! Bên mình sẽ đưa dải phim vào máy thổi khí ion và scan lại miễn phí ngay trong chiều nay nhé!', '2026-03-02T14:30:00'),
+(2, 14, N'Mình gửi 3 cuộn Portra 400 nhưng cuộn số 2 bị vệt loang hóa chất toàn bộ dải phim.', '2026-03-02T16:35:00'),
+(2, 4,  N'Bên LLab đã kiểm tra dải âm bản, mép phim có dấu hiệu lọt sáng từ buồng máy trước khi tráng.', '2026-03-02T17:10:00');
+
+INSERT INTO Dispute_Evidence (dispute_id, uploaded_by, file_url, mime_type, uploaded_at) VALUES
+(1, 5,  'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=600', 'image/jpeg', '2026-03-02T14:06:00'),
+(2, 14, 'https://images.unsplash.com/photo-1495745966610-2a67f2297e5e?w=600', 'image/jpeg', '2026-03-02T16:36:00');
+
+SET IDENTITY_INSERT Review ON;
+INSERT INTO Review (review_id, review_code, reviewer_id, review_type, order_id, service_name, rating, comment, status, created_at) VALUES
+(1, 'rev-001', 5, 'LAB', 1, N'Tráng & Scan 135 Color C-41', 5, N'CropLab làm cực nhanh! Màu Noritsu chuẩn không cần chỉnh.', 'VISIBLE', '2026-02-28T10:00:00');
+SET IDENTITY_INSERT Review OFF;
+
+INSERT INTO Audit_Log (user_id, action, entity_name, entity_id, old_value, new_value, ip_address, created_at) VALUES
+(1, 'APPROVE_LAB',     'Lab_Profile',       'lab-003',      '{"status":"PENDING"}',                   '{"status":"APPROVED","note":"Đủ giấy phép kinh doanh & hệ thống xử lý hóa chất C-41"}', '113.190.232.14', '2026-03-01T14:22:10'),
+(2, 'RESOLVE_DISPUTE', 'Dispute_Complaint', 'DSP-2026-001', '{"status":"ESCALATED"}',                 '{"status":"REFUNDED","refund_amount":150000}',                                          '113.190.232.14', '2026-03-01T11:05:44'),
+(1, 'LOCK_USER',       'Users',             'USR-DN-099',   '{"status":"ACTIVE","warnings":3}',       '{"status":"LOCKED","reason":"Spam link lừa đảo trên Marketplace"}',                      '14.162.145.88',  '2026-02-28T19:40:00'),
+(2, 'UPDATE_CONFIG',   'System_Config',     'SLA_CONFIG',   '{"sla_negotiation_hours":48}',           '{"sla_negotiation_hours":72}',                                                          '113.190.232.14', '2026-02-27T09:15:00'),
+(3, 'UPDATE_PRICE',    'Service_Package',   'pkg-002',      '{"price":80000,"package":"Scan Pro L"}', '{"price":85000,"reason":"Điều chỉnh theo giá hóa chất Kodak Flexicolor"}',               '27.72.100.12',   '2026-02-26T16:20:00'),
+(3, 'UPDATE_SLA',      'Service_Package',   'pkg-003',      '{"estimated_hours":36}',                 '{"estimated_hours":24,"reason":"Tối ưu quy trình tráng tay B&W"}',                       '27.72.100.12',   '2026-02-18T10:05:00');
+
+-- Giữ số liệu thống kê hiển thị ban đầu cho các Film Lab đã duyệt
+UPDATE Lab_Profile SET avg_rating = 4.90, review_count = 328 WHERE lab_id = 1;
+UPDATE Lab_Profile SET avg_rating = 4.80, review_count = 512 WHERE lab_id = 2;
+UPDATE Lab_Profile SET avg_rating = 5.00, review_count = 145 WHERE lab_id = 3;
+UPDATE Lab_Profile SET avg_rating = 4.70, review_count = 96  WHERE lab_id = 6;
+UPDATE Lab_Profile SET avg_rating = 4.60, review_count = 82  WHERE lab_id = 7;
 GO
 
 -- ===============================================
@@ -998,12 +1410,13 @@ BEGIN
         FROM dbo.Orders WITH (UPDLOCK, HOLDLOCK) WHERE order_id = @order_id;
         IF @old_status IS NULL THROW 51001, 'Order not found.', 1;
         IF @new_status IS NULL OR NOT (
-            (@old_status = 'PENDING_PAYMENT' AND @new_status IN ('PENDING_LAB_CONFIRM','CANCELLED')) OR
-            (@old_status = 'PENDING_LAB_CONFIRM' AND @new_status IN ('PICKING_UP','RECEIVED_AT_LAB','CANCELLED')) OR
-            (@old_status = 'PICKING_UP' AND @new_status IN ('RECEIVED_AT_LAB','CANCELLED')) OR
-            (@old_status = 'RECEIVED_AT_LAB' AND @new_status = 'PROCESSING') OR
-            (@old_status = 'PROCESSING' AND @new_status = 'COMPLETED') OR
-            (@old_status = 'COMPLETED' AND @new_status IN ('DELIVERING','CLOSED')) OR
+            (@old_status = 'PENDING_PAYMENT' AND @new_status IN ('PENDING_LAB_CONFIRM','RECEIVED','CANCELLED')) OR
+            (@old_status = 'PENDING_LAB_CONFIRM' AND @new_status IN ('PICKING_UP','RECEIVED_AT_LAB','RECEIVED','CANCELLED')) OR
+            (@old_status = 'PICKING_UP' AND @new_status IN ('RECEIVED_AT_LAB','RECEIVED','CANCELLED')) OR
+            (@old_status IN ('RECEIVED_AT_LAB','RECEIVED','PENDING_FILM') AND @new_status IN ('PROCESSING','CANCELLED')) OR
+            (@old_status = 'PROCESSING' AND @new_status IN ('DRYING','SCANNING','QC_CHECK','READY_FOR_DOWNLOAD','COMPLETED')) OR
+            (@old_status IN ('DRYING','SCANNING','QC_CHECK') AND @new_status IN ('SCANNING','QC_CHECK','READY_FOR_DOWNLOAD','COMPLETED')) OR
+            (@old_status IN ('READY_FOR_DOWNLOAD','COMPLETED') AND @new_status IN ('COMPLETED','DELIVERING','CLOSED')) OR
             (@old_status = 'DELIVERING' AND @new_status = 'CLOSED')
         ) THROW 51002, 'Invalid order status transition.', 1;
         IF @new_status = 'PICKING_UP' AND @receive_method <> 'PICKUP'
@@ -1033,8 +1446,6 @@ BEGIN
         THROW;
     END CATCH
 END;
-GO
-
 GO
 
 -- ===============================================
@@ -1091,8 +1502,6 @@ BEGIN
 END;
 GO
 
-GO
-
 -- ===============================================
 -- 02_procedures/03_approved_labs.sql
 -- ===============================================
@@ -1106,8 +1515,6 @@ BEGIN
     FROM dbo.Lab_Profile
     WHERE approval_status = 'APPROVED';
 END;
-GO
-
 GO
 
 -- ===============================================
@@ -1127,12 +1534,8 @@ BEGIN
    JOIN dbo.Service_Package p ON p.package_id=i.package_id
    WHERE o.lab_id<>p.lab_id
  )
- BEGIN
-   THROW 51001, 'R1: Goi dich vu phai thuoc Lab cua don hang.', 1;
- END
+ THROW 51001, 'R1: Goi dich vu phai thuoc Lab cua don hang.', 1;
 END;
-GO
-
 GO
 
 -- ===============================================
@@ -1161,8 +1564,6 @@ CREATE OR ALTER VIEW dbo.vw_ActiveLabs
 AS SELECT * FROM dbo.Lab_Profile WHERE approval_status='APPROVED';
 GO
 
-GO
-
 -- ===============================================
 -- 03_triggers/03_R3_review_eligibility.sql
 -- ===============================================
@@ -1179,14 +1580,12 @@ BEGIN
   LEFT JOIN dbo.Orders o ON o.order_id=i.order_id
   LEFT JOIN dbo.Marketplace_Transaction t ON t.txn_id=i.txn_id
   WHERE (i.review_type='LAB' AND
-            (o.status<>'CLOSED' OR o.customer_id<>i.reviewer_id))
+            (o.status NOT IN ('CLOSED','COMPLETED','READY_FOR_DOWNLOAD') OR o.customer_id<>i.reviewer_id))
      OR (i.review_type='SELLER' AND
             (t.status<>'COMPLETED' OR t.buyer_id<>i.reviewer_id))
  )
  THROW 51003, 'R3: Nguoi danh gia phai la khach/mua hang da hoan tat.', 1;
 END;
-GO
-
 GO
 
 -- ===============================================
@@ -1251,8 +1650,6 @@ BEGIN
 END;
 GO
 
-GO
-
 -- ===============================================
 -- 03_triggers/05_R6_refund_limit.sql
 -- ===============================================
@@ -1274,8 +1671,6 @@ BEGIN
  )
  THROW 51006,'R6: Tong tien hoan khong duoc vuot tien thanh toan.',1;
 END;
-GO
-
 GO
 
 -- ===============================================
@@ -1311,8 +1706,6 @@ BEGIN
 END;
 GO
 
-GO
-
 -- ===============================================
 -- 03_triggers/07_R7_event_capacity.sql
 -- ===============================================
@@ -1336,8 +1729,6 @@ BEGIN
  )
  THROW 51007,'R7: So dang ky vuot suc chua su kien.',1;
 END;
-GO
-
 GO
 
 -- VERIFY

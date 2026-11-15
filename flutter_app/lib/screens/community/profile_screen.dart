@@ -1,9 +1,9 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_typography.dart';
 import '../../core/mock/mock_test_assets.dart';
-import '../web/web_login_screen.dart';
+import '../../providers/auth_provider.dart';
 import '../auth/login_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
@@ -11,6 +11,26 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final currentUser = context.watch<AuthProvider>().currentUser;
+    final fullName = (currentUser?.fullName != null && currentUser!.fullName.isNotEmpty)
+        ? currentUser.fullName
+        : 'Khách hàng MiniLab';
+    final email = (currentUser?.email != null && currentUser!.email.isNotEmpty)
+        ? currentUser.email
+        : 'khachhang@minilab.vn';
+    final phone = (currentUser?.phone != null && currentUser!.phone.isNotEmpty)
+        ? ' • ${currentUser.phone}'
+        : '';
+    final userIdCode = (currentUser?.userId != null && currentUser!.userId.isNotEmpty)
+        ? '#${currentUser.userId.toUpperCase()}'
+        : '#VN-882';
+    final String avatarUrl = (currentUser?.avatarUrl != null && currentUser!.avatarUrl!.isNotEmpty)
+        ? currentUser.avatarUrl!
+        : MockTestAssets.avatarCustomer;
+    final roleBadge = currentUser?.role == 'Expert'
+        ? 'CHUYÊN GIA NHIẾP ẢNH (EXPERT)'
+        : 'CỘNG ĐỒNG NHIẾP ẢNH GIA';
+
     return Scaffold(
       backgroundColor: AppColors.surface,
       appBar: AppBar(
@@ -52,7 +72,7 @@ class ProfileScreen extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text('THẺ THÀNH VIÊN ANALOG', style: AppTypography.labelCaps.copyWith(fontSize: 10)),
-                        Text('#VN-882', style: AppTypography.dataMono.copyWith(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.primary)),
+                        Text(userIdCode, style: AppTypography.dataMono.copyWith(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.primary)),
                       ],
                     ),
                   ),
@@ -65,7 +85,7 @@ class ProfileScreen extends StatelessWidget {
                           child: SizedBox(
                             width: 56,
                             height: 56,
-                            child: MockTestAssets.image(MockTestAssets.avatarCustomer, fit: BoxFit.cover),
+                            child: MockTestAssets.image(avatarUrl, fit: BoxFit.cover),
                           ),
                         ),
                         const SizedBox(width: 14),
@@ -73,9 +93,9 @@ class ProfileScreen extends StatelessWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('Nguyễn Hoàng Anh', style: AppTypography.cardTitle.copyWith(fontSize: 16)),
+                              Text(fullName, style: AppTypography.cardTitle.copyWith(fontSize: 16)),
                               const SizedBox(height: 2),
-                              Text('hoanganh.analog@minilab.vn', style: AppTypography.bodySmall.copyWith(color: AppColors.inkMuted)),
+                              Text('$email$phone', style: AppTypography.bodySmall.copyWith(color: AppColors.inkMuted)),
                               const SizedBox(height: 6),
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
@@ -84,7 +104,7 @@ class ProfileScreen extends StatelessWidget {
                                   borderRadius: BorderRadius.circular(4),
                                 ),
                                 child: Text(
-                                  'CỘNG ĐỒNG NHIẾP ẢNH GIA',
+                                  roleBadge,
                                   style: AppTypography.labelCaps.copyWith(fontSize: 9, color: AppColors.primary, fontWeight: FontWeight.bold),
                                 ),
                               ),
@@ -165,10 +185,11 @@ class ProfileScreen extends StatelessWidget {
               height: 44,
               child: OutlinedButton(
                 onPressed: () {
+                  context.read<AuthProvider>().logout();
                   Navigator.pushAndRemoveUntil(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => kIsWeb ? const WebLoginScreen() : const LoginScreen(),
+                      builder: (_) => const LoginScreen(),
                     ),
                     (route) => false,
                   );

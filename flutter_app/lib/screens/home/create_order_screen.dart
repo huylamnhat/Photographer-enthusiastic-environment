@@ -1,446 +1,388 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
+import '../../core/services/api_service.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_typography.dart';
-import '../../core/mock/mock_test_assets.dart';
 import '../../models/lab_model.dart';
 import 'checkout_screen.dart';
 
 class CreateOrderScreen extends StatefulWidget {
   final LabModel? lab;
   final String? initialLabId;
+  final String? initialPackageId;
 
-  const CreateOrderScreen({super.key, this.lab, this.initialLabId});
+  const CreateOrderScreen({
+    super.key,
+    this.lab,
+    this.initialLabId,
+    this.initialPackageId,
+  });
 
   @override
   State<CreateOrderScreen> createState() => _CreateOrderScreenState();
 }
 
 class _CreateOrderScreenState extends State<CreateOrderScreen> {
-  final _filmNameController = TextEditingController(text: 'Kodak Portra 400');
-  final _notesController = TextEditingController();
+  final ApiService _apiService = ApiService();
+  final TextEditingController _filmNameController =
+      TextEditingController(text: 'Kodak Gold 200');
 
-  String _filmFormat = '135'; // 135, 120, 4x5
-  String _process = 'C-41'; // C-41, B&W, ECN-2
-  String _scanner = 'Noritsu HS-1800'; // Noritsu HS-1800, Fuji Frontier SP-3000
-  String _resolution = 'Standard JPG'; // Standard JPG, High-Res JPG (+20k), Master TIFF (+50k)
-  String _pushPull = 'Box Speed'; // Box Speed, Push +1 stop (+15k), Pull -1 stop (+15k)
-  String _negativeHandling = 'STORE_15D'; // STORE_15D, SHIP_HOME (+25k), DISPOSE
+  LabModel? _selectedLab;
+  ServicePackageModel? _selectedPackage;
+  bool _isLoadingLabs = true;
+  Timer? _refreshTimer;
 
-  int _quantity = 2;
+  String _filmFormat = '135';
+  String _process = 'C-41';
+  String _scanner = 'Noritsu HS-1800';
+  String _resolution = 'Standard JPG';
+  String _pushPull = 'Box Speed';
+  String _negativeHandling = 'STORE_15D';
+  String _shippingMethod = 'Gửi trực tiếp tại quầy Lab';
+  int _quantity = 1;
+
+  static const List<String> _filmPresets = [
+    'Kodak Gold 200',
+    'Kodak Portra 400',
+    'Kodak ColorPlus 200',
+    'Fujifilm C200',
+    'CineStill 800T',
+    'Ilford HP5 Plus 400',
+  ];
+
+  static const List<String> _pushPullOptions = [
+    'Box Speed',
+    'Push +1 Stop',
+    'Push +2 Stops',
+    'Pull -1 Stop',
+  ];
+
+  static const Map<String, String> _negativeHandlingOptions = {
+    'STORE_15D': 'Lưu tại Lab 15 ngày rồi nhận cùng ảnh',
+    'CUT_SLEEVE': 'Cắt 6 frame lồng sleeve bảo quản',
+    'NO_CUT_ROLL': 'Giữ nguyên cuộn âm bản không cắt',
+  };
+
+  static const List<String> _shippingOptions = [
+    'Gửi trực tiếp tại quầy Lab',
+    'Shipper / GrabExpress giao tận Lab',
+    'Gửi chuyển phát nhanh bưu điện',
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.lab != null) {
+      _selectedLab = widget.lab;
+      _applyLabDefaults(widget.lab!, preferredPackageId: widget.initialPackageId);
+    }
+    _loadLabsAndDetail();
+    _refreshTimer = Timer.periodic(
+      const Duration(seconds: 5),
+      (_) => _loadLabsAndDetail(silent: true),
+    );
+  }
+
+  @override
+  void reassemble() {
+    super.reassemble();
+    _loadLabsAndDetail(silent: true);
+  }
+
+  @override
+  void dispose() {
+    _refreshTimer?.cancel();
+    _filmNameController.dispose();
+    super.dispose();
+  }
+
+  String _resolveCanonicalLabId(String? raw) {
+    final val = (raw ?? 'lab-001').trim().toLowerCase();
+    if (val == 'croplab' || val.contains('croplab')) return 'lab-001';
+    if (val == 'llab' || val.contains('llab') || val.contains('sài gòn') || val.contains('saigon')) return 'lab-002';
+    if (val == 'nadar' || val.contains('nadar')) return 'lab-003';
+    return (raw != null && raw.trim().isNotEmpty) ? raw.trim() : 'lab-001';
+  }
+
+  Future<void> _loadLabsAndDetail({bool silent = false}) async {
+    try {
+      final currentIdSource = _selectedLab?.labId.isNotEmpty == true
+          ? _selectedLab!.labId
+          : (widget.lab?.labId.isNotEmpty == true ? widget.lab!.labId : widget.initialLabId);
+      final targetId = _resolveCanonicalLabId(currentIdSource);
+
+      LabModel? matched = await _apiService.getLabById(targetId);
+      if (matched == null) {
+        final fallbackLabs = await _apiService.getLabs();
+        if (fallbackLabs.isNotEmpty) {
+          matched = fallbackLabs.first;
+        } else {
+          matched = _selectedLab ?? widget.lab;
+        }
+      }
+
+      if (!mounted) return;
+      final preferredPkgId = _selectedPackage?.packageId ?? widget.initialPackageId;
+      setState(() {
+        _selectedLab = matched;
+        _isLoadingLabs = false;
+        if (matched != null) {
+          if (silent) {
+            if (matched.packages.isNotEmpty) {
+              if (preferredPkgId != null && preferredPkgId.isNotEmpty) {
+                _selectedPackage = matched.packages.firstWhere(
+                  (p) => p.packageId == preferredPkgId,
+                  orElse: () => matched!.packages.first,
+                );
+              } else {
+                _selectedPackage ??= matched.packages.first;
+              }
+            }
+          } else {
+            _applyLabDefaults(matched, preferredPackageId: preferredPkgId);
+          }
+        }
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _isLoadingLabs = false;
+      });
+    }
+  }
+
+  void _applyLabDefaults(LabModel lab, {String? preferredPackageId}) {
+    ServicePackageModel? chosenPkg;
+    if (lab.packages.isNotEmpty) {
+      if (preferredPackageId != null && preferredPackageId.isNotEmpty) {
+        chosenPkg = lab.packages.firstWhere(
+          (p) => p.packageId == preferredPackageId,
+          orElse: () => lab.packages.first,
+        );
+      } else {
+        chosenPkg = lab.packages.first;
+      }
+    }
+
+    _selectedPackage = chosenPkg;
+    if (chosenPkg != null) {
+      _filmFormat = chosenPkg.filmFormat;
+      _process = chosenPkg.processType;
+      _resolution = chosenPkg.scanResolution;
+    } else {
+      _filmFormat = lab.supportedFormats.isNotEmpty ? lab.supportedFormats.first : '135';
+      _process = lab.supportedProcesses.isNotEmpty ? lab.supportedProcesses.first : 'C-41';
+      _resolution = 'Standard JPG';
+    }
+
+    if (lab.scannerModels.isNotEmpty) {
+      _scanner = lab.scannerModels.first;
+    }
+  }
+
+  void _selectPackage(ServicePackageModel pkg) {
+    setState(() {
+      _selectedPackage = pkg;
+      _filmFormat = pkg.filmFormat;
+      _process = pkg.processType;
+      _resolution = pkg.scanResolution;
+    });
+  }
+
+  String _normalizeCode(String raw) =>
+      raw.toUpperCase().replaceAll('-', '').replaceAll('&', '').replaceAll(' ', '');
+
+  Map<String, dynamic>? _findMatchingProcessRow(LabModel? lab) {
+    if (lab == null || lab.processTable.isEmpty) return null;
+    final target = _normalizeCode(_process);
+    for (final row in lab.processTable) {
+      final code = _normalizeCode((row['process_code'] ?? row['process'] ?? '').toString());
+      if (code == target) return row;
+    }
+    return null;
+  }
+
+  int _fallbackBasePrice() {
+    switch (_normalizeCode(_process)) {
+      case 'BW':
+        return 85000;
+      case 'ECN2':
+        return 95000;
+      case 'E6':
+        return 140000;
+      default:
+        return 60000;
+    }
+  }
+
+  int _pushPullExtraPerRoll() {
+    if (_pushPull == 'Box Speed') return 0;
+    if (_pushPull.contains('+2')) return 30000;
+    return 20000;
+  }
 
   double _calculateTotal() {
-    double base = 70000;
-    if (_process == 'B&W') base = 85000;
-    if (_process == 'ECN-2') base = 95000;
-    if (_filmFormat == '120') base += 15000;
-    if (_filmFormat == '4x5') base += 35000;
+    final baseUnit = _selectedPackage?.price ?? _fallbackBasePrice();
+    final extra = _pushPullExtraPerRoll();
+    return ((baseUnit + extra) * _quantity).toDouble();
+  }
 
-    double extraPerRoll = 0;
-    if (_resolution == 'High-Res JPG') extraPerRoll += 20000;
-    if (_resolution == 'Master TIFF') extraPerRoll += 50000;
-    if (_pushPull.contains('Push') || _pushPull.contains('Pull')) extraPerRoll += 15000;
+  String _formatVnd(num amount) {
+    final str = amount.round().toString();
+    final buf = StringBuffer();
+    for (int i = 0; i < str.length; i++) {
+      if (i > 0 && (str.length - i) % 3 == 0) {
+        buf.write('.');
+      }
+      buf.write(str[i]);
+    }
+    return '${buf.toString()}đ';
+  }
 
-    double subtotal = (base + extraPerRoll) * _quantity;
-    if (_negativeHandling == 'SHIP_HOME') subtotal += 25000;
+  void _proceedToCheckout() {
+    final lab = _selectedLab;
+    if (lab == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Vui lòng chọn tiệm Lab trước khi tiếp tục.')),
+      );
+      return;
+    }
 
-    return subtotal;
+    final filmName = _filmNameController.text.trim().isNotEmpty
+        ? _filmNameController.text.trim()
+        : 'Kodak Gold 200';
+    final packageName = _selectedPackage != null
+        ? '${_selectedPackage!.name} (${_selectedPackage!.filmFormat} • ${_selectedPackage!.processType})'
+        : '$_process ($_filmFormat • $_resolution)';
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => CheckoutScreen(
+          lab: lab,
+          filmName: filmName,
+          quantity: _quantity,
+          packageName: packageName,
+          totalPrice: _calculateTotal(),
+          pushPull: _pushPull,
+          cutOption: _negativeHandlingOptions[_negativeHandling] ?? _negativeHandling,
+          shippingMethod: _shippingMethod,
+        ),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final labName = widget.lab?.name ??
-        (widget.initialLabId == 'croplab' ? 'Croplab Retro' : (widget.initialLabId == 'nadar' ? 'Nadar Darkroom' : 'LLab Sài Gòn'));
-    final total = _calculateTotal();
+    final lab = _selectedLab;
+    final matchingProcess = _findMatchingProcessRow(lab);
+    final totalPrice = _calculateTotal();
 
     return Scaffold(
       backgroundColor: AppColors.surface,
       appBar: AppBar(
-        titleSpacing: 16,
         backgroundColor: AppColors.surfaceRaised,
-        surfaceTintColor: Colors.transparent,
+        foregroundColor: AppColors.ink,
         elevation: 0,
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(1),
-          child: Container(color: AppColors.outline, height: 1),
-        ),
-        title: Text(
-          'ĐẶT DỊCH VỤ TRÁNG & SCAN',
-          style: AppTypography.cardTitle.copyWith(letterSpacing: 0.5, fontSize: 13),
-        ),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 90),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Target Lab Banner
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: AppColors.surfaceSunken,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: AppColors.outline),
-              ),
-              child: Row(
-                children: [
-                  const Icon(Icons.storefront, size: 18, color: AppColors.primary),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('TIỆM LAB TIẾP NHẬN', style: AppTypography.labelCaps.copyWith(fontSize: 9)),
-                        Text(labName, style: AppTypography.cardTitle.copyWith(fontSize: 14)),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: AppColors.surfaceRaised,
-                      borderRadius: BorderRadius.circular(4),
-                      border: Border.all(color: AppColors.outline),
-                    ),
-                    child: Text('SLA 24H', style: AppTypography.dataMono.copyWith(fontSize: 10, color: AppColors.secondary)),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-
-            // Step 1: Film Name & Quantity
-            Text('1. THÔNG TIN CUỘN PHIM', style: AppTypography.sectionHeading.copyWith(fontSize: 12)),
-            const SizedBox(height: 8),
-            Container(
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                color: AppColors.surfaceRaised,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: AppColors.outline),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('TÊN HOẶC DÒNG PHIM', style: AppTypography.labelCaps),
-                  const SizedBox(height: 6),
-                  TextField(
-                    controller: _filmNameController,
-                    style: AppTypography.bodySmall,
-                    decoration: const InputDecoration(
-                      prefixIcon: Icon(Icons.camera_roll_outlined, size: 18, color: AppColors.inkMuted),
-                      hintText: 'Ví dụ: Kodak Portra 400, Fuji Color 200, Ilford HP5...',
-                      isDense: true,
-                      contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-                    ),
-                  ),
-                  const SizedBox(height: 14),
-
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('SỐ LƯỢNG CUỘN', style: AppTypography.labelCaps),
-                          Text('Đóng gói cùng lượt', style: AppTypography.bodySmall.copyWith(fontSize: 11, color: AppColors.inkMuted)),
-                        ],
-                      ),
-                      Container(
-                        decoration: BoxDecoration(
-                          color: AppColors.surfaceSunken,
-                          borderRadius: BorderRadius.circular(6),
-                          border: Border.all(color: AppColors.outline),
-                        ),
-                        child: Row(
-                          children: [
-                            IconButton(
-                              icon: const Icon(Icons.remove, size: 16),
-                              onPressed: () {
-                                if (_quantity > 1) setState(() => _quantity--);
-                              },
-                              constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
-                              padding: EdgeInsets.zero,
-                            ),
-                            Container(
-                              constraints: const BoxConstraints(minWidth: 30),
-                              alignment: Alignment.center,
-                              child: Text(
-                                '$_quantity',
-                                style: AppTypography.dataMono.copyWith(fontWeight: FontWeight.bold),
-                              ),
-                            ),
-                            IconButton(
-                              icon: const Icon(Icons.add, size: 16, color: AppColors.primary),
-                              onPressed: () => setState(() => _quantity++),
-                              constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
-                              padding: EdgeInsets.zero,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-
-            // Step 2: Format & Chemistry
-            Text('2. KHỔ PHIM & QUY TRÌNH HÓA CHẤT', style: AppTypography.sectionHeading.copyWith(fontSize: 12)),
-            const SizedBox(height: 8),
-            Container(
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                color: AppColors.surfaceRaised,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: AppColors.outline),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('KHỔ PHIM (FORMAT)', style: AppTypography.labelCaps),
-                  const SizedBox(height: 6),
-                  Row(
-                    children: [
-                      Expanded(child: _buildChoiceChip('135 (35mm)', _filmFormat == '135', () => setState(() => _filmFormat = '135'))),
-                      const SizedBox(width: 6),
-                      Expanded(child: _buildChoiceChip('120 (Medium)', _filmFormat == '120', () => setState(() => _filmFormat = '120'))),
-                      const SizedBox(width: 6),
-                      Expanded(child: _buildChoiceChip('4x5 (Large)', _filmFormat == '4x5', () => setState(() => _filmFormat = '4x5'))),
-                    ],
-                  ),
-                  const SizedBox(height: 14),
-
-                  Text('QUY TRÌNH HÓA HỌC (PROCESS)', style: AppTypography.labelCaps),
-                  const SizedBox(height: 6),
-                  Row(
-                    children: [
-                      Expanded(child: _buildChoiceChip('C-41 Màu', _process == 'C-41', () => setState(() => _process = 'C-41'))),
-                      const SizedBox(width: 6),
-                      Expanded(child: _buildChoiceChip('B&W Thủ công', _process == 'B&W', () => setState(() => _process = 'B&W'))),
-                      const SizedBox(width: 6),
-                      Expanded(child: _buildChoiceChip('ECN-2 Điện ảnh', _process == 'ECN-2', () => setState(() => _process = 'ECN-2'))),
-                    ],
-                  ),
-                  const SizedBox(height: 14),
-
-                  Text('HỆ MÁY QUÉT ƯU TIÊN', style: AppTypography.labelCaps),
-                  const SizedBox(height: 6),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _buildChoiceChip(
-                          'Noritsu HS-1800',
-                          _scanner == 'Noritsu HS-1800',
-                          () => setState(() => _scanner = 'Noritsu HS-1800'),
-                          subtitle: 'Tone ấm tự nhiên',
-                        ),
-                      ),
-                      const SizedBox(width: 6),
-                      Expanded(
-                        child: _buildChoiceChip(
-                          'Fuji Frontier SP-3000',
-                          _scanner == 'Fuji Frontier SP-3000',
-                          () => setState(() => _scanner = 'Fuji Frontier SP-3000'),
-                          subtitle: 'Tone xanh pastel',
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-
-            // Step 3: Scan Resolution & Push/Pull
-            Text('3. ĐỘ PHÂN GIẢI SCAN & TÙY CHỌN ISO', style: AppTypography.sectionHeading.copyWith(fontSize: 12)),
-            const SizedBox(height: 8),
-            Container(
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                color: AppColors.surfaceRaised,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: AppColors.outline),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('ĐỘ PHÂN GIẢI FILE SỐ HÓA', style: AppTypography.labelCaps),
-                  const SizedBox(height: 6),
-                  _buildRadioOption(
-                    title: 'Standard JPG (2000x3000px, 300dpi)',
-                    subtitle: 'Đủ xem màn hình, đăng mạng xã hội • Đã bao gồm',
-                    isSelected: _resolution == 'Standard JPG',
-                    onTap: () => setState(() => _resolution = 'Standard JPG'),
-                  ),
-                  const SizedBox(height: 6),
-                  _buildRadioOption(
-                    title: 'High-Res JPG (3000x4500px, 300dpi)',
-                    subtitle: 'Phù hợp in ấn khổ A4 • +20.000đ/cuộn',
-                    isSelected: _resolution == 'High-Res JPG',
-                    onTap: () => setState(() => _resolution = 'High-Res JPG'),
-                  ),
-                  const SizedBox(height: 6),
-                  _buildRadioOption(
-                    title: 'Master TIFF 16-bit (4000x6000px)',
-                    subtitle: 'Không nén, chi tiết vùng tối tối đa • +50.000đ/cuộn',
-                    isSelected: _resolution == 'Master TIFF',
-                    onTap: () => setState(() => _resolution = 'Master TIFF'),
-                  ),
-                  const SizedBox(height: 14),
-
-                  Text('ĐẨY / KÉO SÁNG (PUSH/PULL PROCESSING)', style: AppTypography.labelCaps),
-                  const SizedBox(height: 6),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _buildChoiceChip('Box Speed', _pushPull == 'Box Speed', () => setState(() => _pushPull = 'Box Speed')),
-                      ),
-                      const SizedBox(width: 6),
-                      Expanded(
-                        child: _buildChoiceChip('Push +1 (+15k)', _pushPull == 'Push +1', () => setState(() => _pushPull = 'Push +1')),
-                      ),
-                      const SizedBox(width: 6),
-                      Expanded(
-                        child: _buildChoiceChip('Pull -1 (+15k)', _pushPull == 'Pull -1', () => setState(() => _pushPull = 'Pull -1')),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-
-            // Step 4: Negative Handling
-            Text('4. XỬ LÝ ÂM BẢN (NEGATIVES)', style: AppTypography.sectionHeading.copyWith(fontSize: 12)),
-            const SizedBox(height: 8),
-            Container(
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                color: AppColors.surfaceRaised,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: AppColors.outline),
-              ),
-              child: Column(
-                children: [
-                  _buildRadioOption(
-                    title: 'Lưu tại tủ tiệm Lab (Miễn phí 15 ngày)',
-                    subtitle: 'Bạn có thể ghé lấy trực tiếp bất cứ lúc nào trong giờ làm việc.',
-                    isSelected: _negativeHandling == 'STORE_15D',
-                    onTap: () => setState(() => _negativeHandling = 'STORE_15D'),
-                  ),
-                  const SizedBox(height: 6),
-                  _buildRadioOption(
-                    title: 'Chuyển bưu điện về tận nhà (+25.000đ)',
-                    subtitle: 'Lab cắt dải 6 frames vào bao bảo quản giấy Acid-free và bọc chống gập.',
-                    isSelected: _negativeHandling == 'SHIP_HOME',
-                    onTap: () => setState(() => _negativeHandling = 'SHIP_HOME'),
-                  ),
-                  const SizedBox(height: 6),
-                  _buildRadioOption(
-                    title: 'Hủy âm bản theo quy chuẩn môi trường',
-                    subtitle: 'Chỉ nhận file ảnh qua mạng, ủy quyền cho Lab xử lý tiêu hủy an toàn.',
-                    isSelected: _negativeHandling == 'DISPOSE',
-                    onTap: () => setState(() => _negativeHandling = 'DISPOSE'),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-
-            // Notes field
-            Text('GHI CHÚ KỸ THUẬT CHO LAB', style: AppTypography.labelCaps),
-            const SizedBox(height: 6),
-            TextField(
-              controller: _notesController,
-              maxLines: 2,
-              style: AppTypography.bodySmall,
-              decoration: const InputDecoration(
-                hintText: 'Ví dụ: Cuộn này chụp trong nhà tối, nhờ lab cân màu tone lạnh...',
-                contentPadding: EdgeInsets.all(10),
-              ),
-            ),
-            const SizedBox(height: 20),
-          ],
+        title: const Text('Tạo Đơn Tráng Film'),
+        actions: [
+          IconButton(
+            tooltip: 'Làm mới gói dịch vụ',
+            icon: _isLoadingLabs
+                ? const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primary),
+                  )
+                : const Icon(Icons.refresh, color: AppColors.primary),
+            onPressed: _loadLabsAndDetail,
+          ),
+        ],
+        bottom: const PreferredSize(
+          preferredSize: Size.fromHeight(1),
+          child: Divider(height: 1, color: AppColors.outline),
         ),
       ),
-      bottomSheet: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      body: _isLoadingLabs && lab == null
+          ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
+          : ListView(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 120),
+              children: [
+                if (lab != null) ...[
+                  _buildSelectedLabHeaderCard(lab),
+                  const SizedBox(height: 20),
+                ],
+
+                _buildSectionHeader('1. BẢNG DỊCH VỤ CỦA LAB'),
+                const SizedBox(height: 6),
+                if (lab != null)
+                  Text(
+                    'Hiển thị bảng giá riêng của ${lab.name}',
+                    style: AppTypography.caption,
+                  ),
+                const SizedBox(height: 10),
+                _buildPackageSelector(lab),
+                const SizedBox(height: 20),
+
+                _buildSectionHeader('2. BẢNG TRÁNG KỸ THUẬT CỦA LAB'),
+                const SizedBox(height: 10),
+                _buildProcessTableCard(lab, matchingProcess),
+                const SizedBox(height: 20),
+
+                _buildSectionHeader('3. THÔNG TIN CUỘN FILM & QUÉT'),
+                const SizedBox(height: 10),
+                _buildFilmAndTechCard(lab),
+                const SizedBox(height: 20),
+
+                _buildSectionHeader('4. ÂM BẢN & GIAO NHẬN'),
+                const SizedBox(height: 10),
+                _buildLogisticsCard(),
+              ],
+            ),
+      bottomNavigationBar: Container(
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
         decoration: const BoxDecoration(
           color: AppColors.surfaceRaised,
           border: Border(top: BorderSide(color: AppColors.outline)),
         ),
         child: SafeArea(
+          top: false,
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('TỔNG TẠM TÍNH', style: AppTypography.labelCaps.copyWith(fontSize: 9, color: AppColors.inkMuted)),
-                  Text(
-                    '${total.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]}.')}đ',
-                    style: AppTypography.metric.copyWith(fontSize: 18, color: AppColors.primary),
-                  ),
-                ],
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  final dummyLab = widget.lab ??
-                      LabModel(
-                        labId: widget.initialLabId ?? 'llab',
-                        name: labName,
-                        tagline: 'Phòng tối tiêu chuẩn ISO',
-                        address: '15/4 Lê Thánh Tôn, Bến Nghé, Quận 1',
-                        city: 'TP.HCM',
-                        phone: '0901234567',
-                        email: 'contact@minilab.vn',
-                        rating: 4.9,
-                        reviewCount: 140,
-                        turnaroundHours: 24,
-                        scannerModels: const ['Noritsu HS-1800', 'Fuji Frontier SP-3000'],
-                        supportedFormats: const ['135', '120', '4x5'],
-                        supportedProcesses: const ['C-41', 'B&W', 'ECN-2'],
-                        coverImage: MockTestAssets.labCover1,
-                        logoUrl: MockTestAssets.labLogoLlab,
-                        isVerified: true,
-                        priceRange: '70.000đ - 130.000đ',
-                        description: 'Chuyên tráng và scan ảnh analog.',
-                        packages: const [],
-                      );
-
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => CheckoutScreen(
-                        lab: dummyLab,
-                        filmName: '${_filmNameController.text} ($_filmFormat, $_process)',
-                        quantity: _quantity,
-                        packageName: '$_process ($_resolution)',
-                        totalPrice: total,
-                        pushPull: _pushPull,
-                        cutOption: 'Bao bảo quản chuẩn',
-                        shippingMethod: _negativeHandling,
+              Expanded(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '$_quantity cuộn • ${_selectedPackage?.scanResolution ?? _resolution}',
+                      style: AppTypography.caption,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      _formatVnd(totalPrice),
+                      style: AppTypography.sectionHeading.copyWith(
+                        color: AppColors.primary,
+                        fontSize: 20,
                       ),
                     ),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                ),
-                child: Row(
-                  children: [
-                    Text('Tiếp tục xác nhận đơn', style: AppTypography.button),
-                    const SizedBox(width: 8),
-                    const Icon(Icons.arrow_forward, size: 16),
                   ],
                 ),
               ),
+              ElevatedButton(
+                onPressed: lab == null ? null : _proceedToCheckout,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 14),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                ),
+                child: const Text(
+                  'Tiếp tục thanh toán →',
+                  style: TextStyle(color: AppColors.onPrimary, fontWeight: FontWeight.w600),
+                ),
+              ),
             ],
           ),
         ),
@@ -448,93 +390,455 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
     );
   }
 
-  Widget _buildChoiceChip(String title, bool isSelected, VoidCallback onTap, {String? subtitle}) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(6),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-        decoration: BoxDecoration(
-          color: isSelected ? AppColors.surfaceSunken : AppColors.surfaceRaised,
-          borderRadius: BorderRadius.circular(6),
-          border: Border.all(
-            color: isSelected ? AppColors.primary : AppColors.outline,
-            width: isSelected ? 1.5 : 1,
-          ),
-        ),
-        child: Column(
-          children: [
-            Text(
-              title,
-              textAlign: TextAlign.center,
-              style: AppTypography.labelCaps.copyWith(
-                fontSize: 10,
-                color: isSelected ? AppColors.primary : AppColors.ink,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-              ),
-            ),
-            if (subtitle != null) ...[
-              const SizedBox(height: 2),
-              Text(
-                subtitle,
-                textAlign: TextAlign.center,
-                style: AppTypography.bodySmall.copyWith(fontSize: 9, color: AppColors.inkMuted),
-              ),
-            ],
-          ],
-        ),
+  Widget _buildSectionHeader(String title) {
+    return Text(
+      title,
+      style: AppTypography.labelCaps.copyWith(
+        color: AppColors.ink,
+        fontSize: 12,
+        letterSpacing: 0.5,
       ),
     );
   }
 
-  Widget _buildRadioOption({
-    required String title,
-    required String subtitle,
-    required bool isSelected,
-    required VoidCallback onTap,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(6),
-      child: Container(
-        padding: const EdgeInsets.all(10),
-        decoration: BoxDecoration(
-          color: isSelected ? AppColors.primary.withValues(alpha: 0.04) : AppColors.surfaceRaised,
-          borderRadius: BorderRadius.circular(6),
-          border: Border.all(
-            color: isSelected ? AppColors.primary : AppColors.outline,
-            width: isSelected ? 1.5 : 1,
-          ),
-        ),
-        child: Row(
-          children: [
-            Icon(
-              isSelected ? Icons.radio_button_checked : Icons.radio_button_off,
-              size: 16,
-              color: isSelected ? AppColors.primary : AppColors.inkMuted,
+  Widget _buildSelectedLabHeaderCard(LabModel lab) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceRaised,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.primary.withAlpha(90)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              color: AppColors.primary.withAlpha(24),
+              borderRadius: BorderRadius.circular(8),
             ),
-            const SizedBox(width: 10),
-            Expanded(
+            child: const Icon(Icons.storefront_outlined, color: AppColors.primary, size: 20),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  lab.name,
+                  style: AppTypography.cardTitle.copyWith(fontSize: 14),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  lab.address,
+                  style: AppTypography.caption,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              color: AppColors.surfaceSunken,
+              borderRadius: BorderRadius.circular(6),
+              border: Border.all(color: AppColors.outline),
+            ),
+            child: Text(
+              'SLA ${lab.turnaroundHours}h',
+              style: AppTypography.monoSm.copyWith(color: AppColors.primary, fontWeight: FontWeight.w600),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPackageSelector(LabModel? lab) {
+    if (_isLoadingLabs && (lab == null || lab.packages.isEmpty)) {
+      return const Padding(
+        padding: EdgeInsets.all(16),
+        child: Center(child: CircularProgressIndicator(color: AppColors.primary)),
+      );
+    }
+
+    if (lab == null || lab.packages.isEmpty) {
+      return Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: AppColors.surfaceRaised,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: AppColors.outline),
+        ),
+        child: Text(
+          'Lab này chưa cập nhật bảng gói dịch vụ riêng. Hệ thống sẽ dùng đơn giá mặc định.',
+          style: AppTypography.bodyMuted,
+        ),
+      );
+    }
+
+    return Column(
+      children: lab.packages.map((pkg) {
+        final isSelected = _selectedPackage?.packageId == pkg.packageId;
+        return GestureDetector(
+          onTap: () => _selectPackage(pkg),
+          child: Container(
+            margin: const EdgeInsets.only(bottom: 10),
+            padding: const EdgeInsets.all(13),
+            decoration: BoxDecoration(
+              color: isSelected ? AppColors.primary.withAlpha(18) : AppColors.surfaceRaised,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: isSelected ? AppColors.primary : AppColors.outline,
+                width: isSelected ? 1.5 : 1,
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(
+                      isSelected ? Icons.check_circle : Icons.circle_outlined,
+                      size: 18,
+                      color: isSelected ? AppColors.primary : AppColors.inkMuted,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(pkg.name, style: AppTypography.cardTitle.copyWith(fontSize: 14)),
+                    ),
+                    Text(
+                      _formatVnd(pkg.price),
+                      style: AppTypography.cardTitle.copyWith(color: AppColors.primary),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 6,
+                  runSpacing: 6,
+                  children: [
+                    _buildMiniBadge(pkg.filmFormat),
+                    _buildMiniBadge(pkg.processType),
+                    _buildMiniBadge(pkg.scanResolution),
+                    _buildMiniBadge('SLA ${pkg.estimatedHours}h'),
+                  ],
+                ),
+                if (pkg.description.isNotEmpty) ...[
+                  const SizedBox(height: 6),
+                  Text(pkg.description, style: AppTypography.caption),
+                ],
+              ],
+            ),
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  Widget _buildProcessTableCard(LabModel? lab, Map<String, dynamic>? matchingRow) {
+    if (lab == null || lab.processTable.isEmpty) {
+      return Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: AppColors.surfaceRaised,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: AppColors.outline),
+        ),
+        child: Text(
+          'Lab đang cập nhật thông số hóa chất & quy trình tráng.',
+          style: AppTypography.bodyMuted,
+        ),
+      );
+    }
+
+    return Container(
+      padding: const EdgeInsets.all(13),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceRaised,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.outline),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (matchingRow != null)
+            Container(
+              width: double.infinity,
+              margin: const EdgeInsets.only(bottom: 10),
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: AppColors.successBg,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: AppColors.secondary.withAlpha(70)),
+              ),
+              child: Text(
+                'Đang áp dụng cho gói chọn: ${matchingRow['process_code'] ?? _process} • '
+                '${matchingRow['chemistry'] ?? ''} (${matchingRow['temperature'] ?? ''})',
+                style: AppTypography.caption.copyWith(
+                  color: AppColors.secondary,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ...lab.processTable.map((row) {
+            final code = (row['process_code'] ?? '').toString();
+            final isActive = _normalizeCode(code) == _normalizeCode(_process);
+            return Container(
+              margin: const EdgeInsets.only(bottom: 8),
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: isActive ? AppColors.primary.withAlpha(14) : AppColors.surfaceSunken,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: isActive ? AppColors.primary : AppColors.outline),
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    title,
-                    style: AppTypography.cardTitle.copyWith(
-                      fontSize: 12,
-                      color: isSelected ? AppColors.primary : AppColors.ink,
-                    ),
+                  Row(
+                    children: [
+                      Text(
+                        code,
+                        style: AppTypography.monoSm.copyWith(
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          (row['process_name'] ?? '').toString(),
+                          style: AppTypography.caption.copyWith(
+                            color: AppColors.ink,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                      Text(
+                        '${row['turnaround_hours'] ?? lab.turnaroundHours}h',
+                        style: AppTypography.monoSm.copyWith(color: AppColors.secondary),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 2),
+                  const SizedBox(height: 4),
                   Text(
-                    subtitle,
-                    style: AppTypography.bodySmall.copyWith(fontSize: 10, color: AppColors.inkMuted),
+                    'Hóa chất: ${row['chemistry'] ?? '-'} • Nhiệt độ: ${row['temperature'] ?? '-'}',
+                    style: AppTypography.caption,
+                  ),
+                  Text(
+                    'Máy tráng: ${row['dev_machine'] ?? '-'} • Scanner: ${row['scanner'] ?? '-'}',
+                    style: AppTypography.caption,
                   ),
                 ],
               ),
+            );
+          }),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFilmAndTechCard(LabModel? lab) {
+    final formats = (lab != null && lab.supportedFormats.isNotEmpty)
+        ? lab.supportedFormats
+        : ['135', '120'];
+    final scanners = (lab != null && lab.scannerModels.isNotEmpty)
+        ? lab.scannerModels
+        : ['Noritsu HS-1800'];
+
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceRaised,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.outline),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Tên cuộn film', style: AppTypography.caption.copyWith(fontWeight: FontWeight.w600)),
+          const SizedBox(height: 6),
+          TextField(
+            controller: _filmNameController,
+            decoration: InputDecoration(
+              hintText: 'VD: Kodak Portra 400, Ilford HP5...',
+              filled: true,
+              fillColor: AppColors.surfaceSunken,
+              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: const BorderSide(color: AppColors.outline),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: const BorderSide(color: AppColors.outline),
+              ),
             ),
-          ],
-        ),
+          ),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 6,
+            runSpacing: 6,
+            children: _filmPresets.map((preset) {
+              return ActionChip(
+                label: Text(preset, style: AppTypography.caption.copyWith(fontSize: 11)),
+                backgroundColor: AppColors.surfaceSunken,
+                side: const BorderSide(color: AppColors.outline),
+                onPressed: () {
+                  setState(() {
+                    _filmNameController.text = preset;
+                  });
+                },
+              );
+            }).toList(),
+          ),
+          const Divider(height: 22, color: AppColors.outline),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('Số lượng cuộn', style: AppTypography.cardTitle.copyWith(fontSize: 14)),
+              Row(
+                children: [
+                  IconButton(
+                    onPressed: _quantity > 1 ? () => setState(() => _quantity--) : null,
+                    icon: const Icon(Icons.remove_circle_outline),
+                    color: AppColors.primary,
+                  ),
+                  Text('$_quantity', style: AppTypography.sectionHeading.copyWith(fontSize: 16)),
+                  IconButton(
+                    onPressed: () => setState(() => _quantity++),
+                    icon: const Icon(Icons.add_circle_outline),
+                    color: AppColors.primary,
+                  ),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text('Khổ film Lab hỗ trợ', style: AppTypography.caption.copyWith(fontWeight: FontWeight.w600)),
+          const SizedBox(height: 6),
+          Wrap(
+            spacing: 8,
+            children: formats.map((f) {
+              final selected = f == _filmFormat;
+              return ChoiceChip(
+                label: Text(f),
+                selected: selected,
+                selectedColor: AppColors.primary.withAlpha(32),
+                onSelected: (_) => setState(() => _filmFormat = f),
+              );
+            }).toList(),
+          ),
+          const SizedBox(height: 12),
+          Text('Máy quét tại Lab', style: AppTypography.caption.copyWith(fontWeight: FontWeight.w600)),
+          const SizedBox(height: 6),
+          Wrap(
+            spacing: 8,
+            children: scanners.map((s) {
+              final selected = s == _scanner;
+              return ChoiceChip(
+                label: Text(s),
+                selected: selected,
+                selectedColor: AppColors.primary.withAlpha(32),
+                onSelected: (_) => setState(() => _scanner = s),
+              );
+            }).toList(),
+          ),
+          const SizedBox(height: 12),
+          Text('Yêu cầu Push / Pull', style: AppTypography.caption.copyWith(fontWeight: FontWeight.w600)),
+          const SizedBox(height: 6),
+          Wrap(
+            spacing: 8,
+            children: _pushPullOptions.map((opt) {
+              final selected = opt == _pushPull;
+              return ChoiceChip(
+                label: Text(opt),
+                selected: selected,
+                selectedColor: AppColors.primary.withAlpha(32),
+                onSelected: (_) => setState(() => _pushPull = opt),
+              );
+            }).toList(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLogisticsCard() {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceRaised,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.outline),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Xử lý âm bản sau tráng', style: AppTypography.caption.copyWith(fontWeight: FontWeight.w600)),
+          const SizedBox(height: 8),
+          ..._negativeHandlingOptions.entries.map((entry) {
+            final selected = _negativeHandling == entry.key;
+            return InkWell(
+              onTap: () => setState(() => _negativeHandling = entry.key),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 6),
+                child: Row(
+                  children: [
+                    Icon(
+                      selected ? Icons.radio_button_checked : Icons.radio_button_off,
+                      size: 18,
+                      color: selected ? AppColors.primary : AppColors.inkMuted,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(child: Text(entry.value, style: AppTypography.body)),
+                  ],
+                ),
+              ),
+            );
+          }),
+          const Divider(height: 20, color: AppColors.outline),
+          Text('Cách gửi film đến Lab', style: AppTypography.caption.copyWith(fontWeight: FontWeight.w600)),
+          const SizedBox(height: 8),
+          ..._shippingOptions.map((method) {
+            final selected = _shippingMethod == method;
+            return InkWell(
+              onTap: () => setState(() => _shippingMethod = method),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 6),
+                child: Row(
+                  children: [
+                    Icon(
+                      selected ? Icons.radio_button_checked : Icons.radio_button_off,
+                      size: 18,
+                      color: selected ? AppColors.primary : AppColors.inkMuted,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(child: Text(method, style: AppTypography.body)),
+                  ],
+                ),
+              ),
+            );
+          }),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMiniBadge(String label) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceSunken,
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: AppColors.outline),
+      ),
+      child: Text(
+        label,
+        style: AppTypography.caption.copyWith(fontSize: 11, color: AppColors.ink),
       ),
     );
   }

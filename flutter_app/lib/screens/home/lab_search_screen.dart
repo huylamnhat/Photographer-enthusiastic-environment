@@ -1,7 +1,10 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_typography.dart';
 import '../../core/mock/mock_test_assets.dart';
+import '../../core/services/api_service.dart';
+import '../../models/lab_model.dart';
 import 'lab_detail_screen.dart';
 import 'create_order_screen.dart';
 
@@ -15,16 +18,18 @@ class LabSearchScreen extends StatefulWidget {
 class _LabSearchScreenState extends State<LabSearchScreen> {
   final _searchController = TextEditingController();
   String _activeFilter = 'Tất cả';
-  final Set<String> _selectedCompareLabs = {'llab', 'croplab'};
+  final Set<String> _selectedCompareLabs = {};
+  bool _loading = false;
+  Timer? _refreshTimer;
 
-  final List<Map<String, dynamic>> _labs = [
+  List<Map<String, dynamic>> _labs = [
     {
-      'id': 'llab',
+      'id': 'lab-002',
       'name': 'LLab Sài Gòn',
       'tag': 'XÁC THỰC',
       'rating': '4.9',
       'reviews': '140',
-      'distance': '1.8km (Q.1)',
+      'distance': 'TP. Hồ Chí Minh',
       'services': ['C-41', 'B&W', 'ECN-2'],
       'machine': 'Noritsu HS-1800',
       'machineDesc': 'Tone ấm tự nhiên',
@@ -33,37 +38,87 @@ class _LabSearchScreenState extends State<LabSearchScreen> {
       'image': MockTestAssets.labCover1,
       'drop': 'Có tủ Drop 24/7',
     },
-    {
-      'id': 'croplab',
-      'name': 'Croplab Retro',
-      'tag': 'PHỔ BIẾN',
-      'rating': '4.8',
-      'reviews': '98',
-      'distance': '3.2km (Bình Thạnh)',
-      'services': ['C-41', 'B&W'],
-      'machine': 'Fuji SP-3000',
-      'machineDesc': 'Độ trong, xanh pastel',
-      'sla': '36 Giờ',
-      'price': '65.000đ',
-      'image': MockTestAssets.labCover2,
-      'drop': 'Nhận trực tiếp',
-    },
-    {
-      'id': 'nadar',
-      'name': 'Nadar Darkroom',
-      'tag': 'THỦ CÔNG',
-      'rating': '5.0',
-      'reviews': '45',
-      'distance': '4.5km (Q.3)',
-      'services': ['B&W Chuyên sâu', 'TIFF 16-bit'],
-      'machine': 'Hasselblad Flextight',
-      'machineDesc': 'D-76 & XTOL Silver Gelatin',
-      'sla': '48 Giờ',
-      'price': '90.000đ',
-      'image': MockTestAssets.labCover3,
-      'drop': 'Hẹn trước',
-    },
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadLabs();
+    _refreshTimer = Timer.periodic(
+      const Duration(seconds: 5),
+      (_) => _loadLabs(silent: true),
+    );
+  }
+
+  @override
+  void reassemble() {
+    super.reassemble();
+    _loadLabs(silent: true);
+  }
+
+  @override
+  void dispose() {
+    _refreshTimer?.cancel();
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  String _formatVnd(num amount) {
+    final str = amount.round().toString();
+    final buf = StringBuffer();
+    for (int i = 0; i < str.length; i++) {
+      if (i > 0 && (str.length - i) % 3 == 0) {
+        buf.write('.');
+      }
+      buf.write(str[i]);
+    }
+    return '${buf.toString()}đ';
+  }
+
+  Future<void> _loadLabs({bool silent = false}) async {
+    if (!silent) {
+      setState(() => _loading = true);
+    }
+    final apiLabs = await ApiService().getLabs();
+    if (!mounted) return;
+    if (apiLabs.isNotEmpty) {
+      final mapped = apiLabs.map((LabModel l) {
+        String minPriceLabel = l.priceRange.isNotEmpty ? l.priceRange.split(' ').first : '65.000đ';
+        if (l.packages.isNotEmpty) {
+          final minPrice = l.packages
+              .map((p) => p.price)
+              .reduce((a, b) => a < b ? a : b);
+          minPriceLabel = _formatVnd(minPrice);
+        }
+        return {
+          'labModel': l,
+          'packages': l.packages,
+          'id': l.labId,
+          'name': l.name,
+          'tag': l.isVerified ? 'XÁC THỰC' : 'ĐỐI TÁC',
+          'rating': l.rating.toStringAsFixed(1),
+          'reviews': l.reviewCount.toString(),
+          'distance': l.city.isNotEmpty ? l.city : l.address,
+          'services': l.supportedProcesses.isNotEmpty ? l.supportedProcesses : ['C-41', 'B&W'],
+          'machine': l.scannerModels.isNotEmpty ? l.scannerModels.first : 'Noritsu HS-1800',
+          'machineDesc': l.tagline.isNotEmpty ? l.tagline : 'Chuẩn màu Analog',
+          'sla': '${l.turnaroundHours} Giờ',
+          'price': minPriceLabel,
+          'image': l.coverImage.isNotEmpty ? l.coverImage : MockTestAssets.labCover1,
+          'drop': 'Nhận trực tiếp & Ship',
+        };
+      }).toList();
+      setState(() {
+        _labs = mapped;
+        if (_selectedCompareLabs.isEmpty) {
+          _selectedCompareLabs.addAll(mapped.take(2).map((e) => e['id'] as String));
+        }
+        _loading = false;
+      });
+    } else if (!silent) {
+      setState(() => _loading = false);
+    }
+  }
 
   void _toggleCompare(String labId) {
     setState(() {
@@ -294,6 +349,15 @@ class _LabSearchScreenState extends State<LabSearchScreen> {
             ),
           ],
         ),
+        actions: [
+          IconButton(
+            tooltip: 'Đồng bộ danh sách Lab',
+            icon: _loading
+                ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
+                : const Icon(Icons.refresh, size: 20, color: AppColors.primary),
+            onPressed: _loadLabs,
+          ),
+        ],
       ),
       body: Stack(
         children: [
@@ -542,6 +606,52 @@ class _LabSearchScreenState extends State<LabSearchScreen> {
                               ),
                             ],
                           ),
+                          if (((lab['packages'] as List<ServicePackageModel>?) ?? []).isNotEmpty) ...[
+                            const SizedBox(height: 10),
+                            Text(
+                              'GÓI DỊCH VỤ (${((lab['packages'] as List<ServicePackageModel>?) ?? []).length})',
+                              style: AppTypography.labelCaps.copyWith(fontSize: 9, color: AppColors.inkMuted),
+                            ),
+                            const SizedBox(height: 6),
+                            Wrap(
+                              spacing: 6,
+                              runSpacing: 6,
+                              children: ((lab['packages'] as List<ServicePackageModel>?) ?? []).map((pkg) {
+                                return InkWell(
+                                  onTap: () async {
+                                    await Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) => CreateOrderScreen(
+                                          lab: lab['labModel'] as LabModel?,
+                                          initialLabId: lab['id'],
+                                          initialPackageId: pkg.packageId,
+                                        ),
+                                      ),
+                                    );
+                                    _loadLabs(silent: true);
+                                  },
+                                  borderRadius: BorderRadius.circular(6),
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.surfaceSunken,
+                                      borderRadius: BorderRadius.circular(6),
+                                      border: Border.all(color: AppColors.primary.withAlpha(70)),
+                                    ),
+                                    child: Text(
+                                      '${pkg.name} • ${_formatVnd(pkg.price)}',
+                                      style: AppTypography.caption.copyWith(
+                                        fontSize: 10,
+                                        color: AppColors.ink,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              }).toList(),
+                            ),
+                          ],
                           const SizedBox(height: 10),
 
                           // Specs ribbon & actions
@@ -584,11 +694,17 @@ class _LabSearchScreenState extends State<LabSearchScreen> {
                             mainAxisAlignment: MainAxisAlignment.end,
                             children: [
                               OutlinedButton(
-                                onPressed: () {
-                                  Navigator.push(
+                                onPressed: () async {
+                                  await Navigator.push(
                                     context,
-                                    MaterialPageRoute(builder: (_) => LabDetailScreen(labId: lab['id'])),
+                                    MaterialPageRoute(
+                                      builder: (_) => LabDetailScreen(
+                                        lab: lab['labModel'] as LabModel?,
+                                        labId: lab['id'],
+                                      ),
+                                    ),
                                   );
+                                  _loadLabs(silent: true);
                                 },
                                 style: OutlinedButton.styleFrom(
                                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
@@ -599,11 +715,17 @@ class _LabSearchScreenState extends State<LabSearchScreen> {
                               ),
                               const SizedBox(width: 8),
                               ElevatedButton(
-                                onPressed: () {
-                                  Navigator.push(
+                                onPressed: () async {
+                                  await Navigator.push(
                                     context,
-                                    MaterialPageRoute(builder: (_) => CreateOrderScreen(initialLabId: lab['id'])),
+                                    MaterialPageRoute(
+                                      builder: (_) => CreateOrderScreen(
+                                        lab: lab['labModel'] as LabModel?,
+                                        initialLabId: lab['id'],
+                                      ),
+                                    ),
                                   );
+                                  _loadLabs(silent: true);
                                 },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: AppColors.primary,

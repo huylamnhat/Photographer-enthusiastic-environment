@@ -1,4 +1,4 @@
-﻿USE FilmLabPlatform_Test;
+USE FilmLabPlatform_Test;
 GO
 CREATE OR ALTER PROCEDURE dbo.sp_ChangeOrderStatus
     @order_id BIGINT,
@@ -17,12 +17,13 @@ BEGIN
         FROM dbo.Orders WITH (UPDLOCK, HOLDLOCK) WHERE order_id = @order_id;
         IF @old_status IS NULL THROW 51001, 'Order not found.', 1;
         IF @new_status IS NULL OR NOT (
-            (@old_status = 'PENDING_PAYMENT' AND @new_status IN ('PENDING_LAB_CONFIRM','CANCELLED')) OR
-            (@old_status = 'PENDING_LAB_CONFIRM' AND @new_status IN ('PICKING_UP','RECEIVED_AT_LAB','CANCELLED')) OR
-            (@old_status = 'PICKING_UP' AND @new_status IN ('RECEIVED_AT_LAB','CANCELLED')) OR
-            (@old_status = 'RECEIVED_AT_LAB' AND @new_status = 'PROCESSING') OR
-            (@old_status = 'PROCESSING' AND @new_status = 'COMPLETED') OR
-            (@old_status = 'COMPLETED' AND @new_status IN ('DELIVERING','CLOSED')) OR
+            (@old_status = 'PENDING_PAYMENT' AND @new_status IN ('PENDING_LAB_CONFIRM','RECEIVED','CANCELLED')) OR
+            (@old_status = 'PENDING_LAB_CONFIRM' AND @new_status IN ('PICKING_UP','RECEIVED_AT_LAB','RECEIVED','CANCELLED')) OR
+            (@old_status = 'PICKING_UP' AND @new_status IN ('RECEIVED_AT_LAB','RECEIVED','CANCELLED')) OR
+            (@old_status IN ('RECEIVED_AT_LAB','RECEIVED','PENDING_FILM') AND @new_status IN ('PROCESSING','CANCELLED')) OR
+            (@old_status = 'PROCESSING' AND @new_status IN ('DRYING','SCANNING','QC_CHECK','READY_FOR_DOWNLOAD','COMPLETED')) OR
+            (@old_status IN ('DRYING','SCANNING','QC_CHECK') AND @new_status IN ('SCANNING','QC_CHECK','READY_FOR_DOWNLOAD','COMPLETED')) OR
+            (@old_status IN ('READY_FOR_DOWNLOAD','COMPLETED') AND @new_status IN ('COMPLETED','DELIVERING','CLOSED')) OR
             (@old_status = 'DELIVERING' AND @new_status = 'CLOSED')
         ) THROW 51002, 'Invalid order status transition.', 1;
         IF @new_status = 'PICKING_UP' AND @receive_method <> 'PICKUP'

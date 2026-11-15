@@ -1,44 +1,40 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../core/services/web_api_service.dart';
 
-class AdminAuditLogsTab extends StatelessWidget {
+class AdminAuditLogsTab extends StatefulWidget {
   const AdminAuditLogsTab({super.key});
 
-  final List<Map<String, dynamic>> _logs = const [
-    {
-      'actor': 'Vũ Minh Tuấn (SYS_ADMIN)',
-      'time': '2026-10-27 07:02:14',
-      'action': 'LOCK_USER_ACCOUNT',
-      'target': 'USR-DN-099 (Hoàng Văn Bách)',
-      'reason': 'Phát hiện spam bài viết quảng cáo hóa chất không nhãn mác',
-      'ip': '113.161.44.18',
-    },
-    {
-      'actor': 'Hệ thống tự động (CRON_TASK)',
-      'time': '2026-10-27 06:00:00',
-      'action': 'CALCULATE_SLA_COMPLIANCE',
-      'target': '185 Film Labs',
-      'reason': 'Chốt chỉ số SLA ca đêm, cảnh báo Nadir Atelier đạt 87.2%',
-      'ip': '127.0.0.1 (INTERNAL)',
-    },
-    {
-      'actor': 'Vũ Minh Tuấn (SYS_ADMIN)',
-      'time': '2026-10-26 18:30:22',
-      'action': 'APPROVE_MARKETPLACE_LISTING',
-      'target': 'MKT-POST-890 (Canon F-1 Lake Placid)',
-      'reason': 'Đã kiểm tra số seri máy và tem cơ khí hợp lệ',
-      'ip': '113.161.44.18',
-    },
-    {
-      'actor': 'Vũ Minh Tuấn (SYS_ADMIN)',
-      'time': '2026-10-26 14:15:00',
-      'action': 'REFUND_TRANSACTION_APPROVED',
-      'target': 'ORD-2026-8799 / Khách: Nguyễn Lan',
-      'reason': 'Đền bù lỗi xước phim cuộn Cinestill 800T (50.000đ)',
-      'ip': '113.161.44.18',
-    },
-  ];
+  @override
+  State<AdminAuditLogsTab> createState() => _AdminAuditLogsTabState();
+}
+
+class _AdminAuditLogsTabState extends State<AdminAuditLogsTab> {
+  List<Map<String, dynamic>> _logs = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadLogs();
+  }
+
+  Future<void> _loadLogs() async {
+    final data = await WebApiService().getAdminAuditLogs();
+    if (!mounted) return;
+    setState(() {
+      _logs = data.map<Map<String, dynamic>>((l) {
+        return {
+          'actor': (l['actor'] ?? 'System').toString(),
+          'time': (l['timestamp'] ?? '').toString(),
+          'action': (l['action'] ?? '').toString(),
+          'target': (l['entity'] ?? '').toString(),
+          'reason': '${l['oldVal'] ?? ''} → ${l['newVal'] ?? ''}',
+          'ip': (l['ip'] ?? '127.0.0.1').toString(),
+        };
+      }).toList();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -53,19 +49,15 @@ class AdminAuditLogsTab extends StatelessWidget {
               const Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('WEB-ADM-09 // NHẬT KÝ KIỂM TOÁN HỆ THỐNG', style: AppTypography.labelCaps),
+                  Text('WEB-ADM-09 // NHẬT KÝ KIỂM TOÁN HỆ THỐNG (SQL SERVER)', style: AppTypography.labelCaps),
                   SizedBox(height: 4),
                   Text('Audit Trail Ghi vết Hành vi Chỉ huy', style: AppTypography.pageTitle),
                 ],
               ),
               OutlinedButton.icon(
-                onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Đang kết xuất nhật ký kiểm toán sang tệp CSV...')),
-                  );
-                },
-                icon: const Icon(Icons.file_download_outlined, size: 16),
-                label: const Text('Xuất CSV (Chỉ đọc)'),
+                onPressed: _loadLogs,
+                icon: const Icon(Icons.refresh, size: 16),
+                label: const Text('Tải lại từ CSDL'),
               ),
             ],
           ),
@@ -97,7 +89,7 @@ class AdminAuditLogsTab extends StatelessWidget {
                     _th('THỜI GIAN'),
                     _th('THAO TÁC AUDIT'),
                     _th('ĐỐI TƯỢNG TÁC ĐỘNG'),
-                    _th('LÝ DO GIẢI TRÌNH BẮT BUỘC'),
+                    _th('DỮ LIỆU CŨ / MỚI (JSON)'),
                     _th('ĐỊA CHỈ IP'),
                   ],
                 ),
@@ -138,4 +130,3 @@ class AdminAuditLogsTab extends StatelessWidget {
     );
   }
 }
-

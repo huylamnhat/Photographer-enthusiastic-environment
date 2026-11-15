@@ -2,35 +2,64 @@ import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_typography.dart';
 import '../../core/mock/mock_test_assets.dart';
+import '../../core/services/api_service.dart';
 
-class AlbumDetailScreen extends StatelessWidget {
+class AlbumDetailScreen extends StatefulWidget {
   const AlbumDetailScreen({super.key});
 
   @override
+  State<AlbumDetailScreen> createState() => _AlbumDetailScreenState();
+}
+
+class _AlbumDetailScreenState extends State<AlbumDetailScreen> {
+  List<Map<String, dynamic>> _albums = [
+    {
+      'title': 'Mùa thu Hà Nội 2026 (ORD-2026-8801)',
+      'count': 2,
+      'cover': MockTestAssets.samplePhoto1,
+      'roll': 'Kodak Portra 400 • CropLab Hà Nội',
+      'date': '01/03/2026',
+    },
+    {
+      'title': 'Phố cổ & Cà phê sáng (ORD-2026-8819)',
+      'count': 1,
+      'cover': MockTestAssets.samplePhoto2,
+      'roll': 'Kodak Portra 400 • CropLab Hà Nội',
+      'date': '01/03/2026',
+    },
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadAlbums();
+  }
+
+  Future<void> _loadAlbums() async {
+    final photos = await ApiService().getArchivePhotos();
+    if (!mounted || photos.isEmpty) return;
+    final grouped = <String, Map<String, dynamic>>{};
+    for (final p in photos) {
+      final name = p.albumName.isNotEmpty ? p.albumName : 'Album ${p.orderId}';
+      if (!grouped.containsKey(name)) {
+        grouped[name] = {
+          'title': name,
+          'count': 0,
+          'cover': p.imageUrl.isNotEmpty ? p.imageUrl : MockTestAssets.samplePhoto1,
+          'roll': '${p.metadata.filmStock} • ${p.metadata.lab}',
+          'date': p.createdAt.split('T').first,
+        };
+      }
+      grouped[name]!['count'] = (grouped[name]!['count'] as int) + 1;
+    }
+    setState(() {
+      _albums = grouped.values.toList();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final albums = [
-      {
-        'title': 'Mùa thu Hà Nội 2026',
-        'count': 36,
-        'cover': MockTestAssets.samplePhoto1,
-        'roll': 'Kodak Portra 400 • Canon AE-1',
-        'date': '01/03/2026',
-      },
-      {
-        'title': 'Chuyến đi Ninh Bình',
-        'count': 24,
-        'cover': MockTestAssets.samplePhoto2,
-        'roll': 'Fujifilm Pro 400H • Leica M6',
-        'date': '15/02/2026',
-      },
-      {
-        'title': 'Đường phố đêm Sài Gòn',
-        'count': 18,
-        'cover': MockTestAssets.samplePhoto3,
-        'roll': 'Kodak Vision3 500T • Contax T2',
-        'date': '28/01/2026',
-      },
-    ];
+    final albums = _albums;
 
     return Scaffold(
       backgroundColor: AppColors.surface,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_typography.dart';
 import '../../core/mock/mock_test_assets.dart';
+import '../../core/services/api_service.dart';
 import 'post_detail_screen.dart';
 import 'create_post_screen.dart';
 import 'events_screen.dart';
@@ -16,8 +17,9 @@ class CommunityFeedScreen extends StatefulWidget {
 
 class _CommunityFeedScreenState extends State<CommunityFeedScreen> {
   String _selectedCategory = 'Tất cả';
+  bool _loading = false;
 
-  final List<Map<String, dynamic>> _posts = [
+  List<Map<String, dynamic>> _posts = [
     {
       'id': 'post-001',
       'author': 'Lê Quang Huy',
@@ -25,34 +27,56 @@ class _CommunityFeedScreenState extends State<CommunityFeedScreen> {
       'badge': 'CHUYÊN GIA ANALOG',
       'time': '2 giờ trước',
       'title': 'Bí quyết đo sáng chụp phim âm bản màu: Đừng sợ dư sáng!',
-      'content': 'Phim âm bản màu (Color Negative như Portra 400, Gold 200) có dải nhạy sáng (Dynamic Range) về phía highlight cực kỳ ấn tượng, lên đến +3 hoặc +4 stops mà vẫn giữ trọn vẹn chi tiết mây trời. Hãy luôn đo sáng vào vùng bóng râm (shadow) để da người luôn đủ sáng và mịn màng.',
+      'content': 'Phim âm bản màu (Color Negative như Portra 400, Gold 200) có dải nhạy sáng (Dynamic Range) về phía highlight cực kỳ ấn tượng, lên đến +3 hoặc +4 stops mà vẫn giữ trọn vẹn chi tiết mây trời.',
       'category': 'Kinh nghiệm chụp',
       'image': MockTestAssets.samplePhoto2,
       'tags': ['#kodakportra400', '#metering', '#streetphotography'],
       'likes': 89,
       'comments': 14,
     },
-    {
-      'id': 'post-002',
-      'author': 'Nguyễn Hoàng Anh',
-      'avatar': MockTestAssets.avatarCustomer,
-      'badge': 'THÀNH VIÊN',
-      'time': '5 giờ trước',
-      'title': 'Trải nghiệm tráng film điện ảnh ECN-2 tại LLab Sài Gòn',
-      'content': 'Cuộn Kodak Vision3 500T của mình vừa được trả ảnh scan sau 48h. Thợ lab tẩy lớp than Remjet rất sạch, không hề bị đốm đen hay ám mờ. Màu sắc buổi đêm ở phố đi bộ lên ánh đèn neon ấm áp đúng chất điện ảnh.',
-      'category': 'Review Film',
-      'image': MockTestAssets.samplePhoto3,
-      'tags': ['#vision3_500t', '#ecn2', '#saigonnights'],
-      'likes': 56,
-      'comments': 9,
-    },
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPosts();
+  }
+
+  Future<void> _loadPosts() async {
+    setState(() => _loading = true);
+    final res = await ApiService().getCommunityPosts();
+    if (!mounted) return;
+    if (res.isNotEmpty) {
+      final mapped = res.map((p) {
+        return {
+          'id': p.postId,
+          'author': p.authorName,
+          'avatar': p.authorAvatar.isNotEmpty ? p.authorAvatar : MockTestAssets.avatarCustomer,
+          'badge': p.authorBadge.toUpperCase(),
+          'time': p.createdAt.split('T').first,
+          'title': p.title,
+          'content': p.content,
+          'category': p.category,
+          'image': p.imageUrl.isNotEmpty ? p.imageUrl : MockTestAssets.samplePhoto2,
+          'tags': ['#analog', '#minilab'],
+          'likes': p.likesCount,
+          'comments': p.commentsCount,
+        };
+      }).toList();
+      setState(() {
+        _posts = mapped;
+        _loading = false;
+      });
+    } else {
+      setState(() => _loading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final filtered = _posts.where((p) {
       if (_selectedCategory == 'Tất cả') return true;
-      return p['category'] == _selectedCategory;
+      return p['category'].toString().toLowerCase().contains(_selectedCategory.toLowerCase());
     }).toList();
 
     return Scaffold(
@@ -85,6 +109,13 @@ class _CommunityFeedScreenState extends State<CommunityFeedScreen> {
         ),
         actions: [
           IconButton(
+            icon: _loading
+                ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
+                : const Icon(Icons.refresh, size: 20, color: AppColors.primary),
+            tooltip: 'Làm mới diễn đàn',
+            onPressed: _loadPosts,
+          ),
+          IconButton(
             icon: const Icon(Icons.event_outlined, size: 20),
             tooltip: 'Sự kiện Photowalk',
             onPressed: () {
@@ -113,11 +144,12 @@ class _CommunityFeedScreenState extends State<CommunityFeedScreen> {
         elevation: 2,
         icon: const Icon(Icons.edit, size: 18),
         label: Text('Soạn bài viết', style: AppTypography.button),
-        onPressed: () {
-          Navigator.push(
+        onPressed: () async {
+          await Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => const CreatePostScreen()),
           );
+          _loadPosts();
         },
       ),
       body: SingleChildScrollView(
@@ -196,12 +228,20 @@ class _CommunityFeedScreenState extends State<CommunityFeedScreen> {
                                         Container(
                                           padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
                                           decoration: BoxDecoration(
-                                            color: AppColors.surfaceSunken,
+                                            color: (post['badge'] as String).contains('KHÓA') || (post['badge'] as String).contains('VI PHẠM')
+                                                ? AppColors.dangerBg
+                                                : AppColors.surfaceSunken,
                                             borderRadius: BorderRadius.circular(3),
                                           ),
                                           child: Text(
                                             post['badge'] as String,
-                                            style: AppTypography.labelCaps.copyWith(fontSize: 8, color: AppColors.primary, fontWeight: FontWeight.bold),
+                                            style: AppTypography.labelCaps.copyWith(
+                                              fontSize: 8,
+                                              color: (post['badge'] as String).contains('KHÓA') || (post['badge'] as String).contains('VI PHẠM')
+                                                  ? AppColors.danger
+                                                  : AppColors.primary,
+                                              fontWeight: FontWeight.bold,
+                                            ),
                                           ),
                                         ),
                                       ],
@@ -210,7 +250,34 @@ class _CommunityFeedScreenState extends State<CommunityFeedScreen> {
                                   ],
                                 ),
                               ),
-                              const Icon(Icons.more_horiz, size: 18, color: AppColors.inkMuted),
+                              PopupMenuButton<String>(
+                                icon: const Icon(Icons.more_horiz, size: 18, color: AppColors.inkMuted),
+                                onSelected: (val) async {
+                                  if (val == 'report') {
+                                    final ok = await ApiService().reportCommunityPost(
+                                      post['id'] as String,
+                                      'Báo cáo vi phạm nội dung / spam từ người dùng Mobile',
+                                    );
+                                    if (!context.mounted) return;
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        backgroundColor: ok ? AppColors.secondary : AppColors.danger,
+                                        content: Text(
+                                          ok
+                                              ? 'Đã gửi báo cáo bài viết sang Bảng Kiểm duyệt Admin!'
+                                              : 'Lỗi khi gửi báo cáo.',
+                                        ),
+                                      ),
+                                    );
+                                  }
+                                },
+                                itemBuilder: (_) => const [
+                                  PopupMenuItem(
+                                    value: 'report',
+                                    child: Text('Báo cáo vi phạm (Gửi Admin)'),
+                                  ),
+                                ],
+                              ),
                             ],
                           ),
                         ),

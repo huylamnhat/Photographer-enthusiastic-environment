@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_typography.dart';
 import '../../core/mock/mock_test_assets.dart';
 import '../../models/community_model.dart';
+import '../../providers/auth_provider.dart';
 
 class PostDetailScreen extends StatefulWidget {
   final CommunityPostModel? post;
@@ -38,10 +40,19 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
     final text = _commentController.text.trim();
     if (text.isEmpty) return;
 
+    final auth = Provider.of<AuthProvider>(context, listen: false);
+    final user = auth.currentUser ?? auth.user;
+    final authorName = (user != null && user.fullName.isNotEmpty)
+        ? user.fullName
+        : 'Nguyễn Hoàng Anh';
+    final avatar = (user != null && user.avatarUrl != null && user.avatarUrl!.isNotEmpty)
+        ? user.avatarUrl!
+        : MockTestAssets.avatarCustomer;
+
     setState(() {
       _mockComments.add({
-        'author': 'Nguyễn Hoàng Anh',
-        'avatar': MockTestAssets.avatarCustomer,
+        'author': authorName,
+        'avatar': avatar,
         'time': 'Vừa xong',
         'content': text,
       });

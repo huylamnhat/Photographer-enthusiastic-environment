@@ -18,6 +18,7 @@ class LabModel {
   final String priceRange;
   final String description;
   final List<ServicePackageModel> packages;
+  final List<Map<String, dynamic>> processTable;
 
   LabModel({
     required this.labId,
@@ -39,6 +40,7 @@ class LabModel {
     required this.priceRange,
     required this.description,
     this.packages = const [],
+    this.processTable = const [],
   });
 
   factory LabModel.fromJson(Map<String, dynamic> json) {
@@ -65,6 +67,10 @@ class LabModel {
               ?.map((p) => ServicePackageModel.fromJson(p))
               .toList() ??
           [],
+      processTable: (json['process_table'] as List<dynamic>?)
+              ?.map((e) => Map<String, dynamic>.from(e as Map))
+              .toList() ??
+          const [],
     );
   }
 }

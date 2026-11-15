@@ -1,4 +1,4 @@
-﻿-- Issue #21 | SQL Server | Source: Week 2
+-- Issue #21 | SQL Server | Source: Week 2
 
 -- 1. Roles
 CREATE TABLE Roles (
@@ -15,11 +15,14 @@ CREATE TABLE Roles (
 -- 2. Users
 CREATE TABLE Users (
     user_id        INT IDENTITY(1,1) NOT NULL,
+    user_code      VARCHAR(30)    NULL,               -- Mã định danh đồng bộ App/Backend (VD: usr-001)
     email          NVARCHAR(255)  NOT NULL,
     phone          VARCHAR(20)    NULL,
     password_hash  VARCHAR(255)   NOT NULL,           -- bcrypt/argon2, KHÔNG lưu mật khẩu thô
     full_name      NVARCHAR(150)  NOT NULL,
     avatar_url     VARCHAR(500)   NULL,
+    address_text   NVARCHAR(500)  NULL,               -- Địa chỉ hiển thị nhanh trên hồ sơ
+    bio            NVARCHAR(2000) NULL,               -- Giới thiệu ngắn của người dùng/chuyên gia
     status         VARCHAR(20)    NOT NULL CONSTRAINT DF_Users_Status DEFAULT 'PENDING_VERIFY',
     email_verified BIT            NOT NULL CONSTRAINT DF_Users_EmailVerified DEFAULT 0,
     locked_reason  NVARCHAR(500)  NULL,
@@ -36,6 +39,7 @@ CREATE TABLE Users (
     CONSTRAINT CK_Users_Locked CHECK (status <> 'LOCKED' OR (locked_at IS NOT NULL AND locked_by IS NOT NULL))
 );
 CREATE UNIQUE INDEX UX_Users_Phone ON Users(phone) WHERE phone IS NOT NULL;
+CREATE UNIQUE INDEX UX_Users_Code  ON Users(user_code) WHERE user_code IS NOT NULL;
 
 -- 3. User_Roles (N-N: User <-> Role)
 CREATE TABLE User_Roles (

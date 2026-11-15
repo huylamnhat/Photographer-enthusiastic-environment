@@ -1,4 +1,4 @@
-﻿USE FilmLabPlatform_Test;
+USE FilmLabPlatform_Test;
 GO
 CREATE OR ALTER TRIGGER dbo.trg_R3_ReviewEligibility
 ON dbo.Review
@@ -11,7 +11,7 @@ BEGIN
   LEFT JOIN dbo.Orders o ON o.order_id=i.order_id
   LEFT JOIN dbo.Marketplace_Transaction t ON t.txn_id=i.txn_id
   WHERE (i.review_type='LAB' AND
-            (o.status<>'CLOSED' OR o.customer_id<>i.reviewer_id))
+            (o.status NOT IN ('CLOSED','COMPLETED','READY_FOR_DOWNLOAD') OR o.customer_id<>i.reviewer_id))
      OR (i.review_type='SELLER' AND
             (t.status<>'COMPLETED' OR t.buyer_id<>i.reviewer_id))
  )

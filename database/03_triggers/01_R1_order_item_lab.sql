@@ -1,4 +1,4 @@
-﻿USE FilmLabPlatform_Test;
+USE FilmLabPlatform_Test;
 GO
 CREATE OR ALTER TRIGGER dbo.trg_R1_OrderItemLab
 ON dbo.Order_Item
@@ -12,8 +12,6 @@ BEGIN
    JOIN dbo.Service_Package p ON p.package_id=i.package_id
    WHERE o.lab_id<>p.lab_id
  )
- BEGIN
-   THROW 51001, 'R1: Goi dich vu phai thuoc Lab cua don hang.', 1;
- END
+ THROW 51001, 'R1: Goi dich vu phai thuoc Lab cua don hang.', 1;
 END;
 GO

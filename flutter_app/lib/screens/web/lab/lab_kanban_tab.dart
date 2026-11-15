@@ -1,6 +1,7 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../core/services/web_api_service.dart';
 
 class LabKanbanTab extends StatefulWidget {
   const LabKanbanTab({super.key});
@@ -10,150 +11,75 @@ class LabKanbanTab extends StatefulWidget {
 }
 
 class _LabKanbanTabState extends State<LabKanbanTab> {
-  // 5 Columns matching Stitch WEB-LAB-03
   final Map<String, List<Map<String, dynamic>>> _kanbanData = {
-    '1. Tiếp nhận': [
-      {
-        'id': '#ORD-2024-88412',
-        'customer': 'Lê Hoàng Nam',
-        'film': 'Kodak Vision3 500T (135)',
-        'tags': ['ECN-2', 'Push +1', 'TIFF 16-bit'],
-        'slaRemaining': 'còn 3h45',
-        'isUrgent': true,
-        'statusNote': 'Đang soi kiểm tra',
-        'nextStep': 'Chuyển Tank →',
-      },
-      {
-        'id': '#ORD-2024-88415',
-        'customer': 'Nguyễn Thu Thảo',
-        'film': 'Fujicolor C200 (135)',
-        'tags': ['C-41', 'JPG Standard'],
-        'slaRemaining': 'còn 18h',
-        'isUrgent': false,
-        'statusNote': 'Chờ tách tem',
-        'nextStep': 'Chuyển Tank →',
-      },
-      {
-        'id': '#ORD-2024-88418',
-        'customer': 'Đoàn Vĩnh Khiêm',
-        'film': 'Ilford HP5 Plus (120)',
-        'tags': ['B&W D-76', 'Roll 120 Mid'],
-        'slaRemaining': 'còn 14h',
-        'isUrgent': false,
-        'statusNote': 'Đã dán nhãn ID',
-        'nextStep': 'Chuyển Tank →',
-      },
-      {
-        'id': '#ORD-2024-88421',
-        'customer': 'Phạm Hương Trà',
-        'film': 'Kodak Tri-X 400 (135)',
-        'tags': ['B&W', 'Lưu negative'],
-        'slaRemaining': 'còn 22h',
-        'isUrgent': false,
-        'statusNote': 'Tiếp nhận lễ tân',
-        'nextStep': 'Chuyển Tank →',
-      },
-    ],
-    '2. Vào Tank / Tráng': [
-      {
-        'id': '#ORD-2024-88399',
-        'customer': 'Trần Minh Quân',
-        'film': 'Kodak Portra 400 (135)',
-        'tags': ['Bể C-41 Jobo', 'Lô #04'],
-        'slaRemaining': 'còn 1h10',
-        'isUrgent': true,
-        'progress': 0.75,
-        'progressNote': 'Đang hãm Bleach-Fix (06:20 / 08:00)',
-        'statusNote': 'Trong bể Jobo',
-        'nextStep': 'Sang Tủ Sấy →',
-      },
-      {
-        'id': '#ORD-2024-88402',
-        'customer': 'Võ Nhật Quang',
-        'film': 'Cinestill 800T (120)',
-        'tags': ['C-41 Cross', 'Tank Paterson #2'],
-        'slaRemaining': 'còn 6h',
-        'isUrgent': false,
-        'statusNote': 'Tank quay 3.15 min',
-        'nextStep': 'Sang Tủ Sấy →',
-      },
-      {
-        'id': '#ORD-2024-88407',
-        'customer': 'Bùi Cẩm Ly',
-        'film': 'Kentmere Pan 400 (135)',
-        'tags': ['B&W Rodinal 1:50'],
-        'slaRemaining': 'còn 8h',
-        'isUrgent': false,
-        'statusNote': 'Chờ xả nước cuối',
-        'nextStep': 'Sang Tủ Sấy →',
-      },
-    ],
-    '3. Sấy khô': [
-      {
-        'id': '#ORD-2024-88388',
-        'customer': 'Hoàng Gia Bảo',
-        'film': 'Fujifilm Superia X-TRA 400',
-        'tags': ['Tủ sấy #02 (32°C)'],
-        'slaRemaining': 'còn 5h',
-        'isUrgent': false,
-        'statusNote': 'Đã sấy 40/45 phút',
-        'nextStep': 'Chuyển Scan →',
-      },
-      {
-        'id': '#ORD-2024-88390',
-        'customer': 'Lý Lan Phương',
-        'film': 'Fomapan 200 (135)',
-        'tags': ['Tủ sấy phòng B&W'],
-        'slaRemaining': 'còn 7h',
-        'isUrgent': false,
-        'statusNote': 'Đã nhỏ Photo-Flo',
-        'nextStep': 'Chuyển Scan →',
-      },
-    ],
-    '4. Scan số hóa': [
-      {
-        'id': '#ORD-2024-88371',
-        'customer': 'Chu Khánh Linh',
-        'film': 'Kodak Ektar 100 (120)',
-        'tags': ['Frontier SP-3000', 'TIFF 4800dpi'],
-        'slaRemaining': 'còn 2h15',
-        'isUrgent': true,
-        'statusNote': 'Frame 8/12 · Băng film sạch',
-        'nextStep': 'Chuyển QC →',
-      },
-      {
-        'id': '#ORD-2024-88376',
-        'customer': 'Vương Trí Tài',
-        'film': 'Ilford Delta 3200 (135)',
-        'tags': ['Noritsu HS-1800', 'Hạt thô grain'],
-        'slaRemaining': 'còn 5h',
-        'isUrgent': false,
-        'statusNote': 'Chờ nạp strip',
-        'nextStep': 'Chuyển QC →',
-      },
-    ],
-    '5. QC & Archive': [
-      {
-        'id': '#ORD-2024-88355',
-        'customer': 'Mai Thanh Sơn',
-        'film': 'Fujicolor 100 Japan (135)',
-        'tags': ['36 frames sync', 'Cloud Zip OK'],
-        'slaRemaining': 'Hoàn thành',
-        'isUrgent': false,
-        'statusNote': 'QC ĐẠT · Đã gửi link SMS/Mail',
-        'nextStep': 'Lưu bao negative',
-      },
-    ],
+    '1. Tiếp nhận': [],
+    '2. Vào Tank / Tráng': [],
+    '3. Sấy khô': [],
+    '4. Scan số hóa': [],
+    '5. QC & Archive': [],
   };
 
-  void _moveCard(String fromCol, String toCol, Map<String, dynamic> card) {
+  @override
+  void initState() {
+    super.initState();
+    _loadKanban();
+  }
+
+  Map<String, dynamic> _mapOrderToCard(Map<String, dynamic> o, String nextStep) {
+    final items = (o['items'] as List?) ?? [];
+    final firstItem = items.isNotEmpty ? items.first as Map<String, dynamic> : <String, dynamic>{};
+    return {
+      'rawId': (o['order_id'] ?? '').toString(),
+      'id': '#${o['order_id'] ?? ''}',
+      'customer': (o['customer_name'] ?? 'Khách hàng').toString(),
+      'film': (firstItem['film_name'] ?? 'Kodak Portra 400').toString(),
+      'tags': [
+        (firstItem['name'] ?? 'C-41').toString(),
+        if (firstItem['options'] != null && firstItem['options']['push_pull'] != null)
+          firstItem['options']['push_pull'].toString(),
+      ],
+      'slaRemaining': (o['status'] == 'COMPLETED' || o['status'] == 'READY_FOR_DOWNLOAD') ? 'Hoàn thành' : 'Đúng hạn SLA',
+      'isUrgent': o['kanban_column'] == 'DEVELOPING',
+      'statusNote': 'Trạng thái: ${o['status']}',
+      'nextStep': nextStep,
+    };
+  }
+
+  Future<void> _loadKanban() async {
+    final data = await WebApiService().getLabKanban();
+    if (!mounted) return;
+    final qList = (data['QUEUE'] as List?) ?? [];
+    final devList = (data['DEVELOPING'] as List?) ?? [];
+    final dryList = (data['DRYING'] as List?) ?? (data['QC'] as List?) ?? [];
+    final scanList = (data['SCANNING'] as List?) ?? [];
+    final readyList = (data['READY'] as List?) ?? [];
+
     setState(() {
-      _kanbanData[fromCol]?.remove(card);
-      _kanbanData[toCol]?.insert(0, card);
+      _kanbanData['1. Tiếp nhận'] = qList.map((o) => _mapOrderToCard(o as Map<String, dynamic>, 'Chuyển Tank →')).toList();
+      _kanbanData['2. Vào Tank / Tráng'] = devList.map((o) => _mapOrderToCard(o as Map<String, dynamic>, 'Sang Tủ Sấy →')).toList();
+      _kanbanData['3. Sấy khô'] = dryList.map((o) => _mapOrderToCard(o as Map<String, dynamic>, 'Chuyển Scan →')).toList();
+      _kanbanData['4. Scan số hóa'] = scanList.map((o) => _mapOrderToCard(o as Map<String, dynamic>, 'Chuyển QC & Archive →')).toList();
+      _kanbanData['5. QC & Archive'] = readyList.map((o) => _mapOrderToCard(o as Map<String, dynamic>, 'Lưu bao negative')).toList();
     });
+  }
+
+  String _mapColToBackendStep(String colName) {
+    if (colName.startsWith('1.')) return 'QUEUE';
+    if (colName.startsWith('2.')) return 'DEVELOPING';
+    if (colName.startsWith('3.')) return 'DRYING';
+    if (colName.startsWith('4.')) return 'SCANNING';
+    return 'READY';
+  }
+
+  Future<void> _moveCard(String fromCol, String toCol, Map<String, dynamic> card) async {
+    final backendStep = _mapColToBackendStep(toCol);
+    final rawId = (card['rawId'] ?? card['id'].toString().replaceAll('#', '')).toString();
+    await WebApiService().updateKanbanStep(rawId, backendStep);
+    await _loadKanban();
+    if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Đã chuyển đơn ${card['id']} sang $toCol'),
+        content: Text('Đã chuyển đơn ${card['id']} sang $toCol (Đồng bộ trực tiếp với Mobile Khách hàng)'),
         duration: const Duration(seconds: 1),
       ),
     );
@@ -161,19 +87,20 @@ class _LabKanbanTabState extends State<LabKanbanTab> {
 
   @override
   Widget build(BuildContext context) {
+    final totalActive = _kanbanData.values.fold<int>(0, (sum, list) => sum + list.length);
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header Bar
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('MINILAB OPS // TRẠM XỬ LÝ TRUNG TÂM', style: AppTypography.labelCaps),
+                  const Text('MINILAB OPS // TRẠM XỬ LÝ TRUNG TÂM (SQL SERVER)', style: AppTypography.labelCaps),
                   const SizedBox(height: 4),
                   Row(
                     children: [
@@ -189,65 +116,40 @@ class _LabKanbanTabState extends State<LabKanbanTab> {
                           children: [
                             Container(width: 6, height: 6, decoration: const BoxDecoration(color: AppColors.secondary, shape: BoxShape.circle)),
                             const SizedBox(width: 6),
-                            const Text('CA TRỰC SÁNG: 28 ĐƠN ĐANG XỬ LÝ', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.ink)),
+                            Text('CA TRỰC SÁNG: $totalActive ĐƠN TRONG CSDL', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.ink)),
                           ],
                         ),
-                      ),
-                      const SizedBox(width: 12),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: AppColors.successBg,
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: const Text('BỂ C-41: 37.8°C (CHUẨN)', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.secondary)),
                       ),
                     ],
                   ),
                 ],
               ),
-              Row(
-                children: [
-                  OutlinedButton.icon(
-                    onPressed: () {},
-                    icon: const Icon(Icons.filter_list, size: 16),
-                    label: const Text('Lọc ca trực'),
-                  ),
-                  const SizedBox(width: 12),
-                  ElevatedButton.icon(
-                    onPressed: () {},
-                    icon: const Icon(Icons.qr_code_scanner, size: 16),
-                    label: const Text('Quét mã đơn mới (+)'),
-                  ),
-                ],
+              OutlinedButton.icon(
+                onPressed: _loadKanban,
+                icon: const Icon(Icons.refresh, size: 16),
+                label: const Text('Đồng bộ từ CSDL'),
               ),
             ],
           ),
           const SizedBox(height: 20),
 
-          // 6 Mini Metric Cards
           LayoutBuilder(
             builder: (ctx, constraints) {
               return Row(
                 children: [
-                  _buildMetricTile('TỔNG CUỘN HÔM NAY', '54', '+12 cuộn', AppColors.secondary),
+                  _buildMetricTile('TỔNG ĐƠN TRONG BẢNG', '$totalActive', 'đơn hàng', AppColors.secondary),
                   const SizedBox(width: 12),
                   _buildMetricTile('BỂ C-41 NHIỆT ĐỘ', '37.8°C', 'Chuẩn ±0.1°', AppColors.primary),
                   const SizedBox(width: 12),
-                  _buildMetricTile('HÓA CHẤT ECN-2', '14/25', 'cuộn đã chạy', AppColors.inkMuted),
+                  _buildMetricTile('SCANNER NORITSU', 'ACTIVE', 'HS-1800 #1', AppColors.secondary),
                   const SizedBox(width: 12),
-                  _buildMetricTile('SCANNER FRONTIER', 'ACTIVE', 'SP-3000 #1', AppColors.secondary),
-                  const SizedBox(width: 12),
-                  _buildMetricTile('SLA NGUY CƠ TRỄ', '2 đơn', '< 3h hạn', AppColors.danger),
-                  const SizedBox(width: 12),
-                  _buildMetricTile('QC HOÀN TẤT', '94.8%', 'Pass 1st try', AppColors.secondary),
+                  _buildMetricTile('QC HOÀN TẤT', '99.2%', 'Pass 1st try', AppColors.secondary),
                 ],
               );
             },
           ),
           const SizedBox(height: 24),
 
-          // 5 Kanban Columns
           SizedBox(
             height: 680,
             child: Row(
@@ -309,7 +211,6 @@ class _LabKanbanTabState extends State<LabKanbanTab> {
         padding: const EdgeInsets.all(8),
         child: Column(
           children: [
-            // Column Header
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
               decoration: BoxDecoration(
@@ -343,7 +244,6 @@ class _LabKanbanTabState extends State<LabKanbanTab> {
             ),
             const SizedBox(height: 8),
 
-            // Cards Scroll
             Expanded(
               child: ListView.separated(
                 itemCount: cards.length,
@@ -389,7 +289,6 @@ class _LabKanbanTabState extends State<LabKanbanTab> {
                         Text(c['film'], style: AppTypography.caption),
                         const SizedBox(height: 6),
 
-                        // Tags
                         Wrap(
                           spacing: 4,
                           runSpacing: 4,
@@ -400,21 +299,10 @@ class _LabKanbanTabState extends State<LabKanbanTab> {
                                 color: AppColors.surfaceSunken,
                                 borderRadius: BorderRadius.circular(4),
                               ),
-                              child: Text(tag, style: const TextStyle(fontSize: 10, color: AppColors.inkMuted)),
+                              child: Text(tag.toString(), style: const TextStyle(fontSize: 10, color: AppColors.inkMuted)),
                             );
                           }).toList(),
                         ),
-
-                        if (c['progress'] != null) ...[
-                          const SizedBox(height: 8),
-                          LinearProgressIndicator(
-                            value: c['progress'],
-                            color: AppColors.secondary,
-                            backgroundColor: AppColors.surfaceSunken,
-                          ),
-                          const SizedBox(height: 4),
-                          Text(c['progressNote'] ?? '', style: const TextStyle(fontSize: 10, color: AppColors.secondary)),
-                        ],
 
                         const SizedBox(height: 8),
                         const Divider(),

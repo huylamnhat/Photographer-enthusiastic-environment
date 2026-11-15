@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_typography.dart';
-import '../../core/services/api_service.dart';
+import '../../providers/auth_provider.dart';
 import 'admin/admin_portal_shell.dart';
 import 'lab/lab_portal_shell.dart';
 
@@ -20,58 +21,86 @@ class _WebLoginScreenState extends State<WebLoginScreen> {
   final _passwordController = TextEditingController(text: 'password123');
   bool _obscurePassword = true;
   bool _isLoading = false;
+  String? _errorMessage;
 
   void _switchMode(int mode) {
     setState(() {
       _loginMode = mode;
+      _errorMessage = null;
       if (mode == 0) {
         _emailController.text = 'admin.tuan@minilab.vn';
         _passwordController.text = 'password123';
       } else {
-        _emailController.text = 'saigon.lab@minilab.vn';
+        _emailController.text = 'croplab@minilab.vn';
         _passwordController.text = 'password123';
       }
     });
   }
 
+  void _showError(String message) {
+    setState(() {
+      _isLoading = false;
+      _errorMessage = message;
+    });
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: AppColors.errorRed,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
   void _handleLogin() async {
-    setState(() => _isLoading = true);
     final email = _emailController.text.trim();
     final password = _passwordController.text.trim();
-    final lowerEmail = email.toLowerCase();
-    final uname = lowerEmail.split('@')[0];
 
-    try {
-      await ApiService().login(email, password);
-      setState(() => _isLoading = false);
+    if (email.isEmpty || password.isEmpty) {
+      _showError('Vui lòng nhập đầy đủ tài khoản và mật khẩu');
+      return;
+    }
 
-      if (!mounted) return;
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
 
-      if (_loginMode == 0 || uname.contains('admin')) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const AdminPortalShell()),
-        );
-      } else {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const LabPortalShell()),
-        );
-      }
-    } catch (_) {
-      setState(() => _isLoading = false);
-      if (!mounted) return;
-      if (_loginMode == 0 || uname.contains('admin')) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const AdminPortalShell()),
-        );
-      } else {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const LabPortalShell()),
-        );
-      }
+    final authProvider = context.read<AuthProvider>();
+    final ok = await authProvider.login(email, password);
+
+    if (!mounted) return;
+
+    if (!ok || authProvider.currentUser == null) {
+      _showError(authProvider.errorMessage ?? 'Sai tài khoản hoặc mật khẩu');
+      return;
+    }
+
+    final user = authProvider.currentUser!;
+    if (_loginMode == 0 && user.role != 'Admin') {
+      authProvider.logout();
+      _showError('Tài khoản "${user.email}" (${user.role}) không có quyền truy cập Cổng Quản Trị Admin');
+      return;
+    }
+
+    if (_loginMode == 1 && user.role != 'LabOwner' && user.role != 'Admin') {
+      authProvider.logout();
+      _showError('Tài khoản "${user.email}" (${user.role}) không phải đối tác vận hành Film Lab');
+      return;
+    }
+
+    setState(() => _isLoading = false);
+
+    if (_loginMode == 0) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const AdminPortalShell()),
+      );
+    } else {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const LabPortalShell()),
+      );
     }
   }
 
@@ -301,7 +330,7 @@ class _WebLoginScreenState extends State<WebLoginScreen> {
                                 style: AppTypography.labelCaps,
                               ),
                               Text(
-                                _loginMode == 0 ? 'ID: ADM-HN-884' : 'ID: LAB-SG-01',
+                                _loginMode == 0 ? 'ADM-HN-884' : '3 FILM LABS ĐỒNG BỘ',
                                 style: AppTypography.dataMono.copyWith(fontSize: 10, color: AppColors.inkMuted),
                               ),
                             ],
@@ -350,6 +379,33 @@ class _WebLoginScreenState extends State<WebLoginScreen> {
                               ),
                             ),
                           ),
+                          if (_errorMessage != null) ...[
+                            const SizedBox(height: 14),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                              decoration: BoxDecoration(
+                                color: AppColors.errorRed.withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(6),
+                                border: Border.all(color: AppColors.errorRed.withValues(alpha: 0.4)),
+                              ),
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.error_outline, size: 16, color: AppColors.errorRed),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      _errorMessage!,
+                                      style: const TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                        color: AppColors.errorRed,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                           const SizedBox(height: 22),
 
                           // Login Submit Button
@@ -405,8 +461,9 @@ class _WebLoginScreenState extends State<WebLoginScreen> {
                                   runSpacing: 6,
                                   children: [
                                     _buildQuickChip('👑 Admin Sàn', 0, 'admin.tuan@minilab.vn'),
-                                    _buildQuickChip('🏢 Tiệm Lab Sài Gòn', 1, 'saigon.lab@minilab.vn'),
-                                    _buildQuickChip('🏢 Tiệm CropLab Hà Nội', 1, 'croplab@minilab.vn'),
+                                    _buildQuickChip('🏢 CropLab Hà Nội', 1, 'croplab@minilab.vn'),
+                                    _buildQuickChip('🏢 LLab Film Sài Gòn', 1, 'saigon.lab@minilab.vn'),
+                                    _buildQuickChip('🏢 Nadar Darkroom & Lab', 1, 'contact@nadarlab.com'),
                                   ],
                                 ),
                               ],

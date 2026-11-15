@@ -26,11 +26,14 @@ router.use('/admin', adminRoutes);
 router.use('/lab-portal', labManagementRoutes);
 router.use('/lab', labManagementRoutes);
 
+const { getDbStatus } = require('../config/db');
+
 router.get('/health', (req, res) => {
   res.json({
     status: 'ONLINE',
     app: 'MiniLab Platform API',
     version: '1.2.0',
+    database: getDbStatus(),
     shared_for: ['Mobile App', 'Web Lab Portal', 'Web Admin Console'],
     timestamp: new Date().toISOString()
   });

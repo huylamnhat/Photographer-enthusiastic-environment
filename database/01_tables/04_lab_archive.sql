@@ -1,4 +1,4 @@
-﻿-- Issue #21 | SQL Server | Source: Week 2
+-- Issue #21 | SQL Server | Source: Week 2
 
 -- 16. Order_Process_Step (công đoạn xử lý từng cuộn film)
 CREATE TABLE Order_Process_Step (
@@ -66,8 +66,11 @@ CREATE UNIQUE INDEX UX_DFA_OrderItem ON Digital_Film_Archive(order_item_id) WHER
 -- 23. Archive_Photo
 CREATE TABLE Archive_Photo (
     photo_id      BIGINT IDENTITY(1,1) NOT NULL,
+    photo_code    VARCHAR(30)   NULL,               -- Mã định danh đồng bộ App/Backend (VD: pho-001)
     archive_id    BIGINT        NOT NULL,
     scan_file_id  BIGINT        NULL,               -- liên kết với file gốc do Lab giao
+    roll_code     VARCHAR(50)   NULL,               -- Mã cuộn film hiển thị trên App
+    title         NVARCHAR(200) NULL,               -- Tiêu đề bức ảnh
     file_name     NVARCHAR(255) NOT NULL,
     storage_key   VARCHAR(500)  NOT NULL,           -- đường dẫn file scan gốc trong File Storage
     thumbnail_key VARCHAR(500)  NULL,               -- đường dẫn ảnh thu nhỏ (/uploads/thumbnails/...)
@@ -86,6 +89,7 @@ CREATE TABLE Archive_Photo (
     CONSTRAINT CK_AP_Size    CHECK (size_bytes > 0)
 );
 CREATE UNIQUE INDEX UX_AP_ScanFile ON Archive_Photo(scan_file_id) WHERE scan_file_id IS NOT NULL;
+CREATE UNIQUE INDEX UX_AP_Code     ON Archive_Photo(photo_code)   WHERE photo_code IS NOT NULL;
 
 -- 24. Photo_Metadata (1-1 với Archive_Photo)
 CREATE TABLE Photo_Metadata (
@@ -93,6 +97,7 @@ CREATE TABLE Photo_Metadata (
     camera_brand     NVARCHAR(100) NULL,
     camera_model     NVARCHAR(100) NULL,
     lens             NVARCHAR(150) NULL,
+    focal_length     VARCHAR(20)   NULL,            -- '35mm', '50mm'
     film_stock_id    INT           NULL,
     iso              SMALLINT      NULL,
     aperture         DECIMAL(4,1)  NULL,            -- f/1.4 .. f/32

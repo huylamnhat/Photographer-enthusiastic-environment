@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/mock/mock_test_assets.dart';
+import '../../../core/services/web_api_service.dart';
 
 class LabProfileTab extends StatefulWidget {
   const LabProfileTab({super.key});
@@ -11,13 +12,32 @@ class LabProfileTab extends StatefulWidget {
 }
 
 class _LabProfileTabState extends State<LabProfileTab> {
-  final _labNameCtrl = TextEditingController(text: 'CropLab Hà Nội & Sài Gòn');
-  final _phoneCtrl = TextEditingController(text: '0904567890');
-  final _emailCtrl = TextEditingController(text: 'hanoi@croplab.vn');
-  final _addressCtrl = TextEditingController(text: 'Số 10 ngõ 12 Đặng Thai Mai, Tây Hồ, Hà Nội');
-  final _negativeDaysCtrl = TextEditingController(text: '15');
+  final _labNameCtrl = TextEditingController();
+  final _phoneCtrl = TextEditingController();
+  final _emailCtrl = TextEditingController();
+  final _addressCtrl = TextEditingController();
+  final _negativeDaysCtrl = TextEditingController(text: '30');
   final _scanDaysCtrl = TextEditingController(text: '60');
-  final _hoursCtrl = TextEditingController(text: '08:30 - 20:00 (Hàng ngày, kể cả Thứ Bảy & CN)');
+  final _hoursCtrl = TextEditingController(text: '08:30 - 20:00 (Hàng ngày)');
+  double _rating = 4.9;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadProfile();
+  }
+
+  Future<void> _loadProfile() async {
+    final p = await WebApiService().getLabProfile();
+    if (!mounted || p.isEmpty) return;
+    setState(() {
+      _labNameCtrl.text = (p['name'] ?? '').toString();
+      _phoneCtrl.text = (p['phone'] ?? '').toString();
+      _emailCtrl.text = (p['email'] ?? '').toString();
+      _addressCtrl.text = (p['address'] ?? '').toString();
+      _rating = (p['rating'] as num?)?.toDouble() ?? 4.9;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,15 +52,23 @@ class _LabProfileTabState extends State<LabProfileTab> {
               const Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('WEB-LAB-06 // HỒ SƠ TIỆM LAB CÔNG KHAI', style: AppTypography.labelCaps),
+                  Text('WEB-LAB-06 // HỒ SƠ TIỆM LAB CÔNG KHAI (SQL SERVER)', style: AppTypography.labelCaps),
                   SizedBox(height: 4),
                   Text('Cấu hình Thông Tin Tiệm & Chính Sách Lưu Bản Âm', style: AppTypography.pageTitle),
                 ],
               ),
               ElevatedButton.icon(
-                onPressed: () {
+                onPressed: () async {
+                  await WebApiService().updateLabProfile({
+                    'name': _labNameCtrl.text,
+                    'phone': _phoneCtrl.text,
+                    'email': _emailCtrl.text,
+                    'address': _addressCtrl.text,
+                  });
+                  if (!context.mounted) return;
+                  setState(() {});
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Đã cập nhật hồ sơ công khai của tiệm lên app người dùng!')),
+                    const SnackBar(content: Text('Đã cập nhật hồ sơ công khai của tiệm lên cơ sở dữ liệu!')),
                   );
                 },
                 icon: const Icon(Icons.save, size: 16),
@@ -53,7 +81,6 @@ class _LabProfileTabState extends State<LabProfileTab> {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Form Details (Flex 6)
               Expanded(
                 flex: 6,
                 child: Container(
@@ -114,7 +141,6 @@ class _LabProfileTabState extends State<LabProfileTab> {
               ),
               const SizedBox(width: 24),
 
-              // Right: Live App Preview Card (Flex 4)
               Expanded(
                 flex: 4,
                 child: Container(
@@ -163,7 +189,7 @@ class _LabProfileTabState extends State<LabProfileTab> {
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text('Giữ âm bản: ${_negativeDaysCtrl.text} ngày', style: AppTypography.caption),
-                                      const Text('Đánh giá: 4.9 ★', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: AppColors.primary)),
+                                      Text('Đánh giá: $_rating ★', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: AppColors.primary)),
                                     ],
                                   ),
                                 ],

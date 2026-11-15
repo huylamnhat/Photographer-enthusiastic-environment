@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../constants/api_constants.dart';
-import '../mock/mock_test_assets.dart';
 import '../../models/lab_model.dart';
 import '../../models/order_model.dart';
 import '../../models/archive_photo_model.dart';
@@ -34,21 +33,9 @@ class ApiService {
       );
       return jsonDecode(res.body);
     } catch (e) {
-      // Mock fallback if backend offline
       return {
-        'success': true,
-        'token': 'mock-offline-token',
-        'user': {
-          'user_id': 'usr-001',
-          'email': identifier.contains('@') ? identifier : 'khachhang@minilab.vn',
-          'phone': '0912345678',
-          'full_name': 'Nguyễn Hoàng Anh',
-          'role': identifier.toLowerCase().split('@')[0].contains('admin')
-              ? 'Admin'
-              : (identifier.toLowerCase().split('@')[0].contains('lab') || identifier.toLowerCase().split('@')[0].contains('crop') ? 'LabOwner' : 'Customer'),
-          'avatar_url': 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150',
-          'address': '123 Phố Huế, Hai Bà Trưng, Hà Nội',
-        }
+        'success': false,
+        'message': 'Không thể kết nối tới máy chủ Backend & SQL Server: $e',
       };
     }
   }
@@ -57,141 +44,49 @@ class ApiService {
   Future<List<LabModel>> getLabs({String? search, String? city}) async {
     try {
       String url = '${ApiConstants.baseUrl}${ApiConstants.labs}';
-      final params = <String>[];
+      final params = <String>['_t=${DateTime.now().millisecondsSinceEpoch}'];
       if (search != null && search.isNotEmpty) params.add('search=$search');
       if (city != null && city.isNotEmpty) params.add('city=$city');
-      if (params.isNotEmpty) url += '?${params.join('&')}';
+      url += '?${params.join('&')}';
 
       final res = await http.get(Uri.parse(url), headers: _headers());
       final data = jsonDecode(res.body);
-      if (data['success'] == true) {
+      if (data['success'] == true && data['data'] is List) {
         return (data['data'] as List).map((l) => LabModel.fromJson(l)).toList();
       }
     } catch (_) {}
+    return [];
+  }
 
-    // Fallback data
-    return [
-      LabModel(
-        labId: 'lab-001',
-        name: 'CropLab Hà Nội',
-        tagline: 'Chuyên gia tráng & scan chất lượng cao từ năm 2014',
-        address: 'Số 10 ngõ 12 Đặng Thai Mai, Tây Hồ, Hà Nội',
-        city: 'Hà Nội',
-        phone: '0904567890',
-        email: 'hanoi@croplab.vn',
-        rating: 4.9,
-        reviewCount: 328,
-        turnaroundHours: 12,
-        scannerModels: ['Noritsu HS-1800', 'Fuji Frontier SP-3000'],
-        supportedFormats: ['135', '120', '220', '4x5'],
-        supportedProcesses: ['C-41', 'B&W', 'ECN-2', 'E-6 Slide'],
-        coverImage: 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=800',
-        logoUrl: 'https://images.unsplash.com/photo-1495745966610-2a67f2297e5e?w=200',
-        isVerified: true,
-        priceRange: '45.000đ - 120.000đ',
-        description: 'CropLab cung cấp dịch vụ tráng và scan phim màu C-41, đen trắng B&W thủ công với hóa chất chuẩn Kodak & Ilford.',
-        packages: [
-          ServicePackageModel(
-            packageId: 'pkg-001',
-            labId: 'lab-001',
-            name: 'Tráng & Scan 135 Color (C-41) - Chuẩn M',
-            filmFormat: '135',
-            processType: 'C-41',
-            scanResolution: 'M (3000x2000px)',
-            price: 50000,
-            estimatedHours: 12,
-            description: 'Gói tráng và scan tiêu chuẩn cho cuộn film 35mm màu.',
-          ),
-          ServicePackageModel(
-            packageId: 'pkg-002',
-            labId: 'lab-001',
-            name: 'Tráng & Scan 135 Color (C-41) - Scan Cao Cấp L (TIFF/JPG)',
-            filmFormat: '135',
-            processType: 'C-41',
-            scanResolution: 'L (6000x4000px TIFF)',
-            price: 85000,
-            estimatedHours: 16,
-            description: 'Độ phân giải lớn nhất từ Noritsu HS-1800.',
-          ),
-        ],
-      ),
-      LabModel(
-        labId: 'lab-002',
-        name: 'LLab Film Sài Gòn',
-        tagline: 'Màu sắc ấm áp, tốc độ siêu nhanh trong ngày',
-        address: '40/2 Phan Văn Trị, Phường 12, Bình Thạnh, TP.HCM',
-        city: 'TP.HCM',
-        phone: '0938112233',
-        email: 'saigon@llab.vn',
-        rating: 4.8,
-        reviewCount: 512,
-        turnaroundHours: 8,
-        scannerModels: ['Fuji Frontier SP-3000'],
-        supportedFormats: ['135', '120'],
-        supportedProcesses: ['C-41', 'B&W', 'ECN-2'],
-        coverImage: 'https://images.unsplash.com/photo-1452784444945-3f422708fe5e?w=800',
-        logoUrl: 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=200',
-        isVerified: true,
-        priceRange: '50.000đ - 110.000đ',
-        description: 'LLab là điểm đến quen thuộc của cộng đồng film Sài Gòn với phong cách chỉnh màu Frontier tươi tắn.',
-        packages: [],
-      ),
-    ];
+  Future<LabModel?> getLabById(String labId) async {
+    try {
+      final ts = DateTime.now().millisecondsSinceEpoch;
+      final res = await http.get(
+        Uri.parse('${ApiConstants.baseUrl}${ApiConstants.labs}/$labId?_t=$ts'),
+        headers: _headers(),
+      );
+      final data = jsonDecode(res.body);
+      if (data['success'] == true && data['data'] != null) {
+        return LabModel.fromJson(data['data']);
+      }
+    } catch (_) {}
+    return null;
   }
 
   // Orders
   Future<List<OrderModel>> getOrders() async {
     try {
+      final ts = DateTime.now().millisecondsSinceEpoch;
       final res = await http.get(
-        Uri.parse('${ApiConstants.baseUrl}${ApiConstants.orders}'),
+        Uri.parse('${ApiConstants.baseUrl}${ApiConstants.orders}?_t=$ts'),
         headers: _headers(),
       );
       final data = jsonDecode(res.body);
-      if (data['success'] == true) {
+      if (data['success'] == true && data['data'] is List) {
         return (data['data'] as List).map((o) => OrderModel.fromJson(o)).toList();
       }
     } catch (_) {}
-
-    return [
-      OrderModel(
-        orderId: 'ORD-2026-8801',
-        userId: 'usr-001',
-        labId: 'lab-001',
-        labName: 'CropLab Hà Nội',
-        orderDate: '2026-03-01T09:30:00Z',
-        status: 'READY_FOR_DOWNLOAD',
-        totalAmount: 135000,
-        shippingMethod: 'PICKUP',
-        pickupAddress: '123 Phố Huế, Hai Bà Trưng, Hà Nội',
-        paymentStatus: 'PAID',
-        paymentMethod: 'MOMO',
-        items: [
-          OrderItemModel(
-            itemId: 'item-101',
-            name: 'Tráng & Scan 135 Color (C-41) - Chuẩn M',
-            filmName: 'Kodak Portra 400',
-            quantity: 1,
-            price: 50000,
-          ),
-          OrderItemModel(
-            itemId: 'item-102',
-            name: 'Tráng & Scan 135 Color - Scan Cao Cấp L',
-            filmName: 'Fujifilm Pro 400H',
-            quantity: 1,
-            price: 85000,
-          ),
-        ],
-        timeline: [
-          TimelineStepModel(step: 1, name: 'Tạo đơn & Đã thanh toán', status: 'COMPLETED', time: '09:30', note: 'MoMo'),
-          TimelineStepModel(step: 2, name: 'Đã nhận cuộn film tại Lab', status: 'COMPLETED', time: '11:15', note: 'Quầy tiếp nhận'),
-          TimelineStepModel(step: 3, name: 'Tráng hóa chất C-41', status: 'COMPLETED', time: '14:20', note: 'Nhiệt độ 38°C'),
-          TimelineStepModel(step: 4, name: 'Rửa sạch & Sấy buồng kín', status: 'COMPLETED', time: '15:10', note: 'Sấy phòng kín'),
-          TimelineStepModel(step: 5, name: 'Scan máy Noritsu HS-1800', status: 'COMPLETED', time: '16:40', note: 'Scan độ phân giải cao'),
-          TimelineStepModel(step: 6, name: 'Kiểm định chất lượng QC', status: 'COMPLETED', time: '17:05', note: 'Màu chuẩn'),
-          TimelineStepModel(step: 7, name: 'File sẵn sàng trong Archive', status: 'COMPLETED', time: '17:15', note: 'Đã lưu trữ'),
-        ],
-      )
-    ];
+    return [];
   }
 
   // Create Order
@@ -203,7 +98,7 @@ class ApiService {
         body: jsonEncode(body),
       );
       final data = jsonDecode(res.body);
-      if (data['success'] == true) {
+      if (data['success'] == true && data['data'] != null) {
         return OrderModel.fromJson(data['data']);
       }
     } catch (_) {}
@@ -214,8 +109,9 @@ class ApiService {
   Future<OrderModel?> getOrderById(String orderId) async {
     try {
       final cleanId = orderId.replaceAll('#', '');
+      final ts = DateTime.now().millisecondsSinceEpoch;
       final res = await http.get(
-        Uri.parse('${ApiConstants.baseUrl}${ApiConstants.orders}/$cleanId'),
+        Uri.parse('${ApiConstants.baseUrl}${ApiConstants.orders}/$cleanId?_t=$ts'),
         headers: _headers(),
       );
       final data = jsonDecode(res.body);
@@ -226,6 +122,50 @@ class ApiService {
     return null;
   }
 
+  // Create Order Dispute (Mobile -> Lab & Admin)
+  Future<bool> createOrderDispute(String orderId, Map<String, dynamic> body) async {
+    try {
+      final cleanId = orderId.replaceAll('#', '');
+      final res = await http.post(
+        Uri.parse('${ApiConstants.baseUrl}${ApiConstants.orders}/$cleanId/dispute'),
+        headers: _headers(),
+        body: jsonEncode(body),
+      );
+      final data = jsonDecode(res.body);
+      return data['success'] == true;
+    } catch (_) {}
+    return false;
+  }
+
+  // Submit Lab Review
+  Future<bool> submitReview(Map<String, dynamic> body) async {
+    try {
+      final res = await http.post(
+        Uri.parse('${ApiConstants.baseUrl}/reviews/create'),
+        headers: _headers(),
+        body: jsonEncode(body),
+      );
+      final data = jsonDecode(res.body);
+      return data['success'] == true;
+    } catch (_) {}
+    return false;
+  }
+
+  // Customer Notifications (Compensation, Refunds, Google Drive Scan Links)
+  Future<List<Map<String, dynamic>>> getNotifications() async {
+    try {
+      final res = await http.get(
+        Uri.parse('${ApiConstants.baseUrl}${ApiConstants.orders}/notifications'),
+        headers: _headers(),
+      );
+      final data = jsonDecode(res.body);
+      if (data['success'] == true && data['data'] is List) {
+        return (data['data'] as List).map((n) => Map<String, dynamic>.from(n as Map)).toList();
+      }
+    } catch (_) {}
+    return [];
+  }
+
   // Archive Photos
   Future<List<ArchivePhotoModel>> getArchivePhotos({String? album}) async {
     try {
@@ -233,97 +173,98 @@ class ApiService {
       if (album != null) url += '?album=$album';
       final res = await http.get(Uri.parse(url), headers: _headers());
       final data = jsonDecode(res.body);
-      if (data['success'] == true) {
+      if (data['success'] == true && data['data'] is List) {
         return (data['data'] as List).map((p) => ArchivePhotoModel.fromJson(p)).toList();
       }
     } catch (_) {}
+    return [];
+  }
 
-    return [
-      ArchivePhotoModel(
-        photoId: 'pho-001',
-        userId: 'usr-001',
-        orderId: 'ORD-2026-8801',
-        rollCode: 'ROLL-PORTRA400-01',
-        title: 'Nắng chiều Phố Cổ Hà Nội',
-        imageUrl: MockTestAssets.samplePhoto1,
-        thumbnailUrl: MockTestAssets.samplePhoto1,
-        albumName: 'Mùa thu Hà Nội 2026',
-        isFavorite: true,
-        createdAt: '2026-03-01T17:15:00Z',
-        metadata: PhotoMetadataModel(
-          camera: 'Leica M6 Classic',
-          lens: 'Summicron 35mm f/2 ASPH',
-          filmStock: 'Kodak Portra 400',
-          iso: 400,
-          aperture: 'f/2.8',
-          shutterSpeed: '1/250s',
-          focalLength: '35mm',
-          process: 'C-41 Noritsu HS-1800',
-          lab: 'CropLab Hà Nội',
-          dimensions: '6048 x 4032',
-          fileSize: '18.4 MB TIFF',
-        ),
-      ),
-      ArchivePhotoModel(
-        photoId: 'pho-002',
-        userId: 'usr-001',
-        orderId: 'ORD-2026-8801',
-        rollCode: 'ROLL-PORTRA400-01',
-        title: 'Gánh hoa góc đường',
-        imageUrl: MockTestAssets.samplePhoto2,
-        thumbnailUrl: MockTestAssets.samplePhoto2,
-        albumName: 'Mùa thu Hà Nội 2026',
-        isFavorite: false,
-        createdAt: '2026-03-01T17:15:00Z',
-        metadata: PhotoMetadataModel(
-          camera: 'Leica M6 Classic',
-          lens: 'Summicron 35mm f/2 ASPH',
-          filmStock: 'Kodak Portra 400',
-          iso: 400,
-          aperture: 'f/4.0',
-          shutterSpeed: '1/500s',
-          focalLength: '35mm',
-          process: 'C-41 Noritsu HS-1800',
-          lab: 'CropLab Hà Nội',
-          dimensions: '6048 x 4032',
-          fileSize: '16.8 MB TIFF',
-        ),
-      ),
-    ];
+  // Google Drive API Config & Upload
+  Future<Map<String, dynamic>> getGoogleDriveConfig() async {
+    try {
+      final res = await http.get(
+        Uri.parse('${ApiConstants.baseUrl}/archive/google-drive/config'),
+        headers: _headers(),
+      );
+      final data = jsonDecode(res.body);
+      if (data['success'] == true && data['data'] is Map<String, dynamic>) {
+        return data['data'];
+      }
+    } catch (_) {}
+    return {};
+  }
+
+  Future<bool> saveGoogleDriveConfig(Map<String, dynamic> body) async {
+    try {
+      final res = await http.post(
+        Uri.parse('${ApiConstants.baseUrl}/archive/google-drive/config'),
+        headers: _headers(),
+        body: jsonEncode(body),
+      );
+      final data = jsonDecode(res.body);
+      return data['success'] == true;
+    } catch (_) {}
+    return false;
+  }
+
+  Future<Map<String, dynamic>> uploadPhotoToGoogleDrive(Map<String, dynamic> body) async {
+    try {
+      final res = await http.post(
+        Uri.parse('${ApiConstants.baseUrl}/archive/google-drive/upload'),
+        headers: _headers(),
+        body: jsonEncode(body),
+      );
+      return jsonDecode(res.body);
+    } catch (e) {
+      return {'success': false, 'message': 'Lỗi kết nối: $e'};
+    }
   }
 
   // Marketplace
   Future<List<ListingModel>> getMarketplaceListings() async {
     try {
+      final ts = DateTime.now().millisecondsSinceEpoch;
       final res = await http.get(
-        Uri.parse('${ApiConstants.baseUrl}${ApiConstants.marketplaceListings}'),
+        Uri.parse('${ApiConstants.baseUrl}${ApiConstants.marketplaceListings}?_t=$ts'),
         headers: _headers(),
       );
       final data = jsonDecode(res.body);
-      if (data['success'] == true) {
+      if (data['success'] == true && data['data'] is List) {
         return (data['data'] as List).map((l) => ListingModel.fromJson(l)).toList();
       }
     } catch (_) {}
+    return [];
+  }
 
-    return [
-      ListingModel(
-        listingId: 'mkt-001',
-        sellerId: 'usr-001',
-        sellerName: 'Nguyễn Hoàng Anh',
-        sellerAvatar: MockTestAssets.avatarCustomer,
-        title: 'Máy ảnh Film Canon QL17 GIII (Black Limited Edition)',
-        category: 'Máy ảnh Rangefinder',
-        condition: '98% Sưu tầm, đo sáng hoàn hảo',
-        price: 4800000,
-        status: 'ACTIVE',
-        location: 'Hoàn Kiếm, Hà Nội',
-        phoneContact: '0912345678',
-        zaloContact: '0912345678',
-        imageUrls: [MockTestAssets.marketplaceCam1],
-        description: 'Cần nhượng lại Canon QL17 GIII bản đen hiếm. Kính trong vắt, không mốc xước.',
-        createdAt: '2026-02-28T10:00:00Z',
-      ),
-    ];
+  Future<List<ListingModel>> getMyMarketplaceListings() async {
+    try {
+      final ts = DateTime.now().millisecondsSinceEpoch;
+      final res = await http.get(
+        Uri.parse('${ApiConstants.baseUrl}/marketplace/my-listings?_t=$ts'),
+        headers: _headers(),
+      );
+      final data = jsonDecode(res.body);
+      if (data['success'] == true && data['data'] is List) {
+        return (data['data'] as List).map((l) => ListingModel.fromJson(l)).toList();
+      }
+    } catch (_) {}
+    return [];
+  }
+
+  Future<ListingModel?> createMarketplaceListing(Map<String, dynamic> body) async {
+    try {
+      final res = await http.post(
+        Uri.parse('${ApiConstants.baseUrl}${ApiConstants.createListing}'),
+        headers: _headers(),
+        body: jsonEncode(body),
+      );
+      final data = jsonDecode(res.body);
+      if (data['success'] == true && data['data'] != null) {
+        return ListingModel.fromJson(data['data']);
+      }
+    } catch (_) {}
+    return null;
   }
 
   // Community Posts
@@ -334,27 +275,91 @@ class ApiService {
         headers: _headers(),
       );
       final data = jsonDecode(res.body);
-      if (data['success'] == true) {
+      if (data['success'] == true && data['data'] is List) {
         return (data['data'] as List).map((p) => CommunityPostModel.fromJson(p)).toList();
       }
     } catch (_) {}
+    return [];
+  }
 
-    return [
-      CommunityPostModel(
-        postId: 'post-001',
-        authorId: 'usr-003',
-        authorName: 'Lê Quang Huy',
-        authorAvatar: MockTestAssets.avatarExpert,
-        authorBadge: 'Chuyên gia nhiếp ảnh',
-        title: 'Bí quyết chọn điểm đo sáng khi chụp phim âm bản màu',
-        content: 'Phim âm bản màu có khả năng giữ chi tiết highlight ấn tượng, lên đến +3 hoặc +4 stops...',
-        category: 'Kỹ thuật chụp',
-        imageUrl: MockTestAssets.samplePhoto3,
-        likesCount: 89,
-        commentsCount: 14,
-        createdAt: '2026-03-01T10:00:00Z',
-      ),
-    ];
+  Future<CommunityPostModel?> createCommunityPost(Map<String, dynamic> body) async {
+    try {
+      final res = await http.post(
+        Uri.parse('${ApiConstants.baseUrl}/community/posts/create'),
+        headers: _headers(),
+        body: jsonEncode(body),
+      );
+      final data = jsonDecode(res.body);
+      if (data['success'] == true && data['data'] != null) {
+        return CommunityPostModel.fromJson(data['data']);
+      }
+    } catch (_) {}
+    return null;
+  }
+
+  Future<bool> reportCommunityPost(String postId, String reason) async {
+    try {
+      final res = await http.post(
+        Uri.parse('${ApiConstants.baseUrl}${ApiConstants.posts}/$postId/report'),
+        headers: _headers(),
+        body: jsonEncode({'reason': reason}),
+      );
+      final data = jsonDecode(res.body);
+      return data['success'] == true;
+    } catch (_) {}
+    return false;
+  }
+
+  Future<bool> likeCommunityPost(String postId) async {
+    try {
+      final res = await http.post(
+        Uri.parse('${ApiConstants.baseUrl}${ApiConstants.posts}/$postId/like'),
+        headers: _headers(),
+      );
+      final data = jsonDecode(res.body);
+      return data['success'] == true;
+    } catch (_) {}
+    return false;
+  }
+
+  Future<bool> addCommunityComment(String postId, String content) async {
+    try {
+      final res = await http.post(
+        Uri.parse('${ApiConstants.baseUrl}${ApiConstants.posts}/$postId/comments'),
+        headers: _headers(),
+        body: jsonEncode({'content': content}),
+      );
+      final data = jsonDecode(res.body);
+      return data['success'] == true;
+    } catch (_) {}
+    return false;
+  }
+
+  // Community Events (Workshops & Photowalks)
+  Future<List<EventModel>> getEvents() async {
+    try {
+      final res = await http.get(
+        Uri.parse('${ApiConstants.baseUrl}${ApiConstants.events}'),
+        headers: _headers(),
+      );
+      final data = jsonDecode(res.body);
+      if (data['success'] == true && data['data'] is List) {
+        return (data['data'] as List).map((e) => EventModel.fromJson(e)).toList();
+      }
+    } catch (_) {}
+    return [];
+  }
+
+  Future<bool> registerForEvent(String eventId) async {
+    try {
+      final res = await http.post(
+        Uri.parse('${ApiConstants.baseUrl}${ApiConstants.events}/$eventId/register'),
+        headers: _headers(),
+      );
+      final data = jsonDecode(res.body);
+      return data['success'] == true;
+    } catch (_) {}
+    return false;
   }
 
   // Film Lab Portal Live Interaction

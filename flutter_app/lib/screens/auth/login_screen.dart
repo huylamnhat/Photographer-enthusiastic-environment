@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_typography.dart';
+import '../../providers/auth_provider.dart';
 import 'register_screen.dart';
 import 'forgot_password_screen.dart';
 import '../navigation_shell.dart';
@@ -17,17 +19,69 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passwordController = TextEditingController(text: 'password123');
   bool _obscurePassword = true;
   bool _isLoading = false;
+  String? _errorMessage;
 
   void _handleLogin() async {
-    setState(() => _isLoading = true);
-    await Future.delayed(const Duration(milliseconds: 600));
+    final identifier = _identifierController.text.trim();
+    final password = _passwordController.text.trim();
+
+    if (identifier.isEmpty || password.isEmpty) {
+      setState(() => _errorMessage = 'Vui lòng nhập đầy đủ tài khoản và mật khẩu');
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final ok = await authProvider.login(identifier, password);
 
     if (!mounted) return;
-    setState(() => _isLoading = false);
 
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (_) => const NavigationShell()),
+    if (ok) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const NavigationShell()),
+      );
+    } else {
+      setState(() {
+        _isLoading = false;
+        _errorMessage = authProvider.errorMessage ?? authProvider.error ?? 'Sai tài khoản hoặc mật khẩu';
+      });
+    }
+  }
+
+  Widget _buildQuickChip(String name, String email) {
+    final isSelected = _identifierController.text.trim() == email;
+    return InkWell(
+      onTap: () {
+        setState(() {
+          _identifierController.text = email;
+          _passwordController.text = 'password123';
+        });
+      },
+      borderRadius: BorderRadius.circular(4),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        decoration: BoxDecoration(
+          color: isSelected ? AppColors.primary.withValues(alpha: 0.12) : AppColors.surfaceSunken,
+          borderRadius: BorderRadius.circular(4),
+          border: Border.all(
+            color: isSelected ? AppColors.primary : AppColors.outline,
+            width: isSelected ? 1.2 : 0.8,
+          ),
+        ),
+        child: Text(
+          name,
+          style: TextStyle(
+            fontSize: 10,
+            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+            color: isSelected ? AppColors.primary : AppColors.ink,
+          ),
+        ),
+      ),
     );
   }
 
@@ -150,6 +204,29 @@ class _LoginScreenState extends State<LoginScreen> {
                                   ),
                                 ),
                               ),
+                              if (_errorMessage != null) ...[
+                                const SizedBox(height: 12),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.errorRed.withValues(alpha: 0.1),
+                                    borderRadius: BorderRadius.circular(6),
+                                    border: Border.all(color: AppColors.errorRed.withValues(alpha: 0.4)),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      const Icon(Icons.error_outline, size: 16, color: AppColors.errorRed),
+                                      const SizedBox(width: 8),
+                                      Expanded(
+                                        child: Text(
+                                          _errorMessage!,
+                                          style: const TextStyle(fontSize: 12, color: AppColors.errorRed),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
                               const SizedBox(height: 20),
 
                               SizedBox(
@@ -170,6 +247,19 @@ class _LoginScreenState extends State<LoginScreen> {
                                         )
                                       : Text('Đăng nhập', style: AppTypography.button),
                                 ),
+                              ),
+                              const SizedBox(height: 16),
+                              Text('TÀI KHOẢN MẪU TEST NHANH:', style: AppTypography.labelCaps.copyWith(fontSize: 10)),
+                              const SizedBox(height: 8),
+                              Wrap(
+                                spacing: 6,
+                                runSpacing: 6,
+                                children: [
+                                  _buildQuickChip('Nguyễn Hoàng Anh', 'khachhang@minilab.vn'),
+                                  _buildQuickChip('Phạm Thu Trang', 'thutrang.pham@gmail.com'),
+                                  _buildQuickChip('Lê Quang Huy (Expert)', 'chuyengia@film.vn'),
+                                  _buildQuickChip('Trần Đình Trọng (Bị ban)', 'trong.tran@minilab.vn'),
+                                ],
                               ),
                             ],
                           ),

@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../core/services/web_api_service.dart';
+import '../../../providers/auth_provider.dart';
 import '../web_login_screen.dart';
 import 'lab_kanban_tab.dart';
 import 'lab_upload_scan_tab.dart';
@@ -18,7 +21,27 @@ class LabPortalShell extends StatefulWidget {
 
 class _LabPortalShellState extends State<LabPortalShell> {
   int _selectedTabIndex = 0;
-  final String _currentBranch = 'CropLab Sài Gòn - Chi nhánh Q.3';
+  String _labName = '';
+  String _labBranch = '';
+  String _labCode = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadLabHeader();
+  }
+
+  Future<void> _loadLabHeader() async {
+    final p = await WebApiService().getLabProfile();
+    if (!mounted || p.isEmpty) return;
+    setState(() {
+      _labName = (p['name'] ?? '').toString();
+      final city = (p['city'] ?? '').toString();
+      final addr = (p['address'] ?? '').toString();
+      _labBranch = addr.isNotEmpty ? addr : (_labName + (city.isNotEmpty ? ' - $city' : ''));
+      _labCode = (p['lab_id'] ?? '').toString();
+    });
+  }
 
   final List<Widget> _tabs = const [
     LabKanbanTab(),
@@ -32,7 +55,7 @@ class _LabPortalShellState extends State<LabPortalShell> {
   final List<Map<String, String>> _menuItems = [
     {'title': '1. Tiếp nhận & Phân loại', 'code': 'WEB-LAB-03', 'icon': 'view_kanban'},
     {'title': '2. Tải file scan & QC', 'code': 'WEB-LAB-04', 'icon': 'cloud_upload'},
-    {'title': '3. Dịch vụ & Bảng giá', 'code': 'WEB-LAB-05', 'icon': 'price_change'},
+    {'title': '3. Dịch vụ & Bảng tráng', 'code': 'WEB-LAB-05', 'icon': 'price_change'},
     {'title': '4. Hồ sơ tiệm công khai', 'code': 'WEB-LAB-06', 'icon': 'storefront'},
     {'title': '5. Xử lý khiếu nại', 'code': 'WEB-LAB-07', 'icon': 'report_problem'},
     {'title': '6. Lịch sử đơn & SLA', 'code': 'WEB-LAB-08', 'icon': 'history_toggle_off'},
@@ -40,6 +63,15 @@ class _LabPortalShellState extends State<LabPortalShell> {
 
   @override
   Widget build(BuildContext context) {
+    final authUser = context.watch<AuthProvider>().currentUser;
+    final displayLabName = _labName.isNotEmpty
+        ? _labName
+        : ((authUser?.fullName ?? 'Film Lab').replaceAll(RegExp(r'\s*\(.*?\)'), '').trim());
+    final displayBranch = _labBranch.isNotEmpty
+        ? _labBranch
+        : (authUser?.address ?? displayLabName);
+    final displayLabCode = (_labCode.isNotEmpty ? _labCode : (authUser?.labId ?? 'LAB-OPS')).toUpperCase();
+
     return Scaffold(
       backgroundColor: AppColors.surface,
       body: Row(
@@ -64,20 +96,25 @@ class _LabPortalShellState extends State<LabPortalShell> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'CROPLAB SÀI GÒN',
-                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, letterSpacing: 0.5),
-                          ),
-                          SizedBox(height: 2),
-                          Text(
-                            'CỔNG VẬN HÀNH FILM LAB',
-                            style: TextStyle(fontSize: 10, color: AppColors.primary, fontWeight: FontWeight.bold),
-                          ),
-                        ],
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              displayLabName.toUpperCase(),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, letterSpacing: 0.5),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              'CỔNG LAB • $displayLabCode',
+                              style: const TextStyle(fontSize: 10, color: AppColors.primary, fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        ),
                       ),
+                      const SizedBox(width: 8),
                       Container(
                         padding: const EdgeInsets.all(6),
                         decoration: BoxDecoration(color: AppColors.primary, borderRadius: BorderRadius.circular(6)),
@@ -180,19 +217,28 @@ class _LabPortalShellState extends State<LabPortalShell> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       // Branch Indicator
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: AppColors.surfaceSunken,
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: AppColors.outline),
-                        ),
-                        child: Row(
-                          children: [
-                            const Icon(Icons.location_on, size: 16, color: AppColors.primary),
-                            const SizedBox(width: 8),
-                            Text(_currentBranch, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
-                          ],
+                      Flexible(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: AppColors.surfaceSunken,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: AppColors.outline),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.location_on, size: 16, color: AppColors.primary),
+                              const SizedBox(width: 8),
+                              Flexible(
+                                child: Text(
+                                  displayBranch,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
 
@@ -229,12 +275,12 @@ class _LabPortalShellState extends State<LabPortalShell> {
                                 child: const Text('LAB', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 11)),
                               ),
                               const SizedBox(width: 8),
-                              const Column(
+                              Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text('CropLab Sài Gòn', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
-                                  Text('KỸ THUẬT VIÊN TRỰC CA', style: TextStyle(fontSize: 10, color: AppColors.secondary, fontWeight: FontWeight.bold)),
+                                  Text(displayLabName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                                  const Text('KỸ THUẬT VIÊN TRỰC CA', style: TextStyle(fontSize: 10, color: AppColors.secondary, fontWeight: FontWeight.bold)),
                                 ],
                               ),
                             ],
@@ -245,6 +291,7 @@ class _LabPortalShellState extends State<LabPortalShell> {
                             tooltip: 'Đăng xuất',
                             icon: const Icon(Icons.logout, size: 18, color: AppColors.inkMuted),
                             onPressed: () {
+                              context.read<AuthProvider>().logout();
                               Navigator.pushReplacement(
                                 context,
                                 MaterialPageRoute(builder: (_) => const WebLoginScreen()),

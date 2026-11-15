@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/mock/mock_test_assets.dart';
+import '../../../core/services/web_api_service.dart';
 
 class AdminLabApprovalTab extends StatefulWidget {
   const AdminLabApprovalTab({super.key});
@@ -14,74 +15,70 @@ class _AdminLabApprovalTabState extends State<AdminLabApprovalTab> {
   int _categoryTab = 0; // 0: Lab mới, 1: Chuyên gia Verified, 2: Vận chuyển
   int _selectedApplicationIndex = 0;
 
-  final List<Map<String, dynamic>> _labApplications = [
-    {
-      'id': 'APP-LAB-901',
-      'name': 'Retro Hanoi Darkroom',
-      'owner': 'Phạm Gia Huy',
-      'email': 'retro.hanoi@gmail.com',
-      'phone': '0945667788',
-      'city': 'Hà Nội',
-      'address': 'Số 22 ngõ Huyện, Hàng Trống, Hoàn Kiếm, Hà Nội',
-      'businessLicense': 'DKKD-0109923481',
-      'wastePermit': 'TNMT-HN-2025-C41',
-      'scannerModels': ['Noritsu LS-600', 'Epson V850 Pro'],
-      'processes': ['C-41', 'B&W (D-76 / Rodinal)'],
-      'darkroomType': 'Buồng tối tuần hoàn khí kín, tủ sấy lọc bụi HEPA',
-      'status': 'PENDING',
-      'appliedDate': '02/03/2026',
-      'photos': [
-        MockTestAssets.machineNoritsu,
-        MockTestAssets.machineDarkroomSink,
-        MockTestAssets.certificateWaste,
-      ],
-    },
-    {
-      'id': 'APP-LAB-902',
-      'name': 'Analog Saigon Space',
-      'owner': 'Võ Thành Nam',
-      'email': 'analog.saigon@gmail.com',
-      'phone': '0919334455',
-      'city': 'TP.HCM',
-      'address': '88 Nguyễn Đình Chiểu, Phường Đa Kao, Quận 1, TP.HCM',
-      'businessLicense': 'DKKD-0318829102',
-      'wastePermit': 'TNMT-HCM-2024-ECN',
-      'scannerModels': ['Fuji Frontier SP-3000'],
-      'processes': ['C-41', 'ECN-2 Cine'],
-      'darkroomType': 'Máy tráng tự động Noritsu V30, máy tẩy than',
-      'status': 'PENDING',
-      'appliedDate': '03/03/2026',
-      'photos': [
-        MockTestAssets.machineFrontier,
-        MockTestAssets.machineDarkroomSink,
-      ],
-    },
-  ];
-
-  final List<Map<String, dynamic>> _expertApplications = [
-    {
-      'id': 'APP-EXP-301',
-      'name': 'Nguyễn Trọng Khoa (Chuyên Gia Thẩm Định)',
-      'owner': 'Nguyễn Trọng Khoa',
-      'email': 'khoa.analog@gmail.com',
-      'phone': '0903881122',
-      'city': 'TP.HCM',
-      'address': '12B Nguyễn Hữu Cảnh, P.19, Bình Thạnh',
-      'businessLicense': 'CCN-VN-9921 (Kiểm định cơ học Leica/Hasselblad)',
-      'wastePermit': 'Không áp dụng (Chuyên gia cơ khí)',
-      'scannerModels': ['Kính quang học Collimator 50mm', 'Đồng hồ đo tốc màn trập Kyoritsu'],
-      'processes': ['Cân chỉnh cơ học', 'Thấu kính nấm mốc', 'Đo sáng quang trở'],
-      'darkroomType': 'Phòng kỹ thuật sạch tĩnh điện Class 1000',
-      'status': 'PENDING',
-      'appliedDate': '01/03/2026',
-      'photos': [
-        MockTestAssets.marketplaceCam1,
-        MockTestAssets.certificateWaste,
-      ],
-    },
-  ];
-
+  List<Map<String, dynamic>> _labApplications = [];
+  List<Map<String, dynamic>> _expertApplications = [];
   final List<Map<String, dynamic>> _shippingApplications = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadApplications();
+  }
+
+  Future<void> _loadApplications() async {
+    final labs = await WebApiService().getAdminPendingLabs();
+    final experts = await WebApiService().getAdminExpertApplications();
+
+    if (!mounted) return;
+    setState(() {
+      _labApplications = labs.map<Map<String, dynamic>>((l) {
+        return {
+          'id': (l['application_id'] ?? '').toString(),
+          'name': (l['name'] ?? '').toString(),
+          'owner': (l['owner_name'] ?? '').toString(),
+          'email': (l['email'] ?? '').toString(),
+          'phone': (l['phone'] ?? '').toString(),
+          'city': (l['city'] ?? '').toString(),
+          'address': (l['address'] ?? '').toString(),
+          'businessLicense': (l['business_license'] ?? '').toString(),
+          'wastePermit': 'TNMT-VN-2026-C41',
+          'scannerModels': (l['scanner_models'] as List?) ?? ['Noritsu HS-1800'],
+          'processes': (l['supported_processes'] as List?) ?? ['C-41'],
+          'darkroomType': (l['inspection_note'] ?? 'Buồng tối tiêu chuẩn').toString(),
+          'status': (l['status'] ?? 'PENDING').toString(),
+          'appliedDate': (l['applied_date'] ?? '').toString().split('T').first,
+          'photos': [
+            MockTestAssets.machineNoritsu,
+            MockTestAssets.machineDarkroomSink,
+            MockTestAssets.certificateWaste,
+          ],
+        };
+      }).toList();
+
+      _expertApplications = experts.map<Map<String, dynamic>>((e) {
+        return {
+          'id': (e['id'] ?? '').toString(),
+          'name': '${e['name'] ?? ''} (Chuyên Gia)',
+          'owner': (e['name'] ?? '').toString(),
+          'email': (e['email'] ?? '').toString(),
+          'phone': (e['phone'] ?? '').toString(),
+          'city': 'Việt Nam',
+          'address': (e['portfolioUrl'] ?? '').toString(),
+          'businessLicense': 'EXPERT-${e['years_experience'] ?? 10}Y',
+          'wastePermit': 'Hồ sơ Chuyên gia Nhiếp ảnh',
+          'scannerModels': [(e['specialty'] ?? 'Medium Format').toString()],
+          'processes': [(e['specialty'] ?? 'B&W Darkroom').toString()],
+          'darkroomType': (e['experience'] ?? '').toString(),
+          'status': (e['status'] ?? 'PENDING').toString() == 'VERIFIED' ? 'APPROVED' : (e['status'] ?? 'PENDING').toString(),
+          'appliedDate': '2026-03-01',
+          'photos': [
+            MockTestAssets.marketplaceCam1,
+            MockTestAssets.certificateWaste,
+          ],
+        };
+      }).toList();
+    });
+  }
 
   List<Map<String, dynamic>> get _currentList {
     if (_categoryTab == 0) return _labApplications;
@@ -107,7 +104,7 @@ class _AdminLabApprovalTabState extends State<AdminLabApprovalTab> {
               const Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('WEB-ADM-04 // THẨM ĐỊNH ĐỐI TÁC', style: AppTypography.labelCaps),
+                  Text('WEB-ADM-04 // THẨM ĐỊNH ĐỐI TÁC (SQL SERVER)', style: AppTypography.labelCaps),
                   SizedBox(height: 4),
                   Text('Trung tâm Phê duyệt & Cấp phép', style: AppTypography.pageTitle),
                 ],
@@ -130,7 +127,6 @@ class _AdminLabApprovalTabState extends State<AdminLabApprovalTab> {
           ),
           const SizedBox(height: 24),
 
-          // Split: Master List (Left) vs Detail Inspection Panel (Right)
           if (!hasItems)
             Container(
               width: double.infinity,
@@ -140,12 +136,12 @@ class _AdminLabApprovalTabState extends State<AdminLabApprovalTab> {
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: AppColors.outline),
               ),
-              child: Column(
+              child: const Column(
                 children: [
-                  const Icon(Icons.verified_outlined, size: 48, color: AppColors.inkMuted),
-                  const SizedBox(height: 12),
+                  Icon(Icons.verified_outlined, size: 48, color: AppColors.inkMuted),
+                  SizedBox(height: 12),
                   Text('Không có hồ sơ nào đang chờ duyệt', style: AppTypography.cardTitle),
-                  const SizedBox(height: 4),
+                  SizedBox(height: 4),
                   Text('Tất cả đối tác trong danh mục này đã được xử lý xong.', style: AppTypography.caption),
                 ],
               ),
@@ -154,7 +150,6 @@ class _AdminLabApprovalTabState extends State<AdminLabApprovalTab> {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Left List
                 Expanded(
                   flex: 4,
                   child: Container(
@@ -199,7 +194,6 @@ class _AdminLabApprovalTabState extends State<AdminLabApprovalTab> {
                 ),
                 const SizedBox(width: 24),
 
-                // Right Detailed Inspection Dossier
                 if (activeApp != null)
                   Expanded(
                     flex: 6,
@@ -227,7 +221,14 @@ class _AdminLabApprovalTabState extends State<AdminLabApprovalTab> {
                                 children: [
                                   OutlinedButton.icon(
                                     style: OutlinedButton.styleFrom(foregroundColor: AppColors.danger),
-                                    onPressed: () {
+                                    onPressed: () async {
+                                      if (_categoryTab == 0) {
+                                        await WebApiService().reviewLabApplication(activeApp['id'], 'REJECT');
+                                      } else {
+                                        await WebApiService().reviewExpertApplication(activeApp['id'], 'REJECT');
+                                      }
+                                      if (!context.mounted) return;
+                                      setState(() => activeApp['status'] = 'REJECTED');
                                       ScaffoldMessenger.of(context).showSnackBar(
                                         SnackBar(content: Text('Đã từ chối hồ sơ ${activeApp['name']} và gửi yêu cầu bổ sung')),
                                       );
@@ -237,7 +238,13 @@ class _AdminLabApprovalTabState extends State<AdminLabApprovalTab> {
                                   ),
                                   const SizedBox(width: 12),
                                   ElevatedButton.icon(
-                                    onPressed: () {
+                                    onPressed: () async {
+                                      if (_categoryTab == 0) {
+                                        await WebApiService().reviewLabApplication(activeApp['id'], 'APPROVE');
+                                      } else {
+                                        await WebApiService().reviewExpertApplication(activeApp['id'], 'APPROVE');
+                                      }
+                                      if (!context.mounted) return;
                                       setState(() => activeApp['status'] = 'APPROVED');
                                       ScaffoldMessenger.of(context).showSnackBar(
                                         SnackBar(content: Text('Đã phê duyệt và kích hoạt đối tác ${activeApp['name']} lên sàn MiniLab!')),
@@ -254,7 +261,6 @@ class _AdminLabApprovalTabState extends State<AdminLabApprovalTab> {
                           const Divider(),
                           const SizedBox(height: 16),
 
-                          // Metadata Grid (safe non-expanded children inside Column)
                           Row(
                             children: [
                               Expanded(child: _buildDetailField('CHỦ TIỆM / ĐẠI DIỆN', activeApp['owner'])),

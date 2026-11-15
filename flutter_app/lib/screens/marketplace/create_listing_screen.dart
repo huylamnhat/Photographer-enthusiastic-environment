@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import '../../core/mock/mock_test_assets.dart';
+import '../../core/services/api_service.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_typography.dart';
+import '../../core/utils/local_image_picker.dart';
 
 class CreateListingScreen extends StatefulWidget {
   const CreateListingScreen({super.key});
@@ -12,6 +15,9 @@ class CreateListingScreen extends StatefulWidget {
 class _CreateListingScreenState extends State<CreateListingScreen> {
   final _titleController = TextEditingController();
   final _priceController = TextEditingController();
+  final _locationController = TextEditingController();
+  final _phoneController = TextEditingController();
+  final _conditionController = TextEditingController();
   final _descController = TextEditingController();
 
   String _category = 'Rangefinder';
@@ -19,7 +25,93 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
   bool _meterCheck = true;
   bool _lensCheck = true;
   bool _sealsCheck = true;
+  bool _submitting = false;
   bool _submitted = false;
+  final List<PickedLocalImage> _pickedImages = [];
+
+  @override
+  void dispose() {
+    _titleController.dispose();
+    _priceController.dispose();
+    _locationController.dispose();
+    _phoneController.dispose();
+    _conditionController.dispose();
+    _descController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _pickEquipmentImages() async {
+    final picked = await pickLocalImagesFromComputer(multiple: true);
+    if (!mounted || picked.isEmpty) return;
+    setState(() {
+      for (final img in picked) {
+        if (_pickedImages.length >= 6) break;
+        _pickedImages.add(img);
+      }
+    });
+  }
+
+  Future<void> _submitListing() async {
+    final title = _titleController.text.trim();
+    final priceDigits = _priceController.text.replaceAll(RegExp(r'[^0-9]'), '');
+    final price = double.tryParse(priceDigits) ?? 0;
+
+    if (title.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          backgroundColor: AppColors.danger,
+          content: Text('Vui lòng nhập tiêu đề thiết bị cần bán.'),
+        ),
+      );
+      return;
+    }
+    if (price <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          backgroundColor: AppColors.danger,
+          content: Text('Vui lòng nhập giá bán hợp lệ (lớn hơn 0đ).'),
+        ),
+      );
+      return;
+    }
+
+    setState(() => _submitting = true);
+    final res = await ApiService().createMarketplaceListing({
+      'title': title,
+      'category': _category,
+      'condition': _conditionController.text.trim().isNotEmpty
+          ? _conditionController.text.trim()
+          : 'Đã kiểm tra 4 bước cơ học',
+      'price': price,
+      if (_locationController.text.trim().isNotEmpty)
+        'location': _locationController.text.trim(),
+      if (_phoneController.text.trim().isNotEmpty)
+        'phone_contact': _phoneController.text.trim(),
+      if (_descController.text.trim().isNotEmpty)
+        'description': _descController.text.trim(),
+      if (_pickedImages.isNotEmpty)
+        'image_urls': _pickedImages.map((e) => e.dataUrl).toList(),
+      'mechanical_checklist': {
+        'Màn trập (Shutter)': _shutterCheck ? 'Đạt chuẩn tốc độ' : 'Cần lưu ý',
+        'Đo sáng (Light Meter)': _meterCheck ? 'Hoạt động ổn định' : 'Không dùng / hỏng',
+        'Thấu kính (Optics)': _lensCheck ? 'Trong sạch, không mốc rễ' : 'Có vết nhẹ',
+        'Buồng phim & Mút sáng': _sealsCheck ? 'Kín sáng' : 'Cần thay mút',
+      },
+    });
+    if (!mounted) return;
+    setState(() => _submitting = false);
+
+    if (res == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          backgroundColor: AppColors.danger,
+          content: Text('Không thể gửi tin đăng. Vui lòng thử lại.'),
+        ),
+      );
+      return;
+    }
+    setState(() => _submitted = true);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,22 +131,26 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
               children: [
                 const Icon(Icons.check_circle, color: AppColors.secondary, size: 54),
                 const SizedBox(height: 16),
-                Text('Tin đăng đã chuyển sang hàng chờ tiền kiểm!', textAlign: TextAlign.center, style: AppTypography.pageTitle.copyWith(fontSize: 18)),
+                Text(
+                  'Tin đăng đã chuyển sang hàng chờ tiền kiểm!',
+                  textAlign: TextAlign.center,
+                  style: AppTypography.pageTitle.copyWith(fontSize: 18),
+                ),
                 const SizedBox(height: 8),
                 Text(
-                  'Hệ thống Admin sẽ đối soát checklist kỹ thuật trong vòng 2 giờ làm việc trước khi niêm yết lên sàn.',
+                  'Admin sẽ kiểm duyệt tin đăng của bạn trước khi hiển thị công khai trên Chợ Thiết bị.',
                   textAlign: TextAlign.center,
                   style: AppTypography.bodySmall,
                 ),
                 const SizedBox(height: 24),
                 ElevatedButton(
-                  onPressed: () => Navigator.pop(context),
+                  onPressed: () => Navigator.pop(context, true),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                   ),
-                  child: Text('Về Sàn Máy', style: AppTypography.button),
+                  child: Text('Về Chợ Thiết Bị', style: AppTypography.button),
                 ),
               ],
             ),
@@ -84,27 +180,74 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Image upload placeholder
-            Container(
-              height: 120,
-              decoration: BoxDecoration(
-                color: AppColors.surfaceSunken,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: AppColors.outline),
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.add_a_photo_outlined, size: 32, color: AppColors.primary),
-                  const SizedBox(height: 6),
-                  Text('Tải lên ảnh thật thiết bị (Tối đa 6 ảnh)', style: AppTypography.labelCaps.copyWith(fontSize: 10)),
-                  Text('Kèm ảnh buồng tối và thấu kính để tiền kiểm nhanh', style: AppTypography.bodySmall.copyWith(fontSize: 10, color: AppColors.inkMuted)),
-                ],
+            InkWell(
+              onTap: _pickEquipmentImages,
+              borderRadius: BorderRadius.circular(8),
+              child: Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: AppColors.surfaceSunken,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: AppColors.outline),
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.add_a_photo_outlined, size: 28, color: AppColors.primary),
+                    const SizedBox(height: 6),
+                    Text(
+                      'Chọn ảnh thật thiết bị (${_pickedImages.length}/6 ảnh)',
+                      style: AppTypography.labelCaps.copyWith(fontSize: 11),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      'Kèm ảnh thân máy, buồng tối và thấu kính để Admin tiền kiểm nhanh',
+                      textAlign: TextAlign.center,
+                      style: AppTypography.bodySmall.copyWith(fontSize: 10, color: AppColors.inkMuted),
+                    ),
+                  ],
+                ),
               ),
             ),
+            if (_pickedImages.isNotEmpty) ...[
+              const SizedBox(height: 10),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: List.generate(_pickedImages.length, (i) {
+                  return Stack(
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(6),
+                        child: MockTestAssets.image(
+                          _pickedImages[i].dataUrl,
+                          width: 78,
+                          height: 78,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                      Positioned(
+                        top: 2,
+                        right: 2,
+                        child: GestureDetector(
+                          onTap: () => setState(() => _pickedImages.removeAt(i)),
+                          child: Container(
+                            padding: const EdgeInsets.all(2),
+                            decoration: const BoxDecoration(
+                              color: Colors.black54,
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(Icons.close, size: 12, color: Colors.white),
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                }),
+              ),
+            ],
             const SizedBox(height: 16),
 
-            // Form inputs
             Text('TIÊU ĐỀ TIN ĐĂNG', style: AppTypography.labelCaps),
             const SizedBox(height: 6),
             TextField(
@@ -130,7 +273,7 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
                         style: AppTypography.dataMono,
                         keyboardType: TextInputType.number,
                         decoration: const InputDecoration(
-                          hintText: '4.800.000',
+                          hintText: '4800000',
                           contentPadding: EdgeInsets.all(10),
                         ),
                       ),
@@ -170,9 +313,62 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
                 ),
               ],
             ),
+            const SizedBox(height: 14),
+
+            Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('ĐỊA ĐIỂM GIAO DỊCH', style: AppTypography.labelCaps),
+                      const SizedBox(height: 6),
+                      TextField(
+                        controller: _locationController,
+                        style: AppTypography.bodySmall,
+                        decoration: const InputDecoration(
+                          hintText: 'VD: Hoàn Kiếm, Hà Nội',
+                          contentPadding: EdgeInsets.all(10),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('SĐT / ZALO LIÊN HỆ', style: AppTypography.labelCaps),
+                      const SizedBox(height: 6),
+                      TextField(
+                        controller: _phoneController,
+                        style: AppTypography.dataMono,
+                        keyboardType: TextInputType.phone,
+                        decoration: const InputDecoration(
+                          hintText: '09xxxxxxxx',
+                          contentPadding: EdgeInsets.all(10),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 14),
+
+            Text('TÌNH TRẠNG TỔNG QUAN', style: AppTypography.labelCaps),
+            const SizedBox(height: 6),
+            TextField(
+              controller: _conditionController,
+              style: AppTypography.bodySmall,
+              decoration: const InputDecoration(
+                hintText: 'VD: 96% Ngoại hình đẹp, kính trong',
+                contentPadding: EdgeInsets.all(10),
+              ),
+            ),
             const SizedBox(height: 16),
 
-            // Checklist verification section (Stitch APP-CUS-18 / WEB-ADM-05)
             Text('CAM KẾT TÌNH TRẠNG CƠ HỌC BẮT BUỘC', style: AppTypography.sectionHeading.copyWith(fontSize: 12)),
             const SizedBox(height: 6),
             Container(
@@ -212,14 +408,17 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
             SizedBox(
               height: 44,
               child: ElevatedButton(
-                onPressed: () => setState(() => _submitted = true),
+                onPressed: _submitting ? null : _submitListing,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
                   foregroundColor: Colors.white,
                   elevation: 0,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                 ),
-                child: Text('Gửi Tin Đăng Tiền Kiểm', style: AppTypography.button),
+                child: Text(
+                  _submitting ? 'Đang gửi tin...' : 'Gửi Tin Đăng Tiền Kiểm',
+                  style: AppTypography.button,
+                ),
               ),
             ),
           ],

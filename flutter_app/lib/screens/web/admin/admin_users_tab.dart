@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/mock/mock_test_assets.dart';
+import '../../../core/services/web_api_service.dart';
 
 class AdminUsersTab extends StatefulWidget {
   const AdminUsersTab({super.key});
@@ -14,64 +15,33 @@ class _AdminUsersTabState extends State<AdminUsersTab> {
   String _selectedRole = 'Tất cả';
   String _selectedStatus = 'Tất cả';
   final TextEditingController _searchController = TextEditingController();
+  List<Map<String, dynamic>> _users = [];
 
-  final List<Map<String, dynamic>> _users = [
-    {
-      'id': 'ADM-HN-884',
-      'name': 'Vũ Minh Tuấn',
-      'email': 'admin.tuan@minilab.vn',
-      'phone': '0901234567',
-      'role': 'Admin',
-      'avatar': MockTestAssets.avatarAdmin,
-      'status': 'ACTIVE',
-      'joined': '01/01/2026',
-      'lastActive': 'Hôm nay 07:06',
-    },
-    {
-      'id': 'USR-SG-001',
-      'name': 'Nguyễn Hoàng Anh',
-      'email': 'khachhang@minilab.vn',
-      'phone': '0912345678',
-      'role': 'Customer',
-      'avatar': MockTestAssets.avatarCustomer,
-      'status': 'ACTIVE',
-      'joined': '10/01/2026',
-      'lastActive': 'Hôm nay 06:45',
-    },
-    {
-      'id': 'LAB-SG-014',
-      'name': 'Trần Văn Đức (CropLab Owner)',
-      'email': 'labowner@croplab.vn',
-      'phone': '0904567890',
-      'role': 'LabOwner',
-      'avatar': MockTestAssets.avatarLabOwner,
-      'status': 'ACTIVE',
-      'joined': '05/01/2026',
-      'lastActive': 'Hôm qua 22:30',
-    },
-    {
-      'id': 'EXP-HN-003',
-      'name': 'Lê Quang Huy',
-      'email': 'chuyengia@film.vn',
-      'phone': '0988776655',
-      'role': 'Expert',
-      'avatar': MockTestAssets.avatarExpert,
-      'status': 'ACTIVE',
-      'joined': '02/01/2026',
-      'lastActive': '02/03/2026',
-    },
-    {
-      'id': 'USR-DN-099',
-      'name': 'Hoàng Văn Bách (Vi phạm)',
-      'email': 'bach.spam@gmail.com',
-      'phone': '0933445566',
-      'role': 'Customer',
-      'avatar': MockTestAssets.avatarUser2,
-      'status': 'BANNED',
-      'joined': '15/02/2026',
-      'lastActive': 'Bị khóa 28/02',
-    },
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _loadUsers();
+  }
+
+  Future<void> _loadUsers() async {
+    final data = await WebApiService().getAdminUsers();
+    if (!mounted) return;
+    setState(() {
+      _users = data.map<Map<String, dynamic>>((u) {
+        final rawStatus = (u['status'] ?? 'ACTIVE').toString();
+        return {
+          'id': (u['user_id'] ?? '').toString(),
+          'name': (u['full_name'] ?? '').toString(),
+          'email': (u['email'] ?? '').toString(),
+          'phone': (u['phone'] ?? '').toString(),
+          'role': (u['role'] ?? 'Customer').toString(),
+          'avatar': (u['avatar_url'] ?? MockTestAssets.avatarCustomer).toString(),
+          'status': rawStatus == 'LOCKED' ? 'BANNED' : rawStatus,
+          'joined': (u['created_at'] ?? '').toString().split('T').first,
+        };
+      }).toList();
+    });
+  }
 
   void _showLockModal(Map<String, dynamic> user) {
     final reasonController = TextEditingController();
@@ -111,8 +81,10 @@ class _AdminUsersTabState extends State<AdminUsersTab> {
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.danger),
-            onPressed: () {
+            onPressed: () async {
               if (reasonController.text.trim().isNotEmpty) {
+                await WebApiService().updateAdminUser(user['id'], status: 'LOCKED');
+                if (!mounted || !ctx.mounted) return;
                 setState(() => user['status'] = 'BANNED');
                 Navigator.pop(ctx);
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -153,21 +125,20 @@ class _AdminUsersTabState extends State<AdminUsersTab> {
               const Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('WEB-ADM-03 // PHÂN HỆ RBAC', style: AppTypography.labelCaps),
+                  Text('WEB-ADM-03 // PHÂN HỆ RBAC (SQL SERVER)', style: AppTypography.labelCaps),
                   SizedBox(height: 4),
                   Text('Tài khoản & Phân quyền', style: AppTypography.pageTitle),
                 ],
               ),
-              ElevatedButton.icon(
-                onPressed: () {},
-                icon: const Icon(Icons.person_add, size: 16),
-                label: const Text('Thêm tài khoản (+)'),
+              OutlinedButton.icon(
+                onPressed: _loadUsers,
+                icon: const Icon(Icons.refresh, size: 16),
+                label: const Text('Tải lại từ CSDL'),
               ),
             ],
           ),
           const SizedBox(height: 20),
 
-          // Filter bar
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
@@ -209,7 +180,6 @@ class _AdminUsersTabState extends State<AdminUsersTab> {
           ),
           const SizedBox(height: 20),
 
-          // Ledger Table
           Container(
             decoration: BoxDecoration(
               color: AppColors.surfaceRaised,
@@ -328,7 +298,16 @@ class _AdminUsersTabState extends State<AdminUsersTab> {
                               IconButton(
                                 tooltip: 'Mở khóa',
                                 icon: const Icon(Icons.lock_open, color: AppColors.secondary, size: 18),
-                                onPressed: () => setState(() => u['status'] = 'ACTIVE'),
+                                onPressed: () async {
+                                  final ok = await WebApiService().updateAdminUser(u['id'], status: 'ACTIVE');
+                                  if (!mounted) return;
+                                  if (ok) {
+                                    setState(() => u['status'] = 'ACTIVE');
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(content: Text('Đã mở khóa tài khoản ${u['name']}. Tên người dùng đã được khôi phục trên cộng đồng!')),
+                                    );
+                                  }
+                                },
                               ),
                           ],
                         ),

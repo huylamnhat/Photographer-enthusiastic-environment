@@ -1,4 +1,4 @@
-﻿-- Issue #21 | SQL Server | Source: Week 2
+-- Issue #21 | SQL Server | Source: Week 2
 
 -- 5. Film_Format
 CREATE TABLE Film_Format (
@@ -35,11 +35,14 @@ CREATE TABLE Film_Stock (
 -- 8. Lab_Profile
 CREATE TABLE Lab_Profile (
     lab_id              INT IDENTITY(1,1) NOT NULL,
+    lab_code            VARCHAR(30)    NULL,               -- Mã định danh đồng bộ App/Backend (VD: lab-001)
     owner_id            INT            NOT NULL,
     lab_name            NVARCHAR(200)  NOT NULL,
     slug                VARCHAR(220)   NOT NULL,
+    tagline             NVARCHAR(300)  NULL,               -- Khẩu hiệu hiển thị trên App/Web
     description         NVARCHAR(2000) NULL,
     phone               VARCHAR(20)    NOT NULL,
+    email               NVARCHAR(255)  NULL,
     province            NVARCHAR(100)  NOT NULL,
     district            NVARCHAR(100)  NOT NULL,
     street_address      NVARCHAR(255)  NOT NULL,
@@ -51,10 +54,15 @@ CREATE TABLE Lab_Profile (
     cover_url           VARCHAR(500)   NULL,
     opening_time        TIME(0)        NULL,
     closing_time        TIME(0)        NULL,
+    turnaround_hours    SMALLINT       NOT NULL CONSTRAINT DF_Lab_Turnaround DEFAULT 12,
+    price_range         NVARCHAR(100)  NULL,
+    scanner_models      NVARCHAR(500)  NULL,               -- Danh sách máy scan (JSON/text)
+    supported_processes NVARCHAR(500)  NULL,               -- Danh sách quy trình tráng hỗ trợ
     supports_pickup     BIT            NOT NULL CONSTRAINT DF_Lab_Pickup DEFAULT 0,
     avg_rating          DECIMAL(3,2)   NOT NULL CONSTRAINT DF_Lab_Rating DEFAULT 0,   -- denormalized, cập nhật bằng trigger/job
     review_count        INT            NOT NULL CONSTRAINT DF_Lab_RvCount DEFAULT 0,  -- denormalized
     approval_status     VARCHAR(20)    NOT NULL CONSTRAINT DF_Lab_Approval DEFAULT 'PENDING',
+    inspection_note     NVARCHAR(1000) NULL,
     reviewed_by         INT            NULL,
     reviewed_at         DATETIME2(0)   NULL,
     reject_reason       NVARCHAR(500)  NULL,
@@ -70,6 +78,7 @@ CREATE TABLE Lab_Profile (
     CONSTRAINT CK_Lab_Reject CHECK (approval_status <> 'REJECTED' OR reject_reason IS NOT NULL)
 );
 CREATE UNIQUE INDEX UX_Lab_License ON Lab_Profile(business_license_no) WHERE business_license_no IS NOT NULL;
+CREATE UNIQUE INDEX UX_Lab_Code    ON Lab_Profile(lab_code) WHERE lab_code IS NOT NULL;
 
 -- 9. Lab_Film_Format (N-N)
 CREATE TABLE Lab_Film_Format (
@@ -83,6 +92,7 @@ CREATE TABLE Lab_Film_Format (
 -- 10. Service_Package
 CREATE TABLE Service_Package (
     package_id           INT IDENTITY(1,1) NOT NULL,
+    package_code         VARCHAR(30)    NULL,        -- Mã gói đồng bộ App/Backend (VD: pkg-001)
     lab_id               INT            NOT NULL,
     service_type         VARCHAR(20)    NOT NULL,
     name                 NVARCHAR(200)  NOT NULL,
@@ -90,11 +100,13 @@ CREATE TABLE Service_Package (
     format_id            SMALLINT       NOT NULL,
     process_type_id      SMALLINT       NULL,        -- NULL khi chỉ scan
     scan_quality         VARCHAR(20)    NULL,        -- NULL khi chỉ tráng
+    scan_resolution      NVARCHAR(100)  NULL,        -- VD: M (3000x2000px), L (6000x4000px TIFF)
     scan_dpi             SMALLINT       NULL,
     output_format        VARCHAR(20)    NULL,
     price                DECIMAL(15,2)  NOT NULL,
     price_unit           VARCHAR(20)    NOT NULL CONSTRAINT DF_SP_Unit DEFAULT 'PER_ROLL',
-    est_processing_days  TINYINT        NOT NULL,
+    est_processing_days  TINYINT        NOT NULL CONSTRAINT DF_SP_Days DEFAULT 1,
+    estimated_hours      SMALLINT       NOT NULL CONSTRAINT DF_SP_Hours DEFAULT 12,
     is_active            BIT            NOT NULL CONSTRAINT DF_SP_Active DEFAULT 1,
     created_at           DATETIME2(0)   NOT NULL CONSTRAINT DF_SP_Created DEFAULT SYSUTCDATETIME(),
     updated_at           DATETIME2(0)   NOT NULL CONSTRAINT DF_SP_Updated DEFAULT SYSUTCDATETIME(),
@@ -117,3 +129,4 @@ CREATE TABLE Service_Package (
         (service_type = 'PRINT')
     )
 );
+CREATE UNIQUE INDEX UX_SP_Code ON Service_Package(package_code) WHERE package_code IS NOT NULL;

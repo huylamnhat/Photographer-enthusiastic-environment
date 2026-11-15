@@ -1,6 +1,7 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_typography.dart';
+import '../../core/services/api_service.dart';
 import '../../models/lab_model.dart';
 import 'payment_receipt_screen.dart';
 
@@ -38,18 +39,39 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
   void _handlePayment() async {
     setState(() => _isProcessing = true);
-    await Future.delayed(const Duration(milliseconds: 300));
+
+    final createdOrder = await ApiService().createOrder({
+      'lab_id': widget.lab.labId,
+      'shipping_method': widget.shippingMethod == 'SHIP_HOME' ? 'DELIVERY' : 'PICKUP',
+      'pickup_address': widget.lab.address,
+      'payment_method': _selectedPayment,
+      'total_amount': widget.totalPrice,
+      'items': [
+        {
+          'name': widget.packageName,
+          'film_name': widget.filmName,
+          'quantity': widget.quantity,
+          'price': widget.totalPrice / (widget.quantity > 0 ? widget.quantity : 1),
+          'options': {
+            'push_pull': widget.pushPull,
+            'cut_negatives': widget.cutOption,
+          },
+        }
+      ],
+    });
+
     if (!mounted) return;
     setState(() => _isProcessing = false);
 
-    final assignedOrderId = 'ORD-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}';
+    final assignedOrderId = createdOrder?.orderId ??
+        'ORD-2026-${DateTime.now().millisecondsSinceEpoch.toString().substring(9)}';
 
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
         builder: (_) => PaymentReceiptScreen(
           orderId: assignedOrderId,
-          labName: widget.lab.name,
+          labName: createdOrder?.labName ?? widget.lab.name,
           amount: widget.totalPrice,
           paymentMethod: _selectedPayment == 'MINILAB_WALLET'
               ? 'Ví MiniLab Pay (Nội bộ)'

@@ -1,20 +1,25 @@
-﻿-- Issue #21 | SQL Server | Source: Week 2
+-- Issue #21 | SQL Server | Source: Week 2
 
 -- 13. Orders
 CREATE TABLE Orders (
     order_id                BIGINT IDENTITY(1,1) NOT NULL,
-    order_code              VARCHAR(20)   NOT NULL,                 -- VD: FL-20261027-0001
+    order_code              VARCHAR(20)   NOT NULL,                 -- VD: ORD-2026-8801
     customer_id             INT           NOT NULL,
     lab_id                  INT           NOT NULL,
     status                  VARCHAR(25)   NOT NULL CONSTRAINT DF_Orders_Status DEFAULT 'PENDING_PAYMENT',
+    kanban_column           VARCHAR(20)   NOT NULL CONSTRAINT DF_Orders_Kanban DEFAULT 'QUEUE',
     receive_method          VARCHAR(20)   NOT NULL,
-    return_method           VARCHAR(20)   NOT NULL,
+    return_method           VARCHAR(20)   NOT NULL CONSTRAINT DF_Orders_Return DEFAULT 'DIGITAL_ONLY',
+    pickup_address          NVARCHAR(500) NULL,
+    payment_status          VARCHAR(20)   NOT NULL CONSTRAINT DF_Orders_PayStatus DEFAULT 'PENDING',
+    payment_method          VARCHAR(20)   NULL,
     subtotal                DECIMAL(15,2) NOT NULL CONSTRAINT DF_Orders_Sub DEFAULT 0,
     shipping_fee            DECIMAL(15,2) NOT NULL CONSTRAINT DF_Orders_Ship DEFAULT 0,
     platform_fee            DECIMAL(15,2) NOT NULL CONSTRAINT DF_Orders_Fee DEFAULT 0,
     discount_amount         DECIMAL(15,2) NOT NULL CONSTRAINT DF_Orders_Disc DEFAULT 0,
     total_amount            DECIMAL(15,2) NOT NULL CONSTRAINT DF_Orders_Total DEFAULT 0,
     expected_completion_date DATE         NULL,
+    sla_deadline            DATETIME2(0)  NULL,
     customer_note           NVARCHAR(1000) NULL,
     cancel_reason           NVARCHAR(500) NULL,
     cancelled_by            INT           NULL,
@@ -30,8 +35,10 @@ CREATE TABLE Orders (
     CONSTRAINT FK_Orders_CancelBy FOREIGN KEY (cancelled_by) REFERENCES Users(user_id),
     CONSTRAINT CK_Orders_Status CHECK (status IN (
         'PENDING_PAYMENT','PENDING_LAB_CONFIRM','PICKING_UP','RECEIVED_AT_LAB',
-        'PROCESSING','COMPLETED','DELIVERING','CLOSED','CANCELLED')),
-    CONSTRAINT CK_Orders_Receive CHECK (receive_method IN ('SELF_DROP_OFF','PICKUP')),
+        'PROCESSING','COMPLETED','DELIVERING','CLOSED','CANCELLED',
+        'PENDING_FILM','RECEIVED','DRYING','SCANNING','QC_CHECK','READY_FOR_DOWNLOAD')),
+    CONSTRAINT CK_Orders_Kanban CHECK (kanban_column IN ('QUEUE','DEVELOPING','SCANNING','QC','READY')),
+    CONSTRAINT CK_Orders_Receive CHECK (receive_method IN ('SELF_DROP_OFF','DROP_AT_LAB','PICKUP')),
     CONSTRAINT CK_Orders_Return  CHECK (return_method  IN ('SELF_PICKUP','DELIVERY','DIGITAL_ONLY')),
     CONSTRAINT CK_Orders_Money   CHECK (subtotal >= 0 AND shipping_fee >= 0 AND platform_fee >= 0
                                         AND discount_amount >= 0 AND total_amount >= 0),
@@ -42,12 +49,17 @@ CREATE TABLE Orders (
 -- 14. Order_Item
 CREATE TABLE Order_Item (
     order_item_id BIGINT IDENTITY(1,1) NOT NULL,
+    item_code     VARCHAR(30)   NULL,                                       -- VD: item-101
     order_id      BIGINT        NOT NULL,
     package_id    INT           NOT NULL,
     film_stock_id INT           NULL,
+    film_name     NVARCHAR(150) NULL,                                       -- Tên film hiển thị (VD: Kodak Portra 400)
+    roll_code     VARCHAR(50)   NULL,                                       -- Mã cuộn (VD: ROLL-PORTRA400-01)
     quantity      SMALLINT      NOT NULL CONSTRAINT DF_OI_Qty DEFAULT 1,   -- số cuộn
     unit_price    DECIMAL(15,2) NOT NULL,                                   -- snapshot giá tại thời điểm đặt
     line_total    DECIMAL(15,2) NOT NULL,
+    push_pull     NVARCHAR(50)  NULL,                                       -- Normal / +1 Stop / +2 Stops
+    cut_negatives NVARCHAR(100) NULL,                                       -- Cắt 6 frames/dải / Để nguyên cuộn
     note          NVARCHAR(500) NULL,
     status        VARCHAR(20)   NOT NULL CONSTRAINT DF_OI_Status DEFAULT 'PENDING',
     CONSTRAINT PK_Order_Item PRIMARY KEY (order_item_id),
@@ -77,7 +89,7 @@ CREATE TABLE Order_Status_History (
 CREATE TABLE Payment (
     payment_id      BIGINT IDENTITY(1,1) NOT NULL,
     order_id        BIGINT        NOT NULL,
-    gateway         VARCHAR(10)   NOT NULL,
+    gateway         VARCHAR(20)   NOT NULL,
     txn_ref         VARCHAR(64)   NOT NULL,          -- mã tham chiếu gửi sang cổng
     gateway_txn_no  VARCHAR(64)   NULL,              -- mã giao dịch phía VNPay/MoMo
     amount          DECIMAL(15,2) NOT NULL,
@@ -89,8 +101,8 @@ CREATE TABLE Payment (
     CONSTRAINT PK_Payment PRIMARY KEY (payment_id),
     CONSTRAINT UQ_Payment_TxnRef UNIQUE (txn_ref),     -- chống xử lý trùng callback (idempotent)
     CONSTRAINT FK_Payment_Order FOREIGN KEY (order_id) REFERENCES Orders(order_id),
-    CONSTRAINT CK_Payment_Gateway CHECK (gateway IN ('VNPAY','MOMO')),
-    CONSTRAINT CK_Payment_Status  CHECK (status IN ('PENDING','SUCCESS','FAILED','CANCELLED','REFUNDED')),
+    CONSTRAINT CK_Payment_Gateway CHECK (gateway IN ('VNPAY','MOMO','BANK_TRANSFER')),
+    CONSTRAINT CK_Payment_Status  CHECK (status IN ('PENDING','SUCCESS','PAID','FAILED','CANCELLED','REFUNDED')),
     CONSTRAINT CK_Payment_Amount  CHECK (amount > 0),
-    CONSTRAINT CK_Payment_Paid    CHECK (status <> 'SUCCESS' OR paid_at IS NOT NULL)
+    CONSTRAINT CK_Payment_Paid    CHECK (status NOT IN ('SUCCESS','PAID') OR paid_at IS NOT NULL)
 );

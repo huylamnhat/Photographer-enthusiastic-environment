@@ -1,22 +1,23 @@
-﻿-- Issue #21 | SQL Server | Source: Week 2
+-- Issue #21 | SQL Server | Source: Week 2
 
 -- 18. Dispute_Complaint (tạo trước Refund vì Refund tham chiếu)
 CREATE TABLE Dispute_Complaint (
     dispute_id             BIGINT IDENTITY(1,1) NOT NULL,
-    dispute_code           VARCHAR(20)   NOT NULL,
-    order_id               BIGINT        NOT NULL,
-    complainant_id         INT           NOT NULL,
-    reason_type            VARCHAR(20)   NOT NULL,
+    dispute_code           VARCHAR(20)    NOT NULL,
+    order_id               BIGINT         NOT NULL,
+    complainant_id         INT            NOT NULL,
+    reason_type            VARCHAR(20)    NOT NULL,
+    issue_title            NVARCHAR(200)  NULL,
     description            NVARCHAR(2000) NOT NULL,
-    requested_amount       DECIMAL(15,2) NULL,
-    status                 VARCHAR(20)   NOT NULL CONSTRAINT DF_Disp_Status DEFAULT 'OPEN',
-    negotiation_deadline   DATETIME2(0)  NULL,
-    assigned_admin_id      INT           NULL,
-    approved_refund_amount DECIMAL(15,2) NULL,
+    requested_amount       DECIMAL(15,2)  NULL,
+    status                 VARCHAR(20)    NOT NULL CONSTRAINT DF_Disp_Status DEFAULT 'OPEN',
+    negotiation_deadline   DATETIME2(0)   NULL,
+    assigned_admin_id      INT            NULL,
+    approved_refund_amount DECIMAL(15,2)  NULL,
     decision_note          NVARCHAR(1000) NULL,
-    created_at             DATETIME2(0)  NOT NULL CONSTRAINT DF_Disp_Created DEFAULT SYSUTCDATETIME(),
-    escalated_at           DATETIME2(0)  NULL,
-    resolved_at            DATETIME2(0)  NULL,
+    created_at             DATETIME2(0)   NOT NULL CONSTRAINT DF_Disp_Created DEFAULT SYSUTCDATETIME(),
+    escalated_at           DATETIME2(0)   NULL,
+    resolved_at            DATETIME2(0)   NULL,
     CONSTRAINT PK_Dispute_Complaint PRIMARY KEY (dispute_id),
     CONSTRAINT UQ_Dispute_Code UNIQUE (dispute_code),
     CONSTRAINT FK_Disp_Order FOREIGN KEY (order_id)          REFERENCES Orders(order_id),
@@ -25,7 +26,7 @@ CREATE TABLE Dispute_Complaint (
     CONSTRAINT CK_Disp_Reason CHECK (reason_type IN
         ('QUALITY','LOST_FILM','DAMAGED_FILM','LATE','WRONG_SERVICE','OTHER')),
     CONSTRAINT CK_Disp_Status CHECK (status IN
-        ('OPEN','NEGOTIATING','ESCALATED','RESOLVED_REFUNDED','RESOLVED_REJECTED','WITHDRAWN','CLOSED')),
+        ('OPEN','NEGOTIATING','ESCALATED','RESOLVED','REFUNDED','RESOLVED_REFUNDED','RESOLVED_REJECTED','WITHDRAWN','CLOSED')),
     CONSTRAINT CK_Disp_Amount CHECK (requested_amount IS NULL OR requested_amount >= 0),
     CONSTRAINT CK_Disp_Approved CHECK (approved_refund_amount IS NULL OR approved_refund_amount >= 0),
     CONSTRAINT CK_Disp_Escalate CHECK (status <> 'ESCALATED' OR escalated_at IS NOT NULL)

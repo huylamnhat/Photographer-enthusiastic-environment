@@ -2,14 +2,15 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const config = require('./src/config');
+const { initDatabase, getDbStatus } = require('./src/config/db');
 const routes = require('./src/routes');
 
 const app = express();
 
 // Middlewares
 app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 // Serve static uploaded files (scans, thumbnails, avatars)
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
@@ -47,14 +48,15 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = config.PORT;
-app.listen(PORT, '0.0.0.0', () => {
+app.listen(PORT, '0.0.0.0', async () => {
+  const dbState = await initDatabase();
   console.log(`=======================================================`);
   console.log(`MiniLab Backend Server running on:`);
   console.log(`- Web / PC:    http://localhost:${PORT}`);
   console.log(`- Phone (LAN): http://192.168.1.7:${PORT}`);
   console.log(`API Base:      http://localhost:${PORT}/api`);
   console.log(`Status Check:  http://localhost:${PORT}/api/health`);
-  console.log(`Self-contained mode: Active (No external API calls)`);
+  console.log(`Database Mode: ${dbState.mode} (${dbState.database})`);
   console.log(`=======================================================`);
 });
 

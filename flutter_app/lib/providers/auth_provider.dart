@@ -1,55 +1,56 @@
 import 'package:flutter/material.dart';
 import '../models/user_model.dart';
 import '../core/services/api_service.dart';
+import '../core/services/web_api_service.dart';
 
 class AuthProvider with ChangeNotifier {
   UserModel? _currentUser;
   bool _isLoading = false;
   String? _token;
+  String? _errorMessage;
 
   UserModel? get currentUser => _currentUser;
+  UserModel? get user => _currentUser;
   bool get isLoading => _isLoading;
   bool get isAuthenticated => _currentUser != null;
+  String? get errorMessage => _errorMessage;
+  String? get error => _errorMessage;
 
-  AuthProvider() {
-    // Default logged in user for immediate experience
-    _currentUser = UserModel(
-      userId: 'usr-001',
-      email: 'khachhang@minilab.vn',
-      phone: '0912345678',
-      fullName: 'Nguyễn Hoàng Anh',
-      avatarUrl: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150',
-      role: 'Customer',
-      address: '123 Phố Huế, Hai Bà Trưng, Hà Nội',
-    );
-  }
+  AuthProvider();
 
   Future<bool> login(String identifier, String password) async {
     _isLoading = true;
+    _errorMessage = null;
     notifyListeners();
 
     try {
       final res = await ApiService().login(identifier, password);
-      if (res['success'] == true) {
+      if (res['success'] == true && res['user'] != null) {
         _token = res['token'];
         ApiService().setToken(_token);
+        WebApiService().setToken(_token);
         _currentUser = UserModel.fromJson(res['user']);
         _isLoading = false;
         notifyListeners();
         return true;
+      } else {
+        _errorMessage = res['message']?.toString() ?? 'Tài khoản hoặc mật khẩu không chính xác';
       }
-    } catch (_) {}
+    } catch (e) {
+      _errorMessage = 'Không thể kết nối tới máy chủ: $e';
+    }
 
     _isLoading = false;
     notifyListeners();
-    return true; // demo convenience
+    return false;
   }
 
   void logout() {
     _currentUser = null;
     _token = null;
+    _errorMessage = null;
     ApiService().setToken(null);
+    WebApiService().setToken(null);
     notifyListeners();
   }
 }
-

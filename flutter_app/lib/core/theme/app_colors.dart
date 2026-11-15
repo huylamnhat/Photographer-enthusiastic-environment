@@ -28,5 +28,16 @@ class AppColors {
 
   static const Color neutral = Color(0xFF374151);
   static const Color neutralBg = Color(0xFFF1EFEA);
-}
 
+  // Mobile & shared palette aliases
+  static const Color primaryAmber = Color(0xFFA9511C);
+  static const Color surfaceCard = Color(0xFFFFFFFF);
+  static const Color surfaceElevated = Color(0xFFF2EFE9);
+  static const Color borderSubtle = Color(0xFFE3DFD7);
+  static const Color textPrimary = Color(0xFF1F1C18);
+  static const Color textSecondary = Color(0xFF5F5A52);
+  static const Color textMuted = Color(0xFF78716C);
+  static const Color infoBlue = Color(0xFF2563EB);
+  static const Color successGreen = Color(0xFF166534);
+  static const Color errorRed = Color(0xFF991B1B);
+}

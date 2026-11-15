@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_typography.dart';
+import '../../core/services/api_service.dart';
 
 class CreatePostScreen extends StatefulWidget {
   const CreatePostScreen({super.key});
@@ -150,7 +151,21 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
             SizedBox(
               height: 44,
               child: ElevatedButton(
-                onPressed: () => setState(() => _submitted = true),
+                onPressed: () async {
+                  final rawTitle = _titleController.text.trim();
+                  final rawContent = _contentController.text.trim();
+                  await ApiService().createCommunityPost({
+                    'title': rawTitle.isNotEmpty
+                        ? rawTitle
+                        : 'Kinh nghiệm chụp và tráng film $_category',
+                    'content': rawContent.isNotEmpty
+                        ? rawContent
+                        : 'Chia sẻ kinh nghiệm thực tế chụp film analog cùng cộng đồng MiniLab.',
+                    'category': _category,
+                  });
+                  if (!mounted) return;
+                  setState(() => _submitted = true);
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
                   foregroundColor: Colors.white,

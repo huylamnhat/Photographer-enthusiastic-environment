@@ -1,4 +1,4 @@
-﻿-- Issue #21 | SQL Server | Source: Week 2
+-- Issue #21 | SQL Server | Source: Week 2
 
 -- 27. Equipment_Category (phân cấp)
 CREATE TABLE Equipment_Category (
@@ -13,6 +13,7 @@ CREATE TABLE Equipment_Category (
 -- 28. Equipment_Listing
 CREATE TABLE Equipment_Listing (
     listing_id      BIGINT IDENTITY(1,1) NOT NULL,
+    listing_code    VARCHAR(30)    NULL,            -- Mã tin đăng đồng bộ App/Backend (VD: mkt-001)
     seller_id       INT            NOT NULL,
     category_id     INT            NOT NULL,
     listing_type    VARCHAR(10)    NOT NULL CONSTRAINT DF_EL_Type DEFAULT 'SELL',
@@ -21,6 +22,7 @@ CREATE TABLE Equipment_Listing (
     brand           NVARCHAR(100)  NULL,
     model           NVARCHAR(100)  NULL,
     item_condition  VARCHAR(15)    NOT NULL,
+    condition_note  NVARCHAR(255)  NULL,            -- Mô tả tình trạng chi tiết (VD: 98% Sưu tầm)
     price           DECIMAL(15,2)  NULL,            -- NULL khi chỉ trao đổi
     is_negotiable   BIT            NOT NULL CONSTRAINT DF_EL_Neg DEFAULT 0,
     location_text   NVARCHAR(255)  NULL,
@@ -41,11 +43,12 @@ CREATE TABLE Equipment_Listing (
     CONSTRAINT CK_EL_Type   CHECK (listing_type IN ('SELL','TRADE','BUY')),
     CONSTRAINT CK_EL_Cond   CHECK (item_condition IN ('NEW','LIKE_NEW','GOOD','FAIR','FOR_PARTS')),
     CONSTRAINT CK_EL_Status CHECK (status IN
-        ('PENDING_APPROVAL','ACTIVE','REJECTED','SOLD','EXPIRED','HIDDEN')),
+        ('PENDING_APPROVAL','PENDING_REVIEW','ACTIVE','REJECTED','SOLD','EXPIRED','HIDDEN')),
     CONSTRAINT CK_EL_Price  CHECK (price IS NULL OR price >= 0),
     CONSTRAINT CK_EL_PriceReq CHECK (listing_type = 'TRADE' OR price IS NOT NULL),
     CONSTRAINT CK_EL_Reject CHECK (status <> 'REJECTED' OR reject_reason IS NOT NULL)
 );
+CREATE UNIQUE INDEX UX_EL_Code ON Equipment_Listing(listing_code) WHERE listing_code IS NOT NULL;
 
 -- 29. Listing_Image
 CREATE TABLE Listing_Image (
@@ -87,10 +90,12 @@ CREATE TABLE Marketplace_Transaction (
 -- 32. Review (đánh giá Lab hoặc Người bán)
 CREATE TABLE Review (
     review_id    BIGINT IDENTITY(1,1) NOT NULL,
+    review_code  VARCHAR(30)    NULL,     -- VD: rev-001
     reviewer_id  INT            NOT NULL,
     review_type  VARCHAR(10)    NOT NULL,
     order_id     BIGINT         NULL,     -- khi review_type = 'LAB'
     txn_id       BIGINT         NULL,     -- khi review_type = 'SELLER'
+    service_name NVARCHAR(200)  NULL,     -- Tên gói dịch vụ đã đánh giá
     rating       TINYINT        NOT NULL,
     comment      NVARCHAR(2000) NULL,
     reply_text   NVARCHAR(1000) NULL,     -- Lab/Seller phản hồi
@@ -114,6 +119,7 @@ CREATE TABLE Review (
 -- Mỗi đơn / mỗi giao dịch chỉ được đánh giá 1 lần
 CREATE UNIQUE INDEX UX_Review_Order ON Review(order_id) WHERE order_id IS NOT NULL;
 CREATE UNIQUE INDEX UX_Review_Txn   ON Review(txn_id)   WHERE txn_id   IS NOT NULL;
+CREATE UNIQUE INDEX UX_Review_Code  ON Review(review_code) WHERE review_code IS NOT NULL;
 
 -- 33. Post_Category
 CREATE TABLE Post_Category (
@@ -128,6 +134,7 @@ CREATE TABLE Post_Category (
 -- 34. Post_Article (hậu kiểm bởi Admin)
 CREATE TABLE Post_Article (
     post_id          BIGINT IDENTITY(1,1) NOT NULL,
+    post_code        VARCHAR(30)    NULL,            -- VD: post-001
     author_id        INT            NOT NULL,
     post_category_id INT            NULL,
     post_type        VARCHAR(10)    NOT NULL,
@@ -136,7 +143,11 @@ CREATE TABLE Post_Article (
     summary          NVARCHAR(500)  NULL,
     content          NVARCHAR(MAX)  NOT NULL,
     cover_image_url  VARCHAR(500)   NULL,
-    status           VARCHAR(10)    NOT NULL CONSTRAINT DF_Post_Status DEFAULT 'DRAFT',
+    likes_count      INT            NOT NULL CONSTRAINT DF_Post_Likes DEFAULT 0,
+    comments_count   INT            NOT NULL CONSTRAINT DF_Post_Comments DEFAULT 0,
+    report_count     INT            NOT NULL CONSTRAINT DF_Post_Reports DEFAULT 0,
+    report_reason    NVARCHAR(500)  NULL,
+    status           VARCHAR(15)    NOT NULL CONSTRAINT DF_Post_Status DEFAULT 'DRAFT',
     moderated_by     INT            NULL,
     moderation_note  NVARCHAR(500)  NULL,
     view_count       INT            NOT NULL CONSTRAINT DF_Post_Views DEFAULT 0,
@@ -149,9 +160,10 @@ CREATE TABLE Post_Article (
     CONSTRAINT FK_Post_Category FOREIGN KEY (post_category_id) REFERENCES Post_Category(post_category_id),
     CONSTRAINT FK_Post_Mod      FOREIGN KEY (moderated_by)     REFERENCES Users(user_id),
     CONSTRAINT CK_Post_Type   CHECK (post_type IN ('ARTICLE','TUTORIAL','REVIEW','QNA')),
-    CONSTRAINT CK_Post_Status CHECK (status IN ('DRAFT','PUBLISHED','HIDDEN','REMOVED')),
+    CONSTRAINT CK_Post_Status CHECK (status IN ('DRAFT','PUBLISHED','ACTIVE','REPORTED','HIDDEN','REMOVED')),
     CONSTRAINT CK_Post_Pub    CHECK (status <> 'PUBLISHED' OR published_at IS NOT NULL)
 );
+CREATE UNIQUE INDEX UX_Post_Code ON Post_Article(post_code) WHERE post_code IS NOT NULL;
 
 -- 35. Post_Tag (N-N)
 CREATE TABLE Post_Tag (
@@ -165,6 +177,7 @@ CREATE TABLE Post_Tag (
 -- 36. Post_Comment (bình luận lồng nhau)
 CREATE TABLE Post_Comment (
     comment_id        BIGINT IDENTITY(1,1) NOT NULL,
+    comment_code      VARCHAR(30)    NULL,
     post_id           BIGINT         NOT NULL,
     user_id           INT            NOT NULL,
     parent_comment_id BIGINT         NULL,
@@ -180,18 +193,20 @@ CREATE TABLE Post_Comment (
 
 -- 37. Event (Workshop / Photowalk)
 CREATE TABLE Event (
-    event_id    INT IDENTITY(1,1) NOT NULL,
-    host_id     INT            NOT NULL,
-    event_type  VARCHAR(10)    NOT NULL,
-    title       NVARCHAR(250)  NOT NULL,
-    description NVARCHAR(4000) NULL,
-    venue       NVARCHAR(255)  NOT NULL,
-    start_at    DATETIME2(0)   NOT NULL,
-    end_at      DATETIME2(0)   NOT NULL,
-    capacity    SMALLINT       NOT NULL,
-    fee         DECIMAL(15,2)  NOT NULL CONSTRAINT DF_Event_Fee DEFAULT 0,
-    status      VARCHAR(10)    NOT NULL CONSTRAINT DF_Event_Status DEFAULT 'DRAFT',
-    created_at  DATETIME2(0)   NOT NULL CONSTRAINT DF_Event_Created DEFAULT SYSUTCDATETIME(),
+    event_id        INT IDENTITY(1,1) NOT NULL,
+    event_code      VARCHAR(30)    NULL,            -- VD: evt-001
+    host_id         INT            NOT NULL,
+    event_type      VARCHAR(10)    NOT NULL,
+    title           NVARCHAR(250)  NOT NULL,
+    description     NVARCHAR(4000) NULL,
+    venue           NVARCHAR(255)  NOT NULL,
+    cover_image_url VARCHAR(500)   NULL,
+    start_at        DATETIME2(0)   NOT NULL,
+    end_at          DATETIME2(0)   NOT NULL,
+    capacity        SMALLINT       NOT NULL,
+    fee             DECIMAL(15,2)  NOT NULL CONSTRAINT DF_Event_Fee DEFAULT 0,
+    status          VARCHAR(10)    NOT NULL CONSTRAINT DF_Event_Status DEFAULT 'DRAFT',
+    created_at      DATETIME2(0)   NOT NULL CONSTRAINT DF_Event_Created DEFAULT SYSUTCDATETIME(),
     CONSTRAINT PK_Event PRIMARY KEY (event_id),
     CONSTRAINT FK_Event_Host FOREIGN KEY (host_id) REFERENCES Users(user_id),
     CONSTRAINT CK_Event_Type   CHECK (event_type IN ('WORKSHOP','PHOTOWALK')),
@@ -200,6 +215,7 @@ CREATE TABLE Event (
     CONSTRAINT CK_Event_Cap    CHECK (capacity > 0),
     CONSTRAINT CK_Event_Fee    CHECK (fee >= 0)
 );
+CREATE UNIQUE INDEX UX_Event_Code ON Event(event_code) WHERE event_code IS NOT NULL;
 
 -- 38. Event_Registration (N-N)
 CREATE TABLE Event_Registration (

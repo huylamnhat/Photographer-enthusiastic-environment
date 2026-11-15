@@ -12,6 +12,7 @@ router.post('/orders/:orderId/upload-scans', authenticate, upload.single('scan_f
 router.get('/services', authenticate, labManagementController.getLabPackages);
 router.put('/services/:packageId', authenticate, labManagementController.updatePackagePrice);
 router.post('/services', authenticate, labManagementController.createPackage);
+router.put('/process-table', authenticate, labManagementController.updateProcessTable);
 router.get('/profile', authenticate, labManagementController.getLabProfile);
 router.put('/profile', authenticate, labManagementController.updateLabProfile);
 router.get('/disputes', authenticate, labManagementController.getLabDisputes);

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_typography.dart';
 import '../../core/mock/mock_test_assets.dart';
+import '../../core/services/api_service.dart';
 import 'listing_detail_screen.dart';
 import 'create_listing_screen.dart';
 import 'my_listings_screen.dart';
@@ -15,79 +16,52 @@ class MarketplaceScreen extends StatefulWidget {
 
 class _MarketplaceScreenState extends State<MarketplaceScreen> {
   String _selectedCategory = 'Tất cả';
+  bool _loading = false;
 
-  final List<Map<String, dynamic>> _mockListings = [
-    {
-      'id': 'mkt-001',
-      'title': 'Canon QL17 GIII (Black Limited Edition)',
-      'category': 'Rangefinder',
-      'condition': '98% Đo sáng & màn trập chuẩn xác',
-      'price': '4.800.000đ',
-      'location': 'Hoàn Kiếm, Hà Nội',
-      'seller': 'Nguyễn Hoàng Anh',
-      'sellerAvatar': MockTestAssets.avatarCustomer,
-      'image': MockTestAssets.marketplaceCam1,
-      'lens': 'Canon 40mm f/1.7',
-      'shutter': 'Cơ khí 1/4s - 1/500s + B',
-      'meter': 'Pin PX625 đo sáng kim chỉ tốt',
-      'verified': true,
-      'desc': 'Máy phiên bản đen nguyên bản hiếm gặp. Viewfinder sáng rõ, thấu kính không mốc xước rễ tre. Đã dán lại mút xốp chống lọt sáng buồng film.',
-    },
-    {
-      'id': 'mkt-002',
-      'title': 'Leica M6 Classic 0.72x (Silver Chrome)',
-      'category': 'Rangefinder',
-      'condition': '95% Hoạt động hoàn hảo',
-      'price': '58.000.000đ',
-      'location': 'Quận 1, TP.HCM',
-      'seller': 'Lê Quang Huy',
-      'sellerAvatar': MockTestAssets.avatarExpert,
-      'image': MockTestAssets.marketplaceCam2,
-      'lens': 'Chỉ body (Khớp nối Leica M)',
-      'shutter': 'Màn trập vải cơ khí tĩnh lặng',
-      'meter': 'Đèn LED đo sáng chính xác tuyệt đối',
-      'verified': true,
-      'desc': 'Body Leica M6 Classic hình thức đẹp, mạ chrome đều màu, không mụn rộp zinc oxide. Cơ cấu lên cò mượt mà, rèm trập không rách thủng.',
-    },
-    {
-      'id': 'mkt-003',
-      'title': 'Contax T2 Titanium Black (Carl Zeiss T*)',
-      'category': 'Point & Shoot',
-      'condition': '97% Đầy đủ bao da zin',
-      'price': '28.500.000đ',
-      'location': 'Quận 3, TP.HCM',
-      'seller': 'Trần Văn Tuấn',
-      'sellerAvatar': MockTestAssets.avatarAdmin,
-      'image': MockTestAssets.marketplaceCam1,
-      'lens': 'Carl Zeiss Sonnar 38mm f/2.8 T*',
-      'shutter': 'Điện tử 1s - 1/500s',
-      'meter': 'Đo sáng quang học tự động',
-      'verified': true,
-      'desc': 'Huyền thoại P&S vỏ kim loại titan cao cấp. Không lỗi thấu kính răng cưa, flash hồi nhanh, kính tráng phủ T* đậm đà tương phản.',
-    },
-    {
-      'id': 'mkt-004',
-      'title': 'Olympus OM-1n Black + Zuiko 50mm f/1.8',
-      'category': 'SLR Cơ khí',
-      'condition': '93% Kèm lens Zuiko',
-      'price': '3.600.000đ',
-      'location': 'Thanh Xuân, Hà Nội',
-      'seller': 'Phạm Thu Trang',
-      'sellerAvatar': MockTestAssets.avatarCustomer,
-      'image': MockTestAssets.marketplaceCam2,
-      'lens': 'Olympus F.Zuiko Auto-S 50mm f/1.8',
-      'shutter': 'Full cơ cơ cấu giảm rung',
-      'meter': 'Kim đo sáng hoạt động',
-      'verified': false,
-      'desc': 'Bộ máy nhỏ gọn bậc nhất dòng máy ảnh cơ 35mm. Viewfinder rộng sáng bao quát, màn trập nhả êm ái ở mọi tốc độ.',
-    },
-  ];
+  List<Map<String, dynamic>> _listings = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadListings();
+  }
+
+  Future<void> _loadListings() async {
+    setState(() => _loading = true);
+    final items = await ApiService().getMarketplaceListings();
+    if (!mounted) return;
+    final mapped = items.map((l) {
+      final formattedPrice =
+          '${l.price.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]}.')}đ';
+      return {
+        'id': l.listingId,
+        'title': l.title,
+        'category': l.category,
+        'condition': l.condition,
+        'price': formattedPrice,
+        'location': l.location,
+        'seller': l.sellerName,
+        'sellerAvatar': l.sellerAvatar.isNotEmpty ? l.sellerAvatar : MockTestAssets.avatarCustomer,
+        'image': l.imageUrls.isNotEmpty ? l.imageUrls.first : MockTestAssets.marketplaceCam1,
+        'lens': 'Ống kính tiêu chuẩn theo máy',
+        'shutter': 'Cơ khí đã kiểm tra tốc độ',
+        'meter': 'Đo sáng hoạt động tốt',
+        'verified': l.status == 'ACTIVE',
+        'desc': l.description,
+      };
+    }).toList();
+
+    setState(() {
+      _listings = mapped;
+      _loading = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    final filtered = _mockListings.where((item) {
+    final filtered = _listings.where((item) {
       if (_selectedCategory == 'Tất cả') return true;
-      return item['category'] == _selectedCategory;
+      return item['category'].toString().toLowerCase().contains(_selectedCategory.toLowerCase());
     }).toList();
 
     return Scaffold(
@@ -120,16 +94,24 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.inventory_2_outlined, size: 20),
-            tooltip: 'Tin của tôi',
-            onPressed: () {
-              Navigator.push(
+            icon: _loading
+                ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
+                : const Icon(Icons.refresh, size: 20, color: AppColors.primary),
+            tooltip: 'Làm mới sàn máy',
+            onPressed: _loadListings,
+          ),
+          TextButton.icon(
+            icon: const Icon(Icons.inventory_2_outlined, size: 18, color: AppColors.primary),
+            label: Text('Tin của tôi', style: AppTypography.labelCaps.copyWith(fontSize: 10, color: AppColors.primary)),
+            onPressed: () async {
+              await Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) => const MyListingsScreen()),
               );
+              _loadListings();
             },
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 4),
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
@@ -138,11 +120,12 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> {
         elevation: 2,
         icon: const Icon(Icons.add_photo_alternate, size: 18),
         label: Text('Đăng tin rao bán', style: AppTypography.button),
-        onPressed: () {
-          Navigator.push(
+        onPressed: () async {
+          await Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => const CreateListingScreen()),
           );
+          _loadListings();
         },
       ),
       body: SingleChildScrollView(
@@ -162,6 +145,8 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> {
                   _buildCatChip('SLR Cơ khí'),
                   const SizedBox(width: 6),
                   _buildCatChip('Point & Shoot'),
+                  const SizedBox(width: 6),
+                  _buildCatChip('Ống kính (Lens)'),
                 ],
               ),
             ),
@@ -190,7 +175,45 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> {
             ),
             const SizedBox(height: 14),
 
-            // Listings 2x2 Grid
+            if (_loading && filtered.isEmpty)
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 40),
+                child: Center(child: CircularProgressIndicator(color: AppColors.primary)),
+              )
+            else if (filtered.isEmpty)
+              Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: AppColors.surfaceRaised,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: AppColors.outline),
+                ),
+                child: Column(
+                  children: [
+                    const Icon(Icons.storefront_outlined, size: 36, color: AppColors.inkMuted),
+                    const SizedBox(height: 8),
+                    Text('Chưa có thiết bị nào trong mục "$_selectedCategory"', style: AppTypography.bodySmall),
+                    const SizedBox(height: 12),
+                    ElevatedButton.icon(
+                      onPressed: () async {
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const CreateListingScreen()),
+                        );
+                        _loadListings();
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        foregroundColor: Colors.white,
+                      ),
+                      icon: const Icon(Icons.add_photo_alternate, size: 16),
+                      label: const Text('Đăng bán thiết bị ngay'),
+                    ),
+                  ],
+                ),
+              )
+            else
+              // Listings 2x2 Grid
             GridView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),

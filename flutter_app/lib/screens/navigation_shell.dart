@@ -5,6 +5,7 @@ import 'home/home_screen.dart';
 import 'home/lab_search_screen.dart';
 import 'orders/order_list_screen.dart';
 import 'archive/archive_gallery_screen.dart';
+import 'marketplace/marketplace_screen.dart';
 import 'community/community_feed_screen.dart';
 
 class NavigationShell extends StatefulWidget {
@@ -22,6 +23,7 @@ class _NavigationShellState extends State<NavigationShell> {
     const LabSearchScreen(),
     const OrderListScreen(),
     const ArchiveGalleryScreen(),
+    const MarketplaceScreen(),
     const CommunityFeedScreen(),
   ];
 
@@ -80,6 +82,11 @@ class _NavigationShellState extends State<NavigationShell> {
               icon: Icon(Icons.photo_library_outlined, size: 20),
               activeIcon: Icon(Icons.photo_library, size: 20),
               label: 'Kho ảnh',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.storefront_outlined, size: 20),
+              activeIcon: Icon(Icons.storefront, size: 20),
+              label: 'Chợ',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.groups_outlined, size: 20),
