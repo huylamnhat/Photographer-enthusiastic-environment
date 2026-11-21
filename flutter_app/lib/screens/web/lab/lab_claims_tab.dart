@@ -73,15 +73,13 @@ class _LabClaimsTabState extends State<LabClaimsTab> {
               const Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('WEB-LAB-07 // XỬ LÝ KHIẾU NẠI & THƯƠNG LƯỢNG (SQL SERVER)', style: AppTypography.labelCaps),
-                  SizedBox(height: 4),
-                  Text('Trung tâm Thương lượng Đền bù với Khách hàng', style: AppTypography.pageTitle),
+                  Text('Xử lý Khiếu nại', style: AppTypography.pageTitle),
                 ],
               ),
               OutlinedButton.icon(
                 onPressed: _loadClaims,
                 icon: const Icon(Icons.refresh, size: 16),
-                label: const Text('Đồng bộ Khiếu nại'),
+                label: const Text('Làm mới'),
               ),
             ],
           ),

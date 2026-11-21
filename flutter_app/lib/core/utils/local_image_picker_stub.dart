@@ -12,7 +12,10 @@ class PickedLocalImage {
   });
 }
 
-Future<List<PickedLocalImage>> pickLocalImagesFromComputer({bool multiple = true}) async {
+Future<List<PickedLocalImage>> pickLocalImagesFromComputer({
+  bool multiple = true,
+  bool preserveOriginal = false,
+}) async {
   return [];
 }
 

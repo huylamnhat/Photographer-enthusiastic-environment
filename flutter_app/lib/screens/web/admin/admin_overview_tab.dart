@@ -136,39 +136,16 @@ class _AdminOverviewTabState extends State<AdminOverviewTab> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Column(
+              const Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    children: [
-                      Container(
-                        width: 8,
-                        height: 8,
-                        decoration: const BoxDecoration(
-                          color: AppColors.secondary,
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      const Text(
-                        'TRẠM ĐIỀU HÀNH TRUNG TÂM / ADM-02 (SQL SERVER)',
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
-                          letterSpacing: 1.0,
-                          color: AppColors.secondary,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  const Text('Tổng quan vận hành', style: AppTypography.pageTitle),
+                  Text('Tổng quan vận hành', style: AppTypography.pageTitle),
                 ],
               ),
               IconButton(
                 onPressed: _loadDashboard,
                 icon: const Icon(Icons.refresh, color: AppColors.inkMuted),
-                tooltip: 'Đồng bộ từ CSDL',
+                tooltip: 'Làm mới',
               ),
             ],
           ),
@@ -186,14 +163,14 @@ class _AdminOverviewTabState extends State<AdminOverviewTab> {
                 childAspectRatio: isDesktop ? 1.45 : 1.25,
                 children: [
                   _buildKpiCard(
-                    title: 'ĐƠN HÀNG HỆ THỐNG',
+                    title: 'TỔNG ĐƠN HÀNG',
                     value: '${_stats['total_orders'] ?? 0}',
                     fontSize: 42,
                     delta: '+8%',
                     icon: Icons.receipt_long_outlined,
                     iconColor: AppColors.inkMuted,
-                    subtext: 'Đồng bộ từ bảng Orders',
-                    footnote: 'SQL Server',
+                    subtext: 'Trên toàn hệ thống',
+                    footnote: 'Cập nhật mới nhất',
                     isPositive: true,
                   ),
                   _buildKpiCard(
@@ -203,13 +180,13 @@ class _AdminOverviewTabState extends State<AdminOverviewTab> {
                     delta: 'đối tác',
                     icon: Icons.motion_photos_on_outlined,
                     iconColor: AppColors.primary,
-                    subtext: 'Chờ duyệt: ${_stats['pending_labs'] ?? 0} Lab',
+                    subtext: 'Chờ duyệt: ${_stats['pending_labs'] ?? 0} tiệm',
                     footnote: 'Đúng tiến độ',
                     isPositive: true,
                     deltaIsText: true,
                   ),
                   _buildKpiCard(
-                    title: 'TỶ LỆ TUÂN THỦ SLA',
+                    title: 'TRẢ ẢNH ĐÚNG HẸN',
                     value: '${_stats['sla_on_time_rate'] ?? '98.4%'}',
                     fontSize: 42,
                     delta: '+1.2%',
@@ -432,12 +409,12 @@ class _AdminOverviewTabState extends State<AdminOverviewTab> {
                           color: AppColors.surfaceSunken,
                           borderRadius: BorderRadius.circular(6),
                         ),
-                        child: Text('${_labs.length} lab trong CSDL', style: AppTypography.caption),
+                        child: Text('${_labs.length} tiệm Lab', style: AppTypography.caption),
                       ),
                     ],
                   ),
                   const SizedBox(height: 4),
-                  const Text('Giám sát sản lượng bàn giao, chỉ số an toàn hoá chất và cam kết SLA', style: AppTypography.caption),
+                  const Text('Theo dõi hoạt động và tỷ lệ trả ảnh đúng hẹn của các tiệm Lab', style: AppTypography.caption),
                 ],
               ),
               Container(
@@ -492,7 +469,7 @@ class _AdminOverviewTabState extends State<AdminOverviewTab> {
                   _th('TÊN PHÒNG LAB', TextAlign.left),
                   _th('KHU VỰC', TextAlign.left),
                   _th('ĐÁNH GIÁ / ĐƠN', TextAlign.right),
-                  _th('TUÂN THỦ SLA', TextAlign.right),
+                  _th('ĐÚNG HẸN', TextAlign.right),
                   _th('TRẠNG THÁI', TextAlign.center),
                 ],
               ),

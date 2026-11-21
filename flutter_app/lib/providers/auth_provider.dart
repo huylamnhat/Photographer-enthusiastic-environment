@@ -45,6 +45,16 @@ class AuthProvider with ChangeNotifier {
     return false;
   }
 
+  void setAuthenticatedUser(String token, Map<String, dynamic> userJson) {
+    _token = token;
+    ApiService().setToken(_token);
+    WebApiService().setToken(_token);
+    _currentUser = UserModel.fromJson(userJson);
+    _errorMessage = null;
+    _isLoading = false;
+    notifyListeners();
+  }
+
   void logout() {
     _currentUser = null;
     _token = null;

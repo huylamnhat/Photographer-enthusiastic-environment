@@ -34,13 +34,19 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _loadingOrder = false;
   Timer? _refreshTimer;
 
+  String _lastSyncSignature = '';
+
   @override
   void initState() {
     super.initState();
     _loadLatestOrder();
     _refreshTimer = Timer.periodic(
-      const Duration(seconds: 5),
-      (_) => _loadLatestOrder(silent: true),
+      const Duration(seconds: 20),
+      (_) {
+        if (mounted && (ModalRoute.of(context)?.isCurrent ?? true)) {
+          _loadOrdersAndNotificationsOnly(silent: true);
+        }
+      },
     );
   }
 
@@ -68,6 +74,30 @@ class _HomeScreenState extends State<HomeScreen> {
     return '${buf.toString()}đ';
   }
 
+  String _computeOrderSignature(List<OrderModel> orders, List<Map<String, dynamic>> notifications) {
+    final ordPart = orders.map((o) => '${o.orderId}:${o.status}:${o.kanbanColumn}:${o.driveLink ?? ""}:${o.disputeStatus ?? ""}').join('|');
+    return '${orders.length}:${notifications.length}:$ordPart';
+  }
+
+  Future<void> _loadOrdersAndNotificationsOnly({bool silent = false}) async {
+    final results = await Future.wait([
+      ApiService().getOrders(),
+      ApiService().getNotifications(),
+    ]);
+    if (!mounted) return;
+    final orders = results[0] as List<OrderModel>;
+    final notifications = results[1] as List<Map<String, dynamic>>;
+    final sig = _computeOrderSignature(orders, notifications);
+    if (silent && sig == _lastSyncSignature) return;
+    _lastSyncSignature = sig;
+    setState(() {
+      _allOrders = orders;
+      _latestOrder = orders.isNotEmpty ? orders.first : null;
+      _notifications = notifications;
+      _loadingOrder = false;
+    });
+  }
+
   Future<void> _loadLatestOrder({bool silent = false}) async {
     if (!silent) {
       setState(() => _loadingOrder = true);
@@ -83,11 +113,10 @@ class _HomeScreenState extends State<HomeScreen> {
     final labs = results[1] as List<LabModel>;
     final events = results[2] as List<EventModel>;
     final notifications = results[3] as List<Map<String, dynamic>>;
+    _lastSyncSignature = _computeOrderSignature(orders, notifications);
     setState(() {
       _allOrders = orders;
-      if (orders.isNotEmpty) {
-        _latestOrder = orders.first;
-      }
+      _latestOrder = orders.isNotEmpty ? orders.first : null;
       if (labs.isNotEmpty) {
         _labs = labs;
       }
@@ -251,15 +280,15 @@ class _HomeScreenState extends State<HomeScreen> {
   String _stepDetailLabel(int idx) {
     switch (idx) {
       case 0:
-        return 'Bước 1/5: 1. Tiếp nhận cuộn phim tại Lab';
+        return 'Bước 1/5: Tiếp nhận phim tại tiệm';
       case 1:
-        return 'Bước 2/5: 2. Vào Tank / Tráng hóa chất (37.8°C)';
+        return 'Bước 2/5: Đang tráng phim';
       case 2:
-        return 'Bước 3/5: 3. Sấy khô & Cân bằng phẳng';
+        return 'Bước 3/5: Đang sấy khô';
       case 3:
-        return 'Bước 4/5: 4. Scan số hóa Noritsu / Frontier';
+        return 'Bước 4/5: Đang quét ảnh';
       default:
-        return 'Bước 5/5: 5. QC & Archive (Sẵn sàng tải)';
+        return 'Bước 5/5: Hoàn tất • Đã có ảnh';
     }
   }
 
@@ -277,14 +306,15 @@ class _HomeScreenState extends State<HomeScreen> {
         : MockTestAssets.avatarCustomer;
     final String userCity = (currentUser?.address != null && currentUser!.address!.isNotEmpty)
         ? currentUser.address!
-        : 'TP. Hồ Chí Minh';
+        : 'Việt Nam';
 
-    final activeStep = _stepIdx(_latestOrder);
-    final displayOrderId = _latestOrder?.orderId ?? 'ORD-2026-8801';
-    final displayLabName = _latestOrder?.labName ?? 'CropLab Hà Nội';
-    final displayFilm = (_latestOrder != null && _latestOrder!.items.isNotEmpty)
-        ? '${_latestOrder!.items.first.quantity.toString().padLeft(2, '0')} cuộn ${_latestOrder!.items.first.filmName}'
-        : '02 cuộn Kodak Portra 400 (135/36)';
+    final latestOrder = _latestOrder;
+    final activeStep = _stepIdx(latestOrder);
+    final displayOrderId = latestOrder?.orderId ?? '';
+    final displayLabName = latestOrder?.labName ?? '';
+    final displayFilm = (latestOrder != null && latestOrder.items.isNotEmpty)
+        ? '${latestOrder.items.first.quantity.toString().padLeft(2, '0')} cuộn ${latestOrder.items.first.filmName}'
+        : 'Dịch vụ tráng & scan phim';
 
     return Scaffold(
       backgroundColor: AppColors.surface,
@@ -512,189 +542,234 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(height: 20),
 
             // Realtime Order Status Card (Stitch APP-CUS-04)
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: AppColors.surfaceRaised,
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: AppColors.outline),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          Container(
-                            width: 6,
-                            height: 6,
-                            decoration: const BoxDecoration(
-                              color: AppColors.primary,
-                              shape: BoxShape.circle,
-                            ),
-                          ),
-                          const SizedBox(width: 6),
-                          Text(
-                            'ĐƠN HÀNG ĐANG XỬ LÝ',
-                            style: AppTypography.labelCaps.copyWith(
-                              letterSpacing: 1.0,
-                              color: AppColors.inkMuted,
-                            ),
-                          ),
-                        ],
+            if (latestOrder == null)
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppColors.surfaceRaised,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: AppColors.outline),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'ĐƠN HÀNG ĐANG XỬ LÝ',
+                      style: AppTypography.labelCaps.copyWith(letterSpacing: 1.0, color: AppColors.inkMuted),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Bạn chưa có đơn tráng phim nào',
+                      style: AppTypography.cardTitle.copyWith(fontSize: 14),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Chọn một tiệm Film Lab uy tín bên dưới để gửi cuộn phim đầu tiên và theo dõi tiến độ trực tiếp.',
+                      style: AppTypography.bodySmall.copyWith(color: AppColors.inkMuted),
+                    ),
+                    const SizedBox(height: 12),
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const LabSearchScreen()),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        foregroundColor: Colors.white,
+                        elevation: 0,
                       ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: AppColors.surfaceSunken,
-                          borderRadius: BorderRadius.circular(4),
-                          border: Border.all(color: AppColors.outline),
-                        ),
-                        child: Text(
-                          '#$displayOrderId',
-                          style: AppTypography.dataMono.copyWith(
-                            fontSize: 11,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.primary,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            displayLabName,
-                            style: AppTypography.cardTitle,
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            displayFilm,
-                            style: AppTypography.bodySmall,
-                          ),
-                        ],
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text('TIẾN ĐỘ KANBAN LAB', style: AppTypography.labelCaps.copyWith(fontSize: 9)),
-                          const SizedBox(height: 2),
-                          Text(
-                            activeStep == 4 ? 'Hoàn tất 5/5' : 'Bước ${activeStep + 1}/5',
-                            style: AppTypography.dataMono.copyWith(fontWeight: FontWeight.bold, color: AppColors.primary),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 14),
-
-                  // 5-step synchronized Kanban timeline
-                  Column(
-                    children: [
-                      Row(
-                        children: List.generate(5, (idx) {
-                          final isDone = idx < activeStep || activeStep == 4;
-                          final isCurrent = idx == activeStep && activeStep < 4;
-                          return Expanded(
-                            child: Padding(
-                              padding: EdgeInsets.only(right: idx < 4 ? 4 : 0),
-                              child: Container(
-                                height: 4,
-                                decoration: BoxDecoration(
-                                  color: isDone
-                                      ? AppColors.secondary
-                                      : (isCurrent ? AppColors.primary : AppColors.outline),
-                                  borderRadius: BorderRadius.circular(2),
-                                ),
-                              ),
-                            ),
-                          );
-                        }),
-                      ),
-                      const SizedBox(height: 6),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          for (int i = 0; i < 5; i++)
-                            Text(
-                              const ['1.Tiếp nhận', '2.Vào Tank', '3.Sấy khô', '4.Scan số', '5.QC/Archive'][i],
-                              style: AppTypography.labelCaps.copyWith(
-                                fontSize: 8.5,
-                                fontWeight: i == activeStep ? FontWeight.bold : FontWeight.normal,
-                                color: i < activeStep || activeStep == 4
-                                    ? AppColors.secondary
-                                    : (i == activeStep ? AppColors.primary : AppColors.inkMuted),
-                              ),
-                            ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  const Divider(height: 1, color: AppColors.outline),
-                  const SizedBox(height: 10),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Row(
+                      icon: const Icon(Icons.add_circle_outline, size: 16),
+                      label: const Text('Đặt đơn tráng đầu tiên'),
+                    ),
+                  ],
+                ),
+              )
+            else
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppColors.surfaceRaised,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: AppColors.outline),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
                           children: [
-                            Icon(
-                              activeStep == 4 ? Icons.check_circle : Icons.sync,
-                              size: 14,
-                              color: activeStep == 4 ? AppColors.secondary : AppColors.primary,
+                            Container(
+                              width: 6,
+                              height: 6,
+                              decoration: const BoxDecoration(
+                                color: AppColors.primary,
+                                shape: BoxShape.circle,
+                              ),
                             ),
                             const SizedBox(width: 6),
-                            Expanded(
-                              child: Text(
-                                _stepDetailLabel(activeStep),
-                                overflow: TextOverflow.ellipsis,
-                                style: AppTypography.dataMono.copyWith(fontSize: 11),
+                            Text(
+                              'ĐƠN HÀNG ĐANG XỬ LÝ',
+                              style: AppTypography.labelCaps.copyWith(
+                                letterSpacing: 1.0,
+                                color: AppColors.inkMuted,
                               ),
                             ),
                           ],
                         ),
-                      ),
-                      InkWell(
-                        onTap: () async {
-                          await Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => OrderDetailScreen(
-                                order: _latestOrder,
-                                orderId: displayOrderId,
-                              ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: AppColors.surfaceSunken,
+                            borderRadius: BorderRadius.circular(4),
+                            border: Border.all(color: AppColors.outline),
+                          ),
+                          child: Text(
+                            '#$displayOrderId',
+                            style: AppTypography.dataMono.copyWith(
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.primary,
                             ),
-                          );
-                          _loadLatestOrder();
-                        },
-                        child: Row(
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Xem chi tiết',
-                              style: AppTypography.bodySmall.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.primary,
-                              ),
+                              displayLabName,
+                              style: AppTypography.cardTitle,
                             ),
-                            const Icon(Icons.arrow_forward_ios, size: 10, color: AppColors.primary),
+                            const SizedBox(height: 2),
+                            Text(
+                              displayFilm,
+                              style: AppTypography.bodySmall,
+                            ),
                           ],
                         ),
-                      ),
-                    ],
-                  ),
-                ],
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text('TIẾN ĐỘ XỬ LÝ', style: AppTypography.labelCaps.copyWith(fontSize: 9)),
+                            const SizedBox(height: 2),
+                            Text(
+                              activeStep == 4 ? 'Hoàn tất 5/5' : 'Bước ${activeStep + 1}/5',
+                              style: AppTypography.dataMono.copyWith(fontWeight: FontWeight.bold, color: AppColors.primary),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 14),
+
+                    // 5-step synchronized Kanban timeline
+                    Column(
+                      children: [
+                        Row(
+                          children: List.generate(5, (idx) {
+                            final isDone = idx < activeStep || activeStep == 4;
+                            final isCurrent = idx == activeStep && activeStep < 4;
+                            return Expanded(
+                              child: Padding(
+                                padding: EdgeInsets.only(right: idx < 4 ? 4 : 0),
+                                child: Container(
+                                  height: 4,
+                                  decoration: BoxDecoration(
+                                    color: isDone
+                                        ? AppColors.secondary
+                                        : (isCurrent ? AppColors.primary : AppColors.outline),
+                                    borderRadius: BorderRadius.circular(2),
+                                  ),
+                                ),
+                              ),
+                            );
+                          }),
+                        ),
+                        const SizedBox(height: 6),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            for (int i = 0; i < 5; i++)
+                              Text(
+                                const ['Tiếp nhận', 'Tráng', 'Sấy', 'Quét ảnh', 'Hoàn tất'][i],
+                                style: AppTypography.labelCaps.copyWith(
+                                  fontSize: 8.5,
+                                  fontWeight: i == activeStep ? FontWeight.bold : FontWeight.normal,
+                                  color: i < activeStep || activeStep == 4
+                                      ? AppColors.secondary
+                                      : (i == activeStep ? AppColors.primary : AppColors.inkMuted),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    const Divider(height: 1, color: AppColors.outline),
+                    const SizedBox(height: 10),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Row(
+                            children: [
+                              Icon(
+                                activeStep == 4 ? Icons.check_circle : Icons.sync,
+                                size: 14,
+                                color: activeStep == 4 ? AppColors.secondary : AppColors.primary,
+                              ),
+                              const SizedBox(width: 6),
+                              Expanded(
+                                child: Text(
+                                  _stepDetailLabel(activeStep),
+                                  overflow: TextOverflow.ellipsis,
+                                  style: AppTypography.dataMono.copyWith(fontSize: 11),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        InkWell(
+                          onTap: () async {
+                            await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => OrderDetailScreen(
+                                  order: latestOrder,
+                                  orderId: displayOrderId,
+                                ),
+                              ),
+                            );
+                            _loadLatestOrder();
+                          },
+                          child: Row(
+                            children: [
+                              Text(
+                                'Xem chi tiết',
+                                style: AppTypography.bodySmall.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.primary,
+                                ),
+                              ),
+                              const Icon(Icons.arrow_forward_ios, size: 10, color: AppColors.primary),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-            ),
             const SizedBox(height: 24),
 
             // Disputed Orders Section (Đơn hàng đã khiếu nại)
@@ -812,7 +887,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       distance: '${lab.city} • ${lab.address}',
                       rating: lab.rating.toStringAsFixed(1),
                       reviewCount: '${lab.reviewCount}',
-                      sla: 'SLA: ${lab.turnaroundHours}h',
+                      sla: 'Trả ảnh ${lab.turnaroundHours}h',
                       machine: lab.scannerModels.isNotEmpty ? lab.scannerModels.first : 'Noritsu HS-1800',
                       price: priceLabel,
                       verified: lab.isVerified,
@@ -828,7 +903,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 distance: 'Tây Hồ, Hà Nội • Số 10 ngõ 12 Đặng Thai Mai',
                 rating: '4.9',
                 reviewCount: '328',
-                sla: 'SLA: 12h',
+                sla: 'Trả ảnh 12h',
                 machine: 'Noritsu HS-1800',
                 price: '50.000đ',
                 verified: true,
@@ -841,7 +916,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 distance: 'Bình Thạnh, TP.HCM • 40/2 Phan Văn Trị',
                 rating: '4.8',
                 reviewCount: '512',
-                sla: 'SLA: 8h',
+                sla: 'Trả ảnh 8h',
                 machine: 'Fuji Frontier SP-3000',
                 price: '60.000đ',
                 verified: true,
@@ -854,7 +929,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 distance: 'Hoàn Kiếm, Hà Nội • 15 Tràng Tiền',
                 rating: '5.0',
                 reviewCount: '145',
-                sla: 'SLA: 24h',
+                sla: 'Trả ảnh 24h',
                 machine: 'Hasselblad Flextight X5',
                 price: '70.000đ',
                 tag: 'B&W SPEC',

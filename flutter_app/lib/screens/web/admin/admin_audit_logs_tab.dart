@@ -49,15 +49,13 @@ class _AdminAuditLogsTabState extends State<AdminAuditLogsTab> {
               const Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('WEB-ADM-09 // NHẬT KÝ KIỂM TOÁN HỆ THỐNG (SQL SERVER)', style: AppTypography.labelCaps),
-                  SizedBox(height: 4),
-                  Text('Audit Trail Ghi vết Hành vi Chỉ huy', style: AppTypography.pageTitle),
+                  Text('Nhật ký hoạt động hệ thống', style: AppTypography.pageTitle),
                 ],
               ),
               OutlinedButton.icon(
                 onPressed: _loadLogs,
                 icon: const Icon(Icons.refresh, size: 16),
-                label: const Text('Tải lại từ CSDL'),
+                label: const Text('Làm mới'),
               ),
             ],
           ),

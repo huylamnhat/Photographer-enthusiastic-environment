@@ -18,5 +18,6 @@ router.get('/disputes', authenticate, adminController.getDisputes);
 router.post('/disputes/:id/resolve', authenticate, adminController.resolveDispute);
 router.get('/audit-logs', authenticate, adminController.getAuditLogs);
 router.get('/services', authenticate, adminController.getAdminServices);
+router.get('/notifications', authenticate, adminController.getAdminNotifications);
 
 module.exports = router;

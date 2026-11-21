@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../core/services/api_service.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_typography.dart';
 import '../../models/lab_model.dart';
+import '../../providers/auth_provider.dart';
 import 'checkout_screen.dart';
 
 class CreateOrderScreen extends StatefulWidget {
@@ -26,10 +28,17 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
   final ApiService _apiService = ApiService();
   final TextEditingController _filmNameController =
       TextEditingController(text: 'Kodak Gold 200');
+  final TextEditingController _pickupAddressCtrl =
+      TextEditingController(text: 'Số 1 Đại Cồ Việt, Hai Bà Trưng, Hà Nội');
+  final TextEditingController _pickupPhoneCtrl =
+      TextEditingController(text: '0901234567');
 
   LabModel? _selectedLab;
   ServicePackageModel? _selectedPackage;
   bool _isLoadingLabs = true;
+  bool _estimatingAhamove = false;
+  double _estimatedShippingFee = 0;
+  String _estimateHint = '';
   Timer? _refreshTimer;
 
   String _filmFormat = '135';
@@ -65,22 +74,30 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
 
   static const List<String> _shippingOptions = [
     'Gửi trực tiếp tại quầy Lab',
-    'Shipper / GrabExpress giao tận Lab',
+    'Gọi tài xế AhaMove lấy tận nơi',
     'Gửi chuyển phát nhanh bưu điện',
   ];
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final user = context.read<AuthProvider>().user;
+      if (user != null) {
+        if ((user.address ?? '').trim().isNotEmpty) {
+          _pickupAddressCtrl.text = user.address!.trim();
+        }
+        if (user.phone.trim().isNotEmpty) {
+          _pickupPhoneCtrl.text = user.phone.trim();
+        }
+      }
+    });
     if (widget.lab != null) {
       _selectedLab = widget.lab;
       _applyLabDefaults(widget.lab!, preferredPackageId: widget.initialPackageId);
     }
     _loadLabsAndDetail();
-    _refreshTimer = Timer.periodic(
-      const Duration(seconds: 5),
-      (_) => _loadLabsAndDetail(silent: true),
-    );
   }
 
   @override
@@ -93,6 +110,8 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
   void dispose() {
     _refreshTimer?.cancel();
     _filmNameController.dispose();
+    _pickupAddressCtrl.dispose();
+    _pickupPhoneCtrl.dispose();
     super.dispose();
   }
 
@@ -224,7 +243,46 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
   double _calculateTotal() {
     final baseUnit = _selectedPackage?.price ?? _fallbackBasePrice();
     final extra = _pushPullExtraPerRoll();
-    return ((baseUnit + extra) * _quantity).toDouble();
+    final shipFee = _shippingMethod.contains('AhaMove') ? _estimatedShippingFee : 0.0;
+    return ((baseUnit + extra) * _quantity).toDouble() + shipFee;
+  }
+
+  Future<void> _estimateAhamove() async {
+    final lab = _selectedLab;
+    if (lab == null) return;
+    final addr = _pickupAddressCtrl.text.trim();
+    if (addr.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Vui lòng nhập địa chỉ lấy cuộn film')),
+      );
+      return;
+    }
+    setState(() {
+      _estimatingAhamove = true;
+      _estimateHint = '';
+    });
+    final res = await _apiService.estimateAhamoveFee(
+      labId: lab.labId,
+      pickupAddress: addr,
+      pickupPhone: _pickupPhoneCtrl.text.trim(),
+      itemValue: ((_selectedPackage?.price ?? _fallbackBasePrice()) * _quantity).toDouble(),
+    );
+    if (!mounted) return;
+    if (res['success'] == true && res['data'] is Map) {
+      final d = res['data'] as Map;
+      final fee = (d['total_fee'] is num) ? (d['total_fee'] as num).toDouble() : 0.0;
+      final distKm = d['distance'] is num ? ((d['distance'] as num).toDouble()).toStringAsFixed(1) : '';
+      setState(() {
+        _estimatingAhamove = false;
+        _estimatedShippingFee = fee;
+        _estimateHint = 'Phí giao nhận${distKm.isNotEmpty ? ' (${distKm}km)' : ''}: ${_formatVnd(fee.round())}';
+      });
+    } else {
+      setState(() {
+        _estimatingAhamove = false;
+        _estimateHint = res['message']?.toString() ?? 'Không ước tính được phí ship';
+      });
+    }
   }
 
   String _formatVnd(num amount) {
@@ -255,6 +313,9 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
         ? '${_selectedPackage!.name} (${_selectedPackage!.filmFormat} • ${_selectedPackage!.processType})'
         : '$_process ($_filmFormat • $_resolution)';
 
+    final isAha = _shippingMethod.contains('AhaMove');
+    final shipFee = isAha ? _estimatedShippingFee : 0.0;
+
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -266,7 +327,10 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
           totalPrice: _calculateTotal(),
           pushPull: _pushPull,
           cutOption: _negativeHandlingOptions[_negativeHandling] ?? _negativeHandling,
-          shippingMethod: _shippingMethod,
+          shippingMethod: isAha ? 'AHAMOVE_PICKUP' : _shippingMethod,
+          pickupAddress: isAha ? _pickupAddressCtrl.text.trim() : '',
+          pickupPhone: isAha ? _pickupPhoneCtrl.text.trim() : '',
+          shippingFee: shipFee,
         ),
       ),
     );
@@ -448,7 +512,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
               border: Border.all(color: AppColors.outline),
             ),
             child: Text(
-              'SLA ${lab.turnaroundHours}h',
+              'Trả ảnh ${lab.turnaroundHours}h',
               style: AppTypography.monoSm.copyWith(color: AppColors.primary, fontWeight: FontWeight.w600),
             ),
           ),
@@ -524,7 +588,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                     _buildMiniBadge(pkg.filmFormat),
                     _buildMiniBadge(pkg.processType),
                     _buildMiniBadge(pkg.scanResolution),
-                    _buildMiniBadge('SLA ${pkg.estimatedHours}h'),
+                    _buildMiniBadge('${pkg.estimatedHours}h'),
                   ],
                 ),
                 if (pkg.description.isNotEmpty) ...[
@@ -823,6 +887,82 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
               ),
             );
           }),
+          if (_shippingMethod.contains('AhaMove')) ...[
+            const SizedBox(height: 10),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppColors.surfaceSunken,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: AppColors.primary.withValues(alpha: 0.35)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      const Icon(Icons.delivery_dining, size: 16, color: AppColors.primary),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          'ĐỊA CHỈ LẤY FILM',
+                          style: AppTypography.labelCaps.copyWith(fontSize: 10, color: AppColors.primary),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  TextField(
+                    controller: _pickupAddressCtrl,
+                    style: AppTypography.bodySmall,
+                    decoration: const InputDecoration(
+                      isDense: true,
+                      labelText: 'Địa chỉ lấy hàng',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  TextField(
+                    controller: _pickupPhoneCtrl,
+                    style: AppTypography.bodySmall,
+                    keyboardType: TextInputType.phone,
+                    decoration: const InputDecoration(
+                      isDense: true,
+                      labelText: 'Số điện thoại liên hệ lấy hàng',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      OutlinedButton.icon(
+                        onPressed: _estimatingAhamove ? null : _estimateAhamove,
+                        icon: _estimatingAhamove
+                            ? const SizedBox(
+                                width: 14,
+                                height: 14,
+                                child: CircularProgressIndicator(strokeWidth: 2),
+                              )
+                            : const Icon(Icons.calculate_outlined, size: 15),
+                        label: const Text('Xem phí giao hàng', style: TextStyle(fontSize: 11)),
+                      ),
+                    ],
+                  ),
+                  if (_estimateHint.isNotEmpty) ...[
+                    const SizedBox(height: 6),
+                    Text(
+                      _estimateHint,
+                      style: AppTypography.bodySmall.copyWith(
+                        fontSize: 11,
+                        color: _estimatedShippingFee > 0 ? AppColors.secondary : AppColors.warning,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ],
         ],
       ),
     );

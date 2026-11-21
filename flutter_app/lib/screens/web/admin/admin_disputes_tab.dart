@@ -78,15 +78,13 @@ class _AdminDisputesTabState extends State<AdminDisputesTab> {
               const Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('WEB-ADM-08 // KHIẾU NẠI & HOÀN TIỀN (SQL SERVER)', style: AppTypography.labelCaps),
-                  SizedBox(height: 4),
-                  Text('Xử lý Tranh chấp & Phê duyệt Hoàn tiền', style: AppTypography.pageTitle),
+                  Text('Khiếu nại & Hoàn tiền', style: AppTypography.pageTitle),
                 ],
               ),
               OutlinedButton.icon(
                 onPressed: _loadDisputes,
                 icon: const Icon(Icons.refresh, size: 16),
-                label: const Text('Đồng bộ Khiếu nại'),
+                label: const Text('Làm mới'),
               ),
             ],
           ),

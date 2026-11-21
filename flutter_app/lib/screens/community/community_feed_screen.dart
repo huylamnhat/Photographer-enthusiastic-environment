@@ -3,6 +3,7 @@ import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_typography.dart';
 import '../../core/mock/mock_test_assets.dart';
 import '../../core/services/api_service.dart';
+import '../../models/community_model.dart';
 import 'post_detail_screen.dart';
 import 'create_post_screen.dart';
 import 'events_screen.dart';
@@ -19,22 +20,7 @@ class _CommunityFeedScreenState extends State<CommunityFeedScreen> {
   String _selectedCategory = 'Tất cả';
   bool _loading = false;
 
-  List<Map<String, dynamic>> _posts = [
-    {
-      'id': 'post-001',
-      'author': 'Lê Quang Huy',
-      'avatar': MockTestAssets.avatarExpert,
-      'badge': 'CHUYÊN GIA ANALOG',
-      'time': '2 giờ trước',
-      'title': 'Bí quyết đo sáng chụp phim âm bản màu: Đừng sợ dư sáng!',
-      'content': 'Phim âm bản màu (Color Negative như Portra 400, Gold 200) có dải nhạy sáng (Dynamic Range) về phía highlight cực kỳ ấn tượng, lên đến +3 hoặc +4 stops mà vẫn giữ trọn vẹn chi tiết mây trời.',
-      'category': 'Kinh nghiệm chụp',
-      'image': MockTestAssets.samplePhoto2,
-      'tags': ['#kodakportra400', '#metering', '#streetphotography'],
-      'likes': 89,
-      'comments': 14,
-    },
-  ];
+  List<Map<String, dynamic>> _posts = [];
 
   @override
   void initState() {
@@ -50,6 +36,7 @@ class _CommunityFeedScreenState extends State<CommunityFeedScreen> {
       final mapped = res.map((p) {
         return {
           'id': p.postId,
+          'model': p,
           'author': p.authorName,
           'avatar': p.authorAvatar.isNotEmpty ? p.authorAvatar : MockTestAssets.avatarCustomer,
           'badge': p.authorBadge.toUpperCase(),
@@ -60,6 +47,7 @@ class _CommunityFeedScreenState extends State<CommunityFeedScreen> {
           'image': p.imageUrl.isNotEmpty ? p.imageUrl : MockTestAssets.samplePhoto2,
           'tags': ['#analog', '#minilab'],
           'likes': p.likesCount,
+          'isLiked': p.isLiked,
           'comments': p.commentsCount,
         };
       }).toList();
@@ -185,13 +173,17 @@ class _CommunityFeedScreenState extends State<CommunityFeedScreen> {
               itemBuilder: (context, index) {
                 final post = filtered[index];
                 return InkWell(
-                  onTap: () {
-                    Navigator.push(
+                  onTap: () async {
+                    await Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => PostDetailScreen(postData: post),
+                        builder: (_) => PostDetailScreen(
+                          post: post['model'] as CommunityPostModel?,
+                          postData: post,
+                        ),
                       ),
                     );
+                    _loadPosts();
                   },
                   borderRadius: BorderRadius.circular(8),
                   child: Container(
@@ -322,9 +314,32 @@ class _CommunityFeedScreenState extends State<CommunityFeedScreen> {
                               ),
                               Row(
                                 children: [
-                                  const Icon(Icons.favorite_border, size: 14, color: AppColors.inkMuted),
-                                  const SizedBox(width: 4),
-                                  Text('${post['likes']}', style: AppTypography.dataMono.copyWith(fontSize: 11)),
+                                  InkWell(
+                                    onTap: () async {
+                                      final res = await ApiService().likeCommunityPost(post['id'] as String);
+                                      if (!mounted || res == null) return;
+                                      setState(() {
+                                        post['isLiked'] = res['is_liked'] == true;
+                                        post['likes'] = res['likes_count'] ?? post['likes'];
+                                        if (post['model'] is CommunityPostModel) {
+                                          final m = post['model'] as CommunityPostModel;
+                                          m.isLiked = res['is_liked'] == true;
+                                          m.likesCount = (res['likes_count'] as num?)?.toInt() ?? m.likesCount;
+                                        }
+                                      });
+                                    },
+                                    child: Row(
+                                      children: [
+                                        Icon(
+                                          post['isLiked'] == true ? Icons.favorite : Icons.favorite_border,
+                                          size: 16,
+                                          color: post['isLiked'] == true ? Colors.redAccent : AppColors.inkMuted,
+                                        ),
+                                        const SizedBox(width: 4),
+                                        Text('${post['likes']}', style: AppTypography.dataMono.copyWith(fontSize: 11)),
+                                      ],
+                                    ),
+                                  ),
                                   const SizedBox(width: 12),
                                   const Icon(Icons.chat_bubble_outline, size: 14, color: AppColors.inkMuted),
                                   const SizedBox(width: 4),

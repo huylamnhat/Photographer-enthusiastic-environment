@@ -69,6 +69,9 @@ function enrichOrderWithDisputeAndDrive(order, currentUserId = '', currentUserEm
     dispute_messages: dispute?.messages || [],
     drive_link: resolvedDriveLink || null,
     drive_link_history: driveLinkHistory,
+    shipment: order.shipment || null,
+    shipping_fee: Number(order.shipping_fee || 0),
+    pickup_phone: order.pickup_phone || '',
     scan_photos: orderCustomerPhotos.map(p => ({
       photo_id: p.photo_id,
       title: p.title,
@@ -112,14 +115,12 @@ exports.getMyOrders = (req, res) => {
     return new Date(b.order_date) - new Date(a.order_date);
   });
 
-  const userNotifications = mockNotifications.filter(n => {
-    if (!currentUserId && !currentUserEmail) return true;
-    if (n.type !== 'GOOGLE_DRIVE_SCAN') return true;
-    return (
-      (currentUserId && n.customer_id === currentUserId) ||
-      (currentUserEmail && (n.recipient_email || '').toLowerCase() === currentUserEmail)
-    );
-  });
+  const userNotifications = (!currentUserId && !currentUserEmail)
+    ? []
+    : mockNotifications.filter(n =>
+        (currentUserId && (n.customer_id === currentUserId || n.user_id === currentUserId)) ||
+        (currentUserEmail && (n.recipient_email || '').toLowerCase() === currentUserEmail)
+      );
 
   res.set('Cache-Control', 'no-store, no-cache, must-revalidate');
   return res.json({
@@ -134,15 +135,14 @@ exports.getNotifications = (req, res) => {
   const currentUserId = req.user?.user_id || '';
   const currentUserEmail = (req.user?.email || '').toLowerCase();
 
-  const userNotifications = mockNotifications.filter(n => {
-    if (!currentUserId && !currentUserEmail) return true;
-    if (n.type !== 'GOOGLE_DRIVE_SCAN') return true;
-    return (
-      (currentUserId && n.customer_id === currentUserId) ||
-      (currentUserEmail && (n.recipient_email || '').toLowerCase() === currentUserEmail)
-    );
-  });
+  const userNotifications = (!currentUserId && !currentUserEmail)
+    ? []
+    : mockNotifications.filter(n =>
+        (currentUserId && (n.customer_id === currentUserId || n.user_id === currentUserId)) ||
+        (currentUserEmail && (n.recipient_email || '').toLowerCase() === currentUserEmail)
+      );
 
+  res.set('Cache-Control', 'no-store, no-cache, must-revalidate');
   return res.json({
     success: true,
     count: userNotifications.length,
@@ -164,11 +164,11 @@ exports.getOrderById = (req, res) => {
   });
 };
 
-exports.createOrder = (req, res) => {
+exports.createOrder = async (req, res) => {
   const userId = req.user?.user_id || 'usr-001';
-  const customerName = req.user?.full_name || req.body.customer_name || 'Nguyễn Hoàng Anh';
-  const customerPhone = req.user?.phone || req.body.customer_phone || '0912345678';
-  const { lab_id, items, shipping_method, pickup_address, payment_method, note } = req.body;
+  const customerName = req.user?.full_name || req.body.customer_name || 'Khách hàng';
+  const customerPhone = req.user?.phone || req.body.customer_phone || '';
+  const { lab_id, items, shipping_method, pickup_address, pickup_phone, shipping_fee, payment_method, note } = req.body;
 
   // Support both lab_id ('lab-001', 'lab-002') and mobile shorthand ('croplab', 'llab', 'nadar')
   const labAliasMap = {
@@ -215,6 +215,11 @@ exports.createOrder = (req, res) => {
   const now = new Date();
   const formattedTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')} ${now.getDate().toString().padStart(2, '0')}/${(now.getMonth() + 1).toString().padStart(2, '0')}/${now.getFullYear()}`;
 
+  const payMethod = String(payment_method || 'VNPAY').trim().toUpperCase();
+  const isGatewayPayment = payMethod === 'VNPAY' || payMethod === 'INTERNAL_QR';
+  const initialPaymentStatus = isGatewayPayment && req.body.payment_status !== 'PAID' ? 'PENDING' : 'PAID';
+  const initialOrderStatus = initialPaymentStatus === 'PENDING' ? 'PENDING_PAYMENT' : 'RECEIVED';
+
   const newOrder = {
     order_id: `ORD-2026-${Math.floor(1000 + Math.random() * 9000)}`,
     user_id: userId,
@@ -224,13 +229,15 @@ exports.createOrder = (req, res) => {
     lab_id: lab.lab_id,
     lab_name: lab.name,
     order_date: now.toISOString(),
-    status: 'RECEIVED',
+    status: initialOrderStatus,
     kanban_column: 'QUEUE',
     total_amount: totalAmount > 0 ? totalAmount : 70000,
-    shipping_method: shipping_method || 'PICKUP',
+    shipping_fee: Math.max(0, Number(shipping_fee) || 0),
+    shipping_method: shipping_method || 'DROP_AT_LAB',
     pickup_address: pickup_address || '123 Phố Huế, Hai Bà Trưng, Hà Nội',
-    payment_status: 'PAID',
-    payment_method: payment_method || 'MOMO',
+    pickup_phone: pickup_phone || customerPhone || '',
+    payment_status: initialPaymentStatus,
+    payment_method: payMethod,
     note: note || '',
     created_from_mobile: true,
     sla_deadline: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
@@ -247,7 +254,17 @@ exports.createOrder = (req, res) => {
       }
     ],
     timeline: [
-      { step: 1, name: '1. Tiếp nhận', status: 'IN_PROGRESS', time: formattedTime, note: `Thanh toán ${payment_method || 'MOMO'} thành công • Đã vào hàng chờ Lab` },
+      {
+        step: 1,
+        name: '1. Tiếp nhận',
+        status: initialPaymentStatus === 'PENDING' ? 'PENDING' : 'IN_PROGRESS',
+        time: formattedTime,
+        note: initialPaymentStatus === 'PENDING'
+          ? (payMethod === 'INTERNAL_QR'
+              ? 'Khách chọn QR chuyển khoản trực tiếp • Đang chờ nhân viên Lab kiểm tra tiền vào'
+              : `Đang chờ khách hàng thanh toán qua cổng ${payMethod}`)
+          : `Thanh toán ${payMethod} thành công • Đã vào hàng chờ Lab`,
+      },
       { step: 2, name: '2. Vào Tank / Tráng', status: 'PENDING', time: '', note: '' },
       { step: 3, name: '3. Sấy khô', status: 'PENDING', time: '', note: '' },
       { step: 4, name: '4. Scan số hóa', status: 'PENDING', time: '', note: '' },
@@ -262,17 +279,31 @@ exports.createOrder = (req, res) => {
   const dbCustomerId = req.user?.db_user_id || matchedUser?.db_user_id || 5;
   const dbLabId = lab.db_lab_id || 1;
   const totalNum = Number(newOrder.total_amount) || 70000;
+  const shipFeeNum = Math.max(0, Number(newOrder.shipping_fee) || 0);
+  const subtotalNum = Math.max(0, totalNum - shipFeeNum);
+  const finalTotalNum = subtotalNum + shipFeeNum;
+  const shipMethodUpper = String(newOrder.shipping_method || '').toUpperCase();
+  const receiveMethodSql = (shipMethodUpper.includes('COUNTER') || shipMethodUpper === 'DROP_AT_LAB')
+      ? 'DROP_AT_LAB'
+      : ((shipMethodUpper === 'SELF_DROP_OFF' || shipMethodUpper === 'DELIVERY')
+          ? 'SELF_DROP_OFF'
+          : (shipMethodUpper === 'AHAMOVE_PICKUP' || shipMethodUpper === 'PICKUP'
+              ? 'PICKUP'
+              : 'DROP_AT_LAB'));
   const safeCode = newOrder.order_id.replace(/'/g, "''");
   const safeAddr = String(newOrder.pickup_address || '').replace(/'/g, "''");
   const safeNote = String(newOrder.note || '').replace(/'/g, "''");
+  const safeOrderStatus = String(initialOrderStatus).replace(/'/g, "''");
+  const safePayStatus = String(initialPaymentStatus).replace(/'/g, "''");
+  const safePayMethod = String(payMethod).replace(/'/g, "''");
   const firstItem = newOrder.items[0] || {};
   const safeFilmName = String(firstItem.film_name || 'Kodak Portra 400').replace(/'/g, "''");
   const safeRollCode = String(firstItem.roll_code || `ROLL-${Date.now().toString().slice(-4)}`).replace(/'/g, "''");
   const itemQty = Number(firstItem.quantity) || 1;
   const itemPrice = Number(firstItem.price) || totalNum;
-  runQuery(`
+  await runQuery(`
     INSERT INTO Orders (order_code, customer_id, lab_id, status, kanban_column, receive_method, return_method, pickup_address, payment_status, payment_method, subtotal, shipping_fee, platform_fee, discount_amount, total_amount, sla_deadline, customer_note)
-    VALUES ('${safeCode}', ${dbCustomerId}, ${dbLabId}, 'RECEIVED', 'QUEUE', 'PICKUP', 'DIGITAL_ONLY', N'${safeAddr}', 'PAID', 'MOMO', ${totalNum}, 0, 0, 0, ${totalNum}, DATEADD(HOUR, 24, SYSUTCDATETIME()), N'${safeNote}');
+    VALUES ('${safeCode}', ${dbCustomerId}, ${dbLabId}, '${safeOrderStatus}', 'QUEUE', '${receiveMethodSql}', 'DIGITAL_ONLY', N'${safeAddr}', '${safePayStatus}', '${safePayMethod}', ${subtotalNum}, ${shipFeeNum}, 0, 0, ${finalTotalNum}, DATEADD(HOUR, 24, SYSUTCDATETIME()), N'${safeNote}');
     DECLARE @newOrdId BIGINT = SCOPE_IDENTITY();
     DECLARE @pkgId INT = (SELECT TOP 1 package_id FROM Service_Package WHERE lab_id = ${dbLabId} ORDER BY package_id);
     IF @newOrdId IS NOT NULL AND @pkgId IS NOT NULL

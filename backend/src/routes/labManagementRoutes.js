@@ -5,6 +5,8 @@ const { authenticate } = require('../middleware/auth');
 const upload = require('../middleware/upload');
 
 router.get('/kanban', authenticate, labManagementController.getLabKanban);
+router.post('/orders/:orderId/cancel', authenticate, labManagementController.cancelPendingOrder);
+router.post('/orders/:orderId/confirm-payment', authenticate, labManagementController.confirmPendingOrderPayment);
 router.post('/orders/:orderId/kanban-step', authenticate, labManagementController.updateKanbanStep);
 router.post('/kanban/:orderId/step', authenticate, labManagementController.updateKanbanStep);
 router.patch('/kanban/:orderId', authenticate, labManagementController.updateKanbanStep);
@@ -18,6 +20,7 @@ router.put('/profile', authenticate, labManagementController.updateLabProfile);
 router.get('/disputes', authenticate, labManagementController.getLabDisputes);
 router.post('/disputes/:disputeId/reply', authenticate, labManagementController.replyDispute);
 router.get('/sla-report', authenticate, labManagementController.getSlaPerformance);
+router.get('/notifications', authenticate, labManagementController.getLabNotifications);
 
 module.exports = router;
 

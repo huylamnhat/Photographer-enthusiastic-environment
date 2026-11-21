@@ -125,8 +125,6 @@ class _AdminUsersTabState extends State<AdminUsersTab> {
               const Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('WEB-ADM-03 // PHÂN HỆ RBAC (SQL SERVER)', style: AppTypography.labelCaps),
-                  SizedBox(height: 4),
                   Text('Tài khoản & Phân quyền', style: AppTypography.pageTitle),
                 ],
               ),

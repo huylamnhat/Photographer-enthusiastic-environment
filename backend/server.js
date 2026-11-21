@@ -7,6 +7,9 @@ const routes = require('./src/routes');
 
 const app = express();
 
+// Trust Cloudflare / reverse proxy headers (X-Forwarded-Proto, Host)
+app.set('trust proxy', 1);
+
 // Middlewares
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));

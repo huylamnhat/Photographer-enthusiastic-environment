@@ -31,7 +31,12 @@ class _AdminLabApprovalTabState extends State<AdminLabApprovalTab> {
 
     if (!mounted) return;
     setState(() {
-      _labApplications = labs.map<Map<String, dynamic>>((l) {
+      _labApplications = labs
+          .where((l) {
+            final st = (l['status'] ?? 'PENDING').toString().toUpperCase();
+            return st == 'PENDING' || st == 'PENDING_REVIEW';
+          })
+          .map<Map<String, dynamic>>((l) {
         return {
           'id': (l['application_id'] ?? '').toString(),
           'name': (l['name'] ?? '').toString(),
@@ -55,7 +60,12 @@ class _AdminLabApprovalTabState extends State<AdminLabApprovalTab> {
         };
       }).toList();
 
-      _expertApplications = experts.map<Map<String, dynamic>>((e) {
+      _expertApplications = experts
+          .where((e) {
+            final st = (e['status'] ?? 'PENDING').toString().toUpperCase();
+            return st == 'PENDING' || st == 'PENDING_REVIEW';
+          })
+          .map<Map<String, dynamic>>((e) {
         return {
           'id': (e['id'] ?? '').toString(),
           'name': '${e['name'] ?? ''} (Chuyên Gia)',
@@ -104,9 +114,7 @@ class _AdminLabApprovalTabState extends State<AdminLabApprovalTab> {
               const Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('WEB-ADM-04 // THẨM ĐỊNH ĐỐI TÁC (SQL SERVER)', style: AppTypography.labelCaps),
-                  SizedBox(height: 4),
-                  Text('Trung tâm Phê duyệt & Cấp phép', style: AppTypography.pageTitle),
+                  Text('Phê duyệt đối tác', style: AppTypography.pageTitle),
                 ],
               ),
               Container(
@@ -174,13 +182,19 @@ class _AdminLabApprovalTabState extends State<AdminLabApprovalTab> {
                           trailing: Container(
                             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
                             decoration: BoxDecoration(
-                              color: app['status'] == 'APPROVED' ? AppColors.successBg : AppColors.warningBg,
+                              color: app['status'] == 'APPROVED'
+                                  ? AppColors.successBg
+                                  : (app['status'] == 'REJECTED' ? AppColors.dangerBg : AppColors.warningBg),
                               borderRadius: BorderRadius.circular(4),
                             ),
                             child: Text(
-                              app['status'] == 'APPROVED' ? 'ĐÃ DUYỆT' : 'CHỜ DUYỆT',
+                              app['status'] == 'APPROVED'
+                                  ? 'ĐÃ DUYỆT'
+                                  : (app['status'] == 'REJECTED' ? 'ĐÃ TỪ CHỐI' : 'CHỜ DUYỆT'),
                               style: TextStyle(
-                                color: app['status'] == 'APPROVED' ? AppColors.secondary : AppColors.warning,
+                                color: app['status'] == 'APPROVED'
+                                    ? AppColors.secondary
+                                    : (app['status'] == 'REJECTED' ? AppColors.danger : AppColors.warning),
                                 fontSize: 10,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -210,44 +224,65 @@ class _AdminLabApprovalTabState extends State<AdminLabApprovalTab> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(activeApp['id'], style: AppTypography.dataMono.copyWith(color: AppColors.primary)),
-                                  Text(activeApp['name'], style: AppTypography.sectionHeading),
-                                ],
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(activeApp['id'], style: AppTypography.dataMono.copyWith(color: AppColors.primary)),
+                                    Text(activeApp['name'], style: AppTypography.sectionHeading),
+                                  ],
+                                ),
                               ),
-                              Row(
-                                children: [
-                                  OutlinedButton.icon(
-                                    style: OutlinedButton.styleFrom(foregroundColor: AppColors.danger),
-                                    onPressed: () async {
-                                      if (_categoryTab == 0) {
-                                        await WebApiService().reviewLabApplication(activeApp['id'], 'REJECT');
-                                      } else {
-                                        await WebApiService().reviewExpertApplication(activeApp['id'], 'REJECT');
-                                      }
-                                      if (!context.mounted) return;
-                                      setState(() => activeApp['status'] = 'REJECTED');
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        SnackBar(content: Text('Đã từ chối hồ sơ ${activeApp['name']} và gửi yêu cầu bổ sung')),
-                                      );
-                                    },
-                                    icon: const Icon(Icons.close, size: 16),
-                                    label: const Text('Từ chối'),
+                              if (activeApp['status'] == 'APPROVED' || activeApp['status'] == 'REJECTED')
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                  decoration: BoxDecoration(
+                                    color: activeApp['status'] == 'APPROVED' ? AppColors.successBg : AppColors.dangerBg,
+                                    borderRadius: BorderRadius.circular(6),
                                   ),
-                                  const SizedBox(width: 12),
-                                  ElevatedButton.icon(
-                                    onPressed: () async {
-                                      if (_categoryTab == 0) {
-                                        await WebApiService().reviewLabApplication(activeApp['id'], 'APPROVE');
-                                      } else {
-                                        await WebApiService().reviewExpertApplication(activeApp['id'], 'APPROVE');
-                                      }
-                                      if (!context.mounted) return;
-                                      setState(() => activeApp['status'] = 'APPROVED');
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        SnackBar(content: Text('Đã phê duyệt và kích hoạt đối tác ${activeApp['name']} lên sàn MiniLab!')),
+                                  child: Text(
+                                    activeApp['status'] == 'APPROVED' ? 'ĐÃ PHÊ DUYỆT ĐỐI TÁC' : 'ĐÃ TỪ CHỐI HỒ SƠ',
+                                    style: TextStyle(
+                                      color: activeApp['status'] == 'APPROVED' ? AppColors.secondary : AppColors.danger,
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                )
+                              else
+                                Row(
+                                  children: [
+                                    OutlinedButton.icon(
+                                      style: OutlinedButton.styleFrom(foregroundColor: AppColors.danger),
+                                      onPressed: () async {
+                                        if (_categoryTab == 0) {
+                                          await WebApiService().reviewLabApplication(activeApp['id'], 'REJECT');
+                                        } else {
+                                          await WebApiService().reviewExpertApplication(activeApp['id'], 'REJECT');
+                                        }
+                                        if (!context.mounted) return;
+                                        await _loadApplications();
+                                        if (!context.mounted) return;
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          SnackBar(content: Text('Đã từ chối hồ sơ ${activeApp['name']} và gửi yêu cầu bổ sung')),
+                                        );
+                                      },
+                                      icon: const Icon(Icons.close, size: 16),
+                                      label: const Text('Từ chối'),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    ElevatedButton.icon(
+                                      onPressed: () async {
+                                        if (_categoryTab == 0) {
+                                          await WebApiService().reviewLabApplication(activeApp['id'], 'APPROVE');
+                                        } else {
+                                          await WebApiService().reviewExpertApplication(activeApp['id'], 'APPROVE');
+                                        }
+                                        if (!context.mounted) return;
+                                        await _loadApplications();
+                                        if (!context.mounted) return;
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          SnackBar(content: Text('Đã phê duyệt và kích hoạt đối tác ${activeApp['name']} lên sàn MiniLab!')),
                                       );
                                     },
                                     icon: const Icon(Icons.check, size: 16),

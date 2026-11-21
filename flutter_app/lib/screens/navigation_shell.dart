@@ -17,15 +17,25 @@ class NavigationShell extends StatefulWidget {
 
 class _NavigationShellState extends State<NavigationShell> {
   int _currentIndex = 0;
+  final Set<int> _visitedTabs = {0};
 
-  final List<Widget> _screens = [
-    const HomeScreen(),
-    const LabSearchScreen(),
-    const OrderListScreen(),
-    const ArchiveGalleryScreen(),
-    const MarketplaceScreen(),
-    const CommunityFeedScreen(),
-  ];
+  Widget _buildScreen(int index) {
+    switch (index) {
+      case 0:
+        return const HomeScreen();
+      case 1:
+        return const LabSearchScreen();
+      case 2:
+        return const OrderListScreen();
+      case 3:
+        return const ArchiveGalleryScreen();
+      case 4:
+        return const MarketplaceScreen();
+      case 5:
+      default:
+        return const CommunityFeedScreen();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +43,10 @@ class _NavigationShellState extends State<NavigationShell> {
       backgroundColor: AppColors.surface,
       body: IndexedStack(
         index: _currentIndex,
-        children: _screens,
+        children: List.generate(
+          6,
+          (i) => _visitedTabs.contains(i) ? _buildScreen(i) : const SizedBox.shrink(),
+        ),
       ),
       bottomNavigationBar: Container(
         decoration: const BoxDecoration(
@@ -60,6 +73,7 @@ class _NavigationShellState extends State<NavigationShell> {
           onTap: (index) {
             setState(() {
               _currentIndex = index;
+              _visitedTabs.add(index);
             });
           },
           items: const [

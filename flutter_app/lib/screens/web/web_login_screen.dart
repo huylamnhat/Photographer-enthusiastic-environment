@@ -5,6 +5,7 @@ import '../../core/theme/app_typography.dart';
 import '../../providers/auth_provider.dart';
 import 'admin/admin_portal_shell.dart';
 import 'lab/lab_portal_shell.dart';
+import 'lab_register_screen.dart';
 
 class WebLoginScreen extends StatefulWidget {
   const WebLoginScreen({super.key});
@@ -194,13 +195,13 @@ class _WebLoginScreenState extends State<WebLoginScreen> {
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        'MINILAB ARCHIVE',
+                                        'MINILAB',
                                         style: AppTypography.cardTitle.copyWith(letterSpacing: 0.5),
                                       ),
                                       Text(
                                         _loginMode == 0
-                                            ? 'CENTRAL ADMIN PLATFORM'
-                                            : 'LABORATORY OPS ENGINE',
+                                            ? 'Quản trị hệ thống'
+                                            : 'Cổng Tiệm Film Lab',
                                         style: AppTypography.labelCaps.copyWith(
                                           fontSize: 9,
                                           color: AppColors.inkMuted,
@@ -218,7 +219,7 @@ class _WebLoginScreenState extends State<WebLoginScreen> {
                                   border: Border.all(color: AppColors.outline),
                                 ),
                                 child: Text(
-                                  _loginMode == 0 ? 'SYS.ADM' : 'LAB.OPS',
+                                  _loginMode == 0 ? 'ADMIN' : 'FILM LAB',
                                   style: AppTypography.dataMono.copyWith(
                                     fontSize: 10,
                                     fontWeight: FontWeight.bold,
@@ -469,6 +470,25 @@ class _WebLoginScreenState extends State<WebLoginScreen> {
                               ],
                             ),
                           ),
+                          const SizedBox(height: 14),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Text('Bạn là chủ tiệm Film Lab mới? ', style: TextStyle(fontSize: 12, color: AppColors.inkMuted)),
+                              InkWell(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (_) => const LabRegisterScreen()),
+                                  );
+                                },
+                                child: const Text(
+                                  'Đăng ký mở Tiệm Lab đối tác',
+                                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.secondary),
+                                ),
+                              ),
+                            ],
+                          ),
                         ],
                       ),
                     ),
@@ -489,13 +509,13 @@ class _WebLoginScreenState extends State<WebLoginScreen> {
                               Icon(Icons.shield_outlined, size: 14, color: AppColors.inkMuted),
                               SizedBox(width: 6),
                               Text(
-                                'MINILAB PROTOCOL v4.8',
+                                'MINILAB PORTAL',
                                 style: TextStyle(fontSize: 10, color: AppColors.inkMuted, fontWeight: FontWeight.bold),
                               ),
                             ],
                           ),
                           Text(
-                            'STANDALONE MODULES',
+                            'ONLINE',
                             style: TextStyle(fontSize: 10, color: AppColors.secondary, fontWeight: FontWeight.bold),
                           ),
                         ],
@@ -507,7 +527,7 @@ class _WebLoginScreenState extends State<WebLoginScreen> {
 
               const SizedBox(height: 16),
               const Text(
-                '© 2026 MINILAB PLATFORM • HỆ THỐNG VẬN HÀNH & KHO LƯU TRỮ PHIM',
+                '© 2026 MINILAB • HỆ THỐNG TRÁNG FILM & TRẢ ẢNH TRỰC TUYẾN',
                 style: TextStyle(fontSize: 10, color: AppColors.inkMuted),
               ),
             ],

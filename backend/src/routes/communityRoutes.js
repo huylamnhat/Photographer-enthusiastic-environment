@@ -4,8 +4,8 @@ const communityController = require('../controllers/communityController');
 const { authenticate } = require('../middleware/auth');
 
 // Posts
-router.get('/posts', communityController.getAllPosts);
-router.get('/posts/:id', communityController.getPostById);
+router.get('/posts', authenticate, communityController.getAllPosts);
+router.get('/posts/:id', authenticate, communityController.getPostById);
 router.post('/posts/create', authenticate, communityController.createPost);
 router.post('/posts/:id/comments', authenticate, communityController.addComment);
 router.post('/posts/:id/like', authenticate, communityController.toggleLike);

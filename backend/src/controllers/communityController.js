@@ -1,18 +1,30 @@
 const { mockUsers, mockCommunityPosts, mockEvents, mockAuditLogs } = require('../data/mockStore');
 const { runQuery } = require('../config/db');
 
-function enrichPostWithAuthor(post) {
+function enrichPostWithAuthor(post, currentUserId = '') {
   if (!post) return post;
   const author = mockUsers.find(u => 
     u.user_id === post.author_id || 
     String(u.db_user_id) === String(post.author_id) || 
     `usr-${u.db_user_id}` === post.author_id
   );
-  if (!author) return post;
+  const isLiked = Boolean(currentUserId && Array.isArray(post.liked_user_ids) && post.liked_user_ids.includes(currentUserId));
+  const safeComments = Array.isArray(post.comments) ? post.comments : [];
+  if (!author) {
+    return {
+      ...post,
+      is_liked: isLiked,
+      comments: safeComments,
+      comments_count: safeComments.length,
+    };
+  }
 
   const isLocked = author.status === 'LOCKED';
   return {
     ...post,
+    is_liked: isLiked,
+    comments: safeComments,
+    comments_count: safeComments.length,
     author_name: isLocked ? 'Người dùng vi phạm' : author.full_name,
     author_avatar: isLocked
       ? 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150'
@@ -26,7 +38,9 @@ function enrichPostWithAuthor(post) {
 }
 
 exports.getAllPosts = (req, res) => {
+  res.set('Cache-Control', 'no-store');
   const { category, search } = req.query;
+  const currentUserId = req.user?.user_id || '';
   // Bỏ các bài bị ẩn thủ công (HIDDEN)
   let posts = mockCommunityPosts.filter(p => p.status !== 'HIDDEN');
 
@@ -52,7 +66,7 @@ exports.getAllPosts = (req, res) => {
     posts = posts.filter(p => p.title.toLowerCase().includes(q) || p.content.toLowerCase().includes(q));
   }
 
-  const enrichedPosts = posts.map(enrichPostWithAuthor);
+  const enrichedPosts = posts.map(p => enrichPostWithAuthor(p, currentUserId));
 
   return res.json({
     success: true,
@@ -62,7 +76,9 @@ exports.getAllPosts = (req, res) => {
 };
 
 exports.getPostById = (req, res) => {
+  res.set('Cache-Control', 'no-store');
   const { id } = req.params;
+  const currentUserId = req.user?.user_id || '';
   const post = mockCommunityPosts.find(p => p.post_id === id);
   if (!post) {
     return res.status(404).json({ success: false, message: 'Không tìm thấy bài viết' });
@@ -82,11 +98,11 @@ exports.getPostById = (req, res) => {
 
   return res.json({
     success: true,
-    data: enrichPostWithAuthor(post)
+    data: enrichPostWithAuthor(post, currentUserId)
   });
 };
 
-exports.createPost = (req, res) => {
+exports.createPost = async (req, res) => {
   const user = req.user || {};
   const { title, content, category, image_url } = req.body;
 
@@ -124,9 +140,9 @@ exports.createPost = (req, res) => {
   const safeContent = String(newPost.content || '').replace(/'/g, "''");
   const safeCover = String(newPost.image_url || '').replace(/'/g, "''");
   const dbAuthorId = Number(user.db_user_id) || 5;
-  runQuery(`
-    INSERT INTO Post_Article (post_code, author_id, post_category_id, post_type, title, slug, content, cover_image_url, likes_count, comments_count, report_count, status, moderated_by, moderated_at, published_at, created_at)
-    VALUES ('${safePostCode}', ${dbAuthorId}, 1, 'ARTICLE', N'${safeTitle}', 'post-${Date.now()}', N'${safeContent}', '${safeCover}', 1, 0, 0, 'ACTIVE', NULL, NULL, SYSUTCDATETIME(), SYSUTCDATETIME());
+  await runQuery(`
+    INSERT INTO Post_Article (post_code, author_id, post_category_id, post_type, title, slug, content, cover_image_url, likes_count, comments_count, report_count, status, moderated_by, published_at, created_at)
+    VALUES ('${safePostCode}', ${dbAuthorId}, 1, 'ARTICLE', N'${safeTitle}', 'post-${Date.now()}', N'${safeContent}', '${safeCover}', 0, 0, 0, 'ACTIVE', NULL, SYSUTCDATETIME(), SYSUTCDATETIME());
   `).catch(() => {});
 
   mockAuditLogs.unshift({
@@ -193,44 +209,105 @@ exports.reportPost = (req, res) => {
   });
 };
 
-exports.addComment = (req, res) => {
+exports.addComment = async (req, res) => {
   const { id } = req.params;
   const { content } = req.body;
-  const user = req.user;
+  const user = req.user || {};
 
   const post = mockCommunityPosts.find(p => p.post_id === id);
   if (!post) {
     return res.status(404).json({ success: false, message: 'Không tìm thấy bài viết' });
   }
 
+  const cleanContent = String(content || '').trim();
+  if (!cleanContent) {
+    return res.status(400).json({ success: false, message: 'Vui lòng nhập nội dung bình luận' });
+  }
+
+  const commentCode = `cmt-${Date.now()}`;
+  const nowIso = new Date().toISOString();
   const newCmt = {
-    comment_id: `cmt-${Date.now()}`,
+    comment_id: commentCode,
+    user_id: user.user_id || '',
     user_name: user.full_name || 'Khách hàng MiniLab',
     avatar_url: user.avatar_url || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150',
-    content: content || 'Bài viết rất hay!',
-    created_at: new Date().toISOString()
+    content: cleanContent,
+    created_at: nowIso
   };
 
+  if (!Array.isArray(post.comments)) post.comments = [];
   post.comments.push(newCmt);
   post.comments_count = post.comments.length;
+
+  const esc = (v) => String(v || '').replace(/'/g, "''");
+  const safePostCode = esc(post.post_id);
+  const safeUserCode = esc(user.user_id || '');
+  const dbUserId = Number(user.db_user_id) || 0;
+  await runQuery(`
+    DECLARE @targetPostId BIGINT = (SELECT TOP 1 post_id FROM Post_Article WHERE post_code = '${safePostCode}');
+    DECLARE @targetUserId INT = ${dbUserId > 0 ? dbUserId : `(SELECT TOP 1 user_id FROM Users WHERE user_code = '${safeUserCode}')`};
+    IF @targetPostId IS NOT NULL AND @targetUserId IS NOT NULL
+    BEGIN
+      INSERT INTO Post_Comment (comment_code, post_id, user_id, content, status)
+      VALUES ('${esc(commentCode)}', @targetPostId, @targetUserId, N'${esc(cleanContent)}', 'VISIBLE');
+      UPDATE Post_Article
+      SET comments_count = ${Number(post.comments_count)}
+      WHERE post_id = @targetPostId;
+    END
+  `).catch(() => {});
 
   return res.json({
     success: true,
     message: 'Bình luận thành công',
-    data: newCmt
+    data: newCmt,
+    comments_count: post.comments_count,
+    comments: post.comments
   });
 };
 
-exports.toggleLike = (req, res) => {
+exports.toggleLike = async (req, res) => {
   const { id } = req.params;
+  const userId = req.user?.user_id || 'anon';
   const post = mockCommunityPosts.find(p => p.post_id === id);
   if (!post) {
     return res.status(404).json({ success: false, message: 'Không tìm thấy bài viết' });
   }
 
-  post.likes_count += 1;
+  if (!Array.isArray(post.liked_user_ids)) post.liked_user_ids = [];
+  const alreadyLiked = post.liked_user_ids.includes(userId);
+
+  if (alreadyLiked) {
+    post.liked_user_ids = post.liked_user_ids.filter(u => u !== userId);
+    post.likes_count = Math.max(0, Number(post.likes_count || 1) - 1);
+  } else {
+    post.liked_user_ids.push(userId);
+    post.likes_count = Number(post.likes_count || 0) + 1;
+  }
+  const isLikedNow = !alreadyLiked;
+
+  const esc = (v) => String(v || '').replace(/'/g, "''");
+  const safePostCode = esc(post.post_id);
+  const safeUserCode = esc(userId);
+  await runQuery(`
+    IF OBJECT_ID('dbo.Post_Like', 'U') IS NULL
+    BEGIN
+      CREATE TABLE dbo.Post_Like (
+        post_code VARCHAR(40) NOT NULL,
+        user_code VARCHAR(40) NOT NULL,
+        created_at DATETIME2(0) NOT NULL DEFAULT SYSUTCDATETIME(),
+        CONSTRAINT PK_Post_Like PRIMARY KEY (post_code, user_code)
+      );
+    END
+    ${isLikedNow
+      ? `IF NOT EXISTS (SELECT 1 FROM dbo.Post_Like WHERE post_code = '${safePostCode}' AND user_code = '${safeUserCode}')
+           INSERT INTO dbo.Post_Like (post_code, user_code) VALUES ('${safePostCode}', '${safeUserCode}');`
+      : `DELETE FROM dbo.Post_Like WHERE post_code = '${safePostCode}' AND user_code = '${safeUserCode}';`}
+    UPDATE Post_Article SET likes_count = ${Number(post.likes_count)} WHERE post_code = '${safePostCode}';
+  `).catch(() => {});
+
   return res.json({
     success: true,
+    is_liked: isLikedNow,
     likes_count: post.likes_count
   });
 };

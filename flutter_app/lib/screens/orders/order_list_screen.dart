@@ -20,14 +20,20 @@ class _OrderListScreenState extends State<OrderListScreen> {
   List<OrderModel> _orders = [];
   Timer? _refreshTimer;
 
+  String _lastSignature = '';
+
   @override
   void initState() {
     super.initState();
     _activeTab = widget.initialTab;
     _loadOrders();
     _refreshTimer = Timer.periodic(
-      const Duration(seconds: 5),
-      (_) => _loadOrders(silent: true),
+      const Duration(seconds: 20),
+      (_) {
+        if (mounted && (ModalRoute.of(context)?.isCurrent ?? true)) {
+          _loadOrders(silent: true);
+        }
+      },
     );
   }
 
@@ -49,6 +55,9 @@ class _OrderListScreenState extends State<OrderListScreen> {
     }
     final res = await ApiService().getOrders();
     if (!mounted) return;
+    final sig = res.map((o) => '${o.orderId}:${o.status}:${o.paymentStatus}:${o.kanbanColumn}:${o.driveLink ?? ""}:${o.disputeStatus ?? ""}:${o.shipment?['status'] ?? ""}:${o.shipment?['ahamove_status'] ?? ""}').join('|');
+    if (silent && sig == _lastSignature) return;
+    _lastSignature = sig;
     setState(() {
       _orders = res;
       _loading = false;
@@ -91,35 +100,58 @@ class _OrderListScreenState extends State<OrderListScreen> {
     final st = o.status.toUpperCase();
     String uiStatus = 'PROCESSING';
     String statusLabel = 'ĐANG XỬ LÝ';
-    String stepText = 'Bước 2/5: Đang tráng hóa chất';
-    String slaText = 'Theo dõi trực tiếp từ Lab Kanban';
+    String stepText = 'Bước 2/5: Đang tráng phim';
+    String slaText = 'Đang xử lý';
 
-    if (col == 'QUEUE' || st == 'RECEIVED' || st == 'PENDING_FILM') {
+    if (st == 'CANCELLED' || o.paymentStatus.toUpperCase() == 'CANCELLED') {
+      uiStatus = 'CANCELLED';
+      statusLabel = 'ĐÃ HỦY ĐƠN';
+      stepText = (o.cancelReason != null && o.cancelReason!.isNotEmpty)
+          ? o.cancelReason!
+          : 'Đơn hàng đã bị hủy do quá hạn thanh toán VNPAY';
+      slaText = 'Đơn đã hủy';
+    } else if (o.paymentStatus.toUpperCase() == 'PENDING' || st == 'PENDING_PAYMENT') {
+      final isQr = o.paymentMethod.toUpperCase() == 'INTERNAL_QR';
       uiStatus = 'PROCESSING';
-      statusLabel = '1. TIẾP NHẬN';
-      stepText = 'Bước 1/5: Tiếp nhận cuộn phim tại Lab';
+      statusLabel = isQr ? 'CHỜ LAB XÁC NHẬN QR' : 'CHỜ THANH TOÁN VNPAY';
+      stepText = isQr
+          ? 'Đã chuyển khoản QR — chờ nhân viên Lab kiểm tra tiền vào'
+          : 'Chờ xác nhận thanh toán qua cổng VNPAY';
+      slaText = isQr ? 'Chạm vào đơn để xem lại mã QR' : 'Chạm vào đơn để thanh toán tiếp qua VNPAY';
+    } else if (col == 'QUEUE' || st == 'RECEIVED' || st == 'PENDING_FILM') {
+      uiStatus = 'PROCESSING';
+      if (o.isPickupOrder && o.normalizedShipmentState != 'DELIVERED') {
+        statusLabel = o.shipmentBadgeVi;
+        stepText = o.shipmentHintVi;
+        slaText = o.shipmentHeadlineVi;
+      } else {
+        statusLabel = 'TIẾP NHẬN';
+        stepText = o.isPickupOrder
+            ? 'Bước 1/5: Shipper đã giao film tới tiệm'
+            : 'Bước 1/5: Tiệm đã nhận phim';
+      }
     } else if (col == 'DEVELOPING') {
       uiStatus = 'PROCESSING';
-      statusLabel = '2. VÀO TANK / TRÁNG';
-      stepText = 'Bước 2/5: Vào Tank / Tráng hóa chất';
+      statusLabel = 'ĐANG TRÁNG';
+      stepText = 'Bước 2/5: Đang tráng phim';
     } else if (col == 'DRYING' || col == 'QC' || st == 'QC_CHECK') {
       uiStatus = 'PROCESSING';
-      statusLabel = '3. SẤY KHÔ';
-      stepText = 'Bước 3/5: Sấy khô & Cân bằng phẳng';
+      statusLabel = 'ĐANG SẤY';
+      stepText = 'Bước 3/5: Đang sấy khô';
     } else if (col == 'SCANNING') {
       uiStatus = 'PROCESSING';
-      statusLabel = '4. SCAN SỐ HÓA';
-      stepText = 'Bước 4/5: Scan số hóa máy Noritsu / Frontier';
+      statusLabel = 'ĐANG QUÉT ẢNH';
+      stepText = 'Bước 4/5: Đang quét ảnh';
     } else if (col == 'READY' || st == 'READY_FOR_DOWNLOAD') {
       uiStatus = 'READY';
-      statusLabel = '5. QC & ARCHIVE';
-      stepText = 'Bước 5/5: QC & Archive (Sẵn sàng tải)';
-      slaText = 'File ảnh đã sẵn sàng trong Kho ảnh';
+      statusLabel = 'ĐÃ CÓ ẢNH';
+      stepText = 'Bước 5/5: Đã có ảnh';
+      slaText = 'Sẵn sàng xem và tải trong Kho ảnh';
     } else if (st == 'COMPLETED') {
       uiStatus = 'COMPLETED';
       statusLabel = 'HOÀN TẤT';
-      stepText = 'Bước 5/5: QC & Archive (Đã hoàn tất)';
-      slaText = 'Lưu kho 60 ngày';
+      stepText = 'Bước 5/5: Hoàn tất';
+      slaText = 'Lưu ảnh 60 ngày';
     }
 
     final firstItem = o.items.isNotEmpty ? o.items.first : null;
@@ -249,6 +281,7 @@ class _OrderListScreenState extends State<OrderListScreen> {
                             final item = filtered[index];
                             final isReady = item['status'] == 'READY';
                             final isProcessing = item['status'] == 'PROCESSING';
+                            final isCancelled = item['status'] == 'CANCELLED';
                             final isDisputed = item['isDisputed'] == true;
                             final disputeStatus = (item['disputeStatus'] ?? '').toString();
                             final disputeColor = _disputeStatusColor(disputeStatus);
@@ -306,9 +339,11 @@ class _OrderListScreenState extends State<OrderListScreen> {
                                         Container(
                                           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                           decoration: BoxDecoration(
-                                            color: isReady
-                                                ? AppColors.secondary.withValues(alpha: 0.1)
-                                                : (isProcessing ? AppColors.primary.withValues(alpha: 0.1) : AppColors.surfaceSunken),
+                                            color: isCancelled
+                                                ? AppColors.dangerBg
+                                                : (isReady
+                                                    ? AppColors.secondary.withValues(alpha: 0.1)
+                                                    : (isProcessing ? AppColors.primary.withValues(alpha: 0.1) : AppColors.surfaceSunken)),
                                             borderRadius: BorderRadius.circular(4),
                                           ),
                                           child: Text(
@@ -316,7 +351,9 @@ class _OrderListScreenState extends State<OrderListScreen> {
                                             style: AppTypography.labelCaps.copyWith(
                                               fontSize: 9,
                                               fontWeight: FontWeight.bold,
-                                              color: isReady ? AppColors.secondary : (isProcessing ? AppColors.primary : AppColors.inkMuted),
+                                              color: isCancelled
+                                                  ? AppColors.danger
+                                                  : (isReady ? AppColors.secondary : (isProcessing ? AppColors.primary : AppColors.inkMuted)),
                                             ),
                                           ),
                                         ),

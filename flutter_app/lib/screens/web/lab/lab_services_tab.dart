@@ -14,7 +14,6 @@ class _LabServicesTabState extends State<LabServicesTab> {
   String _labName = 'Film Lab';
   List<Map<String, dynamic>> _packages = [];
   List<Map<String, dynamic>> _processTable = [];
-  List<Map<String, dynamic>> _priceAuditTrail = [];
 
   @override
   void initState() {
@@ -26,7 +25,6 @@ class _LabServicesTabState extends State<LabServicesTab> {
     final res = await WebApiService().getLabServicesWithAudit();
     final rawPkgs = (res['packages'] as List?) ?? [];
     final rawProcesses = (res['process_table'] as List?) ?? [];
-    final rawAudit = (res['audit_trail'] as List?) ?? [];
     final loadedLabName = (res['lab_name'] ?? '').toString();
 
     if (!mounted) return;
@@ -52,17 +50,6 @@ class _LabServicesTabState extends State<LabServicesTab> {
 
       _processTable = rawProcesses.map<Map<String, dynamic>>((pt) {
         return Map<String, dynamic>.from(pt as Map);
-      }).toList();
-
-      _priceAuditTrail = rawAudit.map<Map<String, dynamic>>((a) {
-        return {
-          'service': (a['entity'] ?? 'Service_Package').toString(),
-          'oldPrice': (a['oldVal'] ?? '').toString(),
-          'newPrice': (a['newVal'] ?? '').toString(),
-          'date': (a['timestamp'] ?? '').toString(),
-          'reason': 'Cập nhật trên bảng Audit_Log',
-          'changedBy': (a['actor'] ?? 'Lab Owner').toString(),
-        };
       }).toList();
     });
   }
@@ -128,7 +115,7 @@ class _LabServicesTabState extends State<LabServicesTab> {
                     children: [
                       Expanded(child: TextField(controller: priceCtrl, decoration: const InputDecoration(labelText: 'Giá niêm yết (VNĐ)'))),
                       const SizedBox(width: 12),
-                      Expanded(child: TextField(controller: slaCtrl, decoration: const InputDecoration(labelText: 'SLA trả file (giờ)'))),
+                      Expanded(child: TextField(controller: slaCtrl, decoration: const InputDecoration(labelText: 'Thời gian trả ảnh (giờ)'))),
                     ],
                   ),
                   const SizedBox(height: 12),
@@ -189,7 +176,7 @@ class _LabServicesTabState extends State<LabServicesTab> {
                 children: [
                   Expanded(child: TextField(controller: priceCtrl, decoration: const InputDecoration(labelText: 'Giá niêm yết (VNĐ)'))),
                   const SizedBox(width: 12),
-                  Expanded(child: TextField(controller: slaCtrl, decoration: const InputDecoration(labelText: 'SLA cam kết (giờ)'))),
+                  Expanded(child: TextField(controller: slaCtrl, decoration: const InputDecoration(labelText: 'Thời gian trả ảnh (giờ)'))),
                 ],
               ),
             ],
@@ -254,7 +241,7 @@ class _LabServicesTabState extends State<LabServicesTab> {
                   children: [
                     Expanded(child: TextField(controller: tempCtrl, decoration: const InputDecoration(labelText: 'Nhiệt độ chuẩn'))),
                     const SizedBox(width: 10),
-                    Expanded(child: TextField(controller: slaCtrl, decoration: const InputDecoration(labelText: 'SLA (giờ)'))),
+                    Expanded(child: TextField(controller: slaCtrl, decoration: const InputDecoration(labelText: 'Trả ảnh (giờ)'))),
                   ],
                 ),
                 const SizedBox(height: 10),
@@ -312,9 +299,7 @@ class _LabServicesTabState extends State<LabServicesTab> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('WEB-LAB-05 // $_labName — DỊCH VỤ & BẢNG TRÁNG (SQL SERVER)', style: AppTypography.labelCaps),
-                  const SizedBox(height: 4),
-                  const Text('Cấu hình Gói Dịch Vụ, Bảng Tráng & Lịch Sử Đổi Giá', style: AppTypography.pageTitle),
+                  Text('Dịch vụ & Bảng giá — $_labName', style: AppTypography.pageTitle),
                 ],
               ),
               ElevatedButton.icon(
@@ -326,151 +311,82 @@ class _LabServicesTabState extends State<LabServicesTab> {
           ),
           const SizedBox(height: 24),
 
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                flex: 6,
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: AppColors.surfaceRaised,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppColors.outline),
+          Container(
+            decoration: BoxDecoration(
+              color: AppColors.surfaceRaised,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: AppColors.outline),
+            ),
+            child: Column(
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  decoration: const BoxDecoration(
+                    color: AppColors.surfaceSunken,
+                    borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
                   ),
-                  child: Column(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                        decoration: const BoxDecoration(
-                          color: AppColors.surfaceSunken,
-                          borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
-                        ),
+                      Text('DANH MỤC GÓI CỦA $_labName (${_packages.length})'.toUpperCase(), style: AppTypography.labelCaps),
+                      const Text('GIÁ & TRẠNG THÁI', style: AppTypography.labelCaps),
+                    ],
+                  ),
+                ),
+                if (_packages.isEmpty)
+                  const Padding(
+                    padding: EdgeInsets.all(24.0),
+                    child: Text('Tiệm Lab chưa có gói dịch vụ nào.', style: AppTypography.bodySmall),
+                  )
+                else
+                  ListView.separated(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: _packages.length,
+                    separatorBuilder: (_, __) => const Divider(),
+                    itemBuilder: (ctx, idx) {
+                      final pkg = _packages[idx];
+                      final isActive = pkg['status'] == 'ACTIVE';
+                      return Padding(
+                        padding: const EdgeInsets.all(16.0),
                         child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text('DANH MỤC GÓI CỦA $_labName (${_packages.length})'.toUpperCase(), style: AppTypography.labelCaps),
-                            const Text('GIÁ & TRẠNG THÁI', style: AppTypography.labelCaps),
-                          ],
-                        ),
-                      ),
-                      if (_packages.isEmpty)
-                        const Padding(
-                          padding: EdgeInsets.all(24.0),
-                          child: Text('Tiệm Lab chưa có gói dịch vụ nào.', style: AppTypography.bodySmall),
-                        )
-                      else
-                        ListView.separated(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: _packages.length,
-                          separatorBuilder: (_, __) => const Divider(),
-                          itemBuilder: (ctx, idx) {
-                            final pkg = _packages[idx];
-                            final isActive = pkg['status'] == 'ACTIVE';
-                            return Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Row(
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(pkg['name'], style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                                        const SizedBox(height: 2),
-                                        Text('${pkg['process']} · Cam kết: ${pkg['sla']}', style: AppTypography.caption),
-                                      ],
-                                    ),
-                                  ),
-                                  Text('${pkg['price']} đ', style: AppTypography.dataMono.copyWith(color: AppColors.primary, fontSize: 14, fontWeight: FontWeight.bold)),
-                                  const SizedBox(width: 8),
-                                  IconButton(
-                                    tooltip: 'Sửa giá & cấu hình gói',
-                                    icon: const Icon(Icons.edit_outlined, size: 18, color: AppColors.inkMuted),
-                                    onPressed: () => _showEditPackageModal(pkg),
-                                  ),
-                                  Switch(
-                                    value: isActive,
-                                    activeThumbColor: AppColors.secondary,
-                                    onChanged: (v) async {
-                                      await WebApiService().updateLabService(
-                                        pkg['package_id'],
-                                        {'status': v ? 'ACTIVE' : 'INACTIVE'},
-                                      );
-                                      if (!mounted) return;
-                                      setState(() => pkg['status'] = v ? 'ACTIVE' : 'INACTIVE');
-                                    },
-                                  ),
+                                  Text(pkg['name'], style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                                  const SizedBox(height: 2),
+                                  Text('${pkg['process']} · Cam kết: ${pkg['sla']}', style: AppTypography.caption),
                                 ],
                               ),
-                            );
-                          },
+                            ),
+                            Text('${pkg['price']} đ', style: AppTypography.dataMono.copyWith(color: AppColors.primary, fontSize: 14, fontWeight: FontWeight.bold)),
+                            const SizedBox(width: 8),
+                            IconButton(
+                              tooltip: 'Sửa giá & cấu hình gói',
+                              icon: const Icon(Icons.edit_outlined, size: 18, color: AppColors.inkMuted),
+                              onPressed: () => _showEditPackageModal(pkg),
+                            ),
+                            Switch(
+                              value: isActive,
+                              activeThumbColor: AppColors.secondary,
+                              onChanged: (v) async {
+                                await WebApiService().updateLabService(
+                                  pkg['package_id'],
+                                  {'status': v ? 'ACTIVE' : 'INACTIVE'},
+                                );
+                                if (!mounted) return;
+                                setState(() => pkg['status'] = v ? 'ACTIVE' : 'INACTIVE');
+                              },
+                            ),
+                          ],
                         ),
-                    ],
+                      );
+                    },
                   ),
-                ),
-              ),
-              const SizedBox(width: 24),
-
-              Expanded(
-                flex: 4,
-                child: Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: AppColors.surfaceRaised,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppColors.outline),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Row(
-                        children: [
-                          Icon(Icons.history_edu_outlined, size: 18, color: AppColors.primary),
-                          SizedBox(width: 8),
-                          Text('LỊCH SỬ ĐỔI GIÁ (AUDIT TRAIL)', style: AppTypography.cardTitle),
-                        ],
-                      ),
-                      const SizedBox(height: 4),
-                      const Text('Mọi biến động giá được ghi vết minh bạch theo từng Lab', style: AppTypography.caption),
-                      const SizedBox(height: 16),
-                      const Divider(),
-                      const SizedBox(height: 12),
-
-                      if (_priceAuditTrail.isEmpty)
-                        const Text('Chưa có lịch sử điều chỉnh giá gần đây.', style: AppTypography.caption)
-                      else
-                        ..._priceAuditTrail.map((audit) {
-                          return Container(
-                            margin: const EdgeInsets.only(bottom: 12),
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: AppColors.surfaceSunken,
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: AppColors.outline),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(audit['service'], style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
-                                    Text(audit['date'], style: AppTypography.caption),
-                                  ],
-                                ),
-                                const SizedBox(height: 6),
-                                Text('${audit['oldPrice']} → ${audit['newPrice']}', style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.primary, fontSize: 11)),
-                                const SizedBox(height: 4),
-                                Text('Bởi: ${audit['changedBy']}', style: const TextStyle(fontSize: 10, color: AppColors.outline)),
-                              ],
-                            ),
-                          );
-                        }),
-                    ],
-                  ),
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
 
           const SizedBox(height: 24),
@@ -522,7 +438,7 @@ class _LabServicesTabState extends State<LabServicesTab> {
                           Padding(padding: EdgeInsets.all(12), child: Text('QUY TRÌNH', style: AppTypography.labelCaps)),
                           Padding(padding: EdgeInsets.all(12), child: Text('TÊN BẢNG TRÁNG', style: AppTypography.labelCaps)),
                           Padding(padding: EdgeInsets.all(12), child: Text('HÓA CHẤT & NHIỆT ĐỘ', style: AppTypography.labelCaps)),
-                          Padding(padding: EdgeInsets.all(12), child: Text('SLA', style: AppTypography.labelCaps)),
+                          Padding(padding: EdgeInsets.all(12), child: Text('TRẢ ẢNH', style: AppTypography.labelCaps)),
                           Padding(padding: EdgeInsets.all(12), child: Text('MÁY TRÁNG & SCANNER', style: AppTypography.labelCaps)),
                           Padding(padding: EdgeInsets.all(12), child: Text('CHÍNH SÁCH PUSH/PULL', style: AppTypography.labelCaps)),
                           Padding(padding: EdgeInsets.all(12), child: Text('SỬA', style: AppTypography.labelCaps)),

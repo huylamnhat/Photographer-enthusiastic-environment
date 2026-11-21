@@ -19,13 +19,19 @@ class _ArchiveGalleryScreenState extends State<ArchiveGalleryScreen> {
   List<OrderModel> _orders = [];
   Timer? _refreshTimer;
 
+  String _lastSignature = '';
+
   @override
   void initState() {
     super.initState();
     _loadOrders();
     _refreshTimer = Timer.periodic(
-      const Duration(seconds: 5),
-      (_) => _loadOrders(silent: true),
+      const Duration(seconds: 20),
+      (_) {
+        if (mounted && (ModalRoute.of(context)?.isCurrent ?? true)) {
+          _loadOrders(silent: true);
+        }
+      },
     );
   }
 
@@ -41,6 +47,10 @@ class _ArchiveGalleryScreenState extends State<ArchiveGalleryScreen> {
     }
     final list = await ApiService().getOrders();
     if (!mounted) return;
+
+    final sig = list.map((o) => '${o.orderId}:${o.driveLink ?? ""}:${o.driveLinkHistory.length}').join('|');
+    if (silent && sig == _lastSignature) return;
+    _lastSignature = sig;
 
     final sorted = List<OrderModel>.from(list);
     if (widget.initialOrderId != null && widget.initialOrderId!.isNotEmpty) {
@@ -112,7 +122,7 @@ class _ArchiveGalleryScreenState extends State<ArchiveGalleryScreen> {
             ),
             const SizedBox(width: 8),
             Text(
-              'KHO LINK ẢNH ĐƠN HÀNG',
+              'KHO ẢNH CỦA TÔI',
               style: AppTypography.cardTitle.copyWith(letterSpacing: 1.0, fontSize: 14),
             ),
           ],
@@ -126,7 +136,7 @@ class _ArchiveGalleryScreenState extends State<ArchiveGalleryScreen> {
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
                 : const Icon(Icons.refresh, size: 20, color: AppColors.primary),
-            tooltip: 'Đồng bộ link Drive từng đơn',
+            tooltip: 'Làm mới',
             onPressed: _loadOrders,
           ),
           const SizedBox(width: 8),
@@ -141,39 +151,29 @@ class _ArchiveGalleryScreenState extends State<ArchiveGalleryScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Container(
-                padding: const EdgeInsets.all(14),
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                 decoration: BoxDecoration(
                   color: AppColors.surfaceSunken,
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(color: AppColors.outline),
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'LINK GOOGLE DRIVE THEO TỪNG ĐƠN',
-                          style: AppTypography.labelCaps.copyWith(
-                            color: AppColors.primary,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Text(
-                          '$linkedCount / ${_orders.length} đơn có link',
-                          style: AppTypography.dataMono.copyWith(
-                            fontSize: 11,
-                            color: AppColors.secondary,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 6),
                     Text(
-                      'Mỗi đơn hàng sau khi Lab tráng và scan xong sẽ hiển thị trực tiếp link Google Drive tại đây để bạn mở xem hoặc tải file gốc.',
-                      style: AppTypography.bodySmall.copyWith(color: AppColors.inkMuted, fontSize: 11),
+                      'LINK ẢNH THEO ĐƠN HÀNG',
+                      style: AppTypography.labelCaps.copyWith(
+                        color: AppColors.primary,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text(
+                      '$linkedCount / ${_orders.length} đơn đã có ảnh',
+                      style: AppTypography.dataMono.copyWith(
+                        fontSize: 11,
+                        color: AppColors.secondary,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ],
                 ),

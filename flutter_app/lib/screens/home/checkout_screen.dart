@@ -3,7 +3,10 @@ import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_typography.dart';
 import '../../core/services/api_service.dart';
 import '../../models/lab_model.dart';
+import '../orders/order_detail_screen.dart';
 import 'payment_receipt_screen.dart';
+import 'qr_transfer_dialog.dart';
+import 'vnpay_payment_dialog.dart';
 
 class CheckoutScreen extends StatefulWidget {
   final LabModel lab;
@@ -14,6 +17,9 @@ class CheckoutScreen extends StatefulWidget {
   final String pushPull;
   final String cutOption;
   final String shippingMethod;
+  final String pickupAddress;
+  final String pickupPhone;
+  final double shippingFee;
 
   const CheckoutScreen({
     super.key,
@@ -25,6 +31,9 @@ class CheckoutScreen extends StatefulWidget {
     required this.pushPull,
     required this.cutOption,
     required this.shippingMethod,
+    this.pickupAddress = '',
+    this.pickupPhone = '',
+    this.shippingFee = 0,
   });
 
   @override
@@ -32,50 +41,204 @@ class CheckoutScreen extends StatefulWidget {
 }
 
 class _CheckoutScreenState extends State<CheckoutScreen> {
-  // 100% internal mock payment methods (no external gateway APIs)
-  String _selectedPayment = 'MINILAB_WALLET'; // MINILAB_WALLET, INTERNAL_QR, CASH_ON_DROP
+  String _selectedPayment = 'VNPAY'; // VNPAY, INTERNAL_QR, CASH_ON_DROP
   bool _agreedToTerms = true;
   bool _isProcessing = false;
+  String? _createdPendingOrderId;
+  String? _createdPendingLabName;
+  String? _createdPendingMethod;
 
-  void _handlePayment() async {
+  Future<void> _handlePayment() async {
     setState(() => _isProcessing = true);
 
-    final createdOrder = await ApiService().createOrder({
-      'lab_id': widget.lab.labId,
-      'shipping_method': widget.shippingMethod == 'SHIP_HOME' ? 'DELIVERY' : 'PICKUP',
-      'pickup_address': widget.lab.address,
-      'payment_method': _selectedPayment,
-      'total_amount': widget.totalPrice,
-      'items': [
-        {
-          'name': widget.packageName,
-          'film_name': widget.filmName,
-          'quantity': widget.quantity,
-          'price': widget.totalPrice / (widget.quantity > 0 ? widget.quantity : 1),
-          'options': {
-            'push_pull': widget.pushPull,
-            'cut_negatives': widget.cutOption,
-          },
-        }
-      ],
-    });
+    String? assignedOrderId = _createdPendingOrderId;
+    String assignedLabName = _createdPendingLabName ?? widget.lab.name;
+    final needsNewOrder = assignedOrderId == null || _createdPendingMethod != _selectedPayment;
 
-    if (!mounted) return;
+    if (needsNewOrder) {
+      final isAha = widget.shippingMethod == 'AHAMOVE_PICKUP' || widget.shippingMethod.contains('AhaMove');
+      final isDropAtLab = widget.shippingMethod.contains('quầy') || widget.shippingMethod == 'DROP_AT_LAB';
+      final resolvedShipMethod = isAha
+          ? 'AHAMOVE_PICKUP'
+          : (isDropAtLab ? 'DROP_AT_LAB' : 'SELF_DROP_OFF');
+      final createdOrder = await ApiService().createOrder({
+        'lab_id': widget.lab.labId,
+        'shipping_method': resolvedShipMethod,
+        'pickup_address': widget.pickupAddress.isNotEmpty ? widget.pickupAddress : widget.lab.address,
+        if (widget.pickupPhone.isNotEmpty) 'pickup_phone': widget.pickupPhone,
+        'shipping_fee': widget.shippingFee,
+        'payment_method': _selectedPayment,
+        'total_amount': widget.totalPrice,
+        'items': [
+          {
+            'name': widget.packageName,
+            'film_name': widget.filmName,
+            'quantity': widget.quantity,
+            'price': widget.totalPrice / (widget.quantity > 0 ? widget.quantity : 1),
+            'options': {
+              'push_pull': widget.pushPull,
+              'cut_negatives': widget.cutOption,
+            },
+          }
+        ],
+      });
+
+      if (!mounted) return;
+      if (createdOrder == null) {
+        setState(() => _isProcessing = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Không tạo được đơn hàng, vui lòng thử lại.')),
+        );
+        return;
+      }
+
+      assignedOrderId = createdOrder.orderId;
+      assignedLabName = createdOrder.labName;
+      if (_selectedPayment == 'VNPAY' || _selectedPayment == 'INTERNAL_QR') {
+        _createdPendingOrderId = assignedOrderId;
+        _createdPendingLabName = assignedLabName;
+        _createdPendingMethod = _selectedPayment;
+      }
+    }
+
+    if (_selectedPayment == 'INTERNAL_QR') {
+      setState(() => _isProcessing = false);
+      final result = await showQrTransferDialog(
+        context: context,
+        orderId: assignedOrderId,
+        labName: assignedLabName,
+        amount: widget.totalPrice,
+      );
+      if (!mounted) return;
+      if (result != null && result['paid'] == true) {
+        _goToReceipt(
+          orderId: assignedOrderId,
+          labName: assignedLabName,
+          paymentMethod: 'QR Chuyển khoản trực tiếp',
+        );
+      } else {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => OrderDetailScreen(orderId: assignedOrderId),
+          ),
+        );
+      }
+      return;
+    }
+
+    if (_selectedPayment == 'VNPAY') {
+      final vnpRes = await ApiService().createVnpayPayment(
+        orderId: assignedOrderId,
+        amount: widget.totalPrice,
+        orderInfo: 'Thanh toan don $assignedOrderId',
+      );
+      if (!mounted) return;
+      setState(() => _isProcessing = false);
+
+      if (vnpRes['already_paid'] == true ||
+          (vnpRes['data'] is Map && vnpRes['data']['paid'] == true)) {
+        final transId = (vnpRes['data']?['trans_id'] ?? '').toString();
+        _goToReceipt(
+          orderId: assignedOrderId,
+          labName: assignedLabName,
+          paymentMethod: 'VNPAY',
+          transactionId: transId,
+        );
+        return;
+      }
+
+      final vnpData = vnpRes['data'] as Map?;
+      final paymentUrl = vnpData?['paymentUrl']?.toString() ?? '';
+      final txnRef = vnpData?['txn_ref']?.toString() ?? '';
+
+      if (vnpRes['success'] != true || paymentUrl.isEmpty) {
+        final errMsg = vnpRes['message']?.toString() ?? 'Không khởi tạo được cổng VNPAY';
+        await showDialog<void>(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            backgroundColor: AppColors.surfaceRaised,
+            title: const Text('Không thể mở cổng VNPAY'),
+            content: Text(
+              '$errMsg\n\nĐơn hàng #$assignedOrderId đã được lưu ở trạng thái Chờ thanh toán.',
+              style: AppTypography.bodySmall,
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(ctx);
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => OrderDetailScreen(orderId: assignedOrderId),
+                    ),
+                  );
+                },
+                child: const Text('Xem chi tiết đơn'),
+              ),
+              ElevatedButton(
+                onPressed: () => Navigator.pop(ctx),
+                child: const Text('Đóng'),
+              ),
+            ],
+          ),
+        );
+        return;
+      }
+
+      final result = await showVnpayPaymentFlowDialog(
+        context: context,
+        orderId: assignedOrderId,
+        labName: assignedLabName,
+        amount: widget.totalPrice,
+        paymentUrl: paymentUrl,
+        txnRef: txnRef,
+      );
+
+      if (!mounted) return;
+      if (result != null && result['paid'] == true) {
+        _goToReceipt(
+          orderId: assignedOrderId,
+          labName: assignedLabName,
+          paymentMethod: 'VNPAY',
+          transactionId: result['trans_id']?.toString(),
+        );
+      } else {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => OrderDetailScreen(orderId: assignedOrderId),
+          ),
+        );
+      }
+      return;
+    }
+
     setState(() => _isProcessing = false);
+    _goToReceipt(
+      orderId: assignedOrderId,
+      labName: assignedLabName,
+      paymentMethod: _selectedPayment == 'INTERNAL_QR'
+          ? 'QR Chuyển khoản trực tiếp'
+          : 'Tiền mặt tại quầy Lab',
+    );
+  }
 
-    final assignedOrderId = createdOrder?.orderId ??
-        'ORD-2026-${DateTime.now().millisecondsSinceEpoch.toString().substring(9)}';
-
+  void _goToReceipt({
+    required String orderId,
+    required String labName,
+    required String paymentMethod,
+    String? transactionId,
+  }) {
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
         builder: (_) => PaymentReceiptScreen(
-          orderId: assignedOrderId,
-          labName: createdOrder?.labName ?? widget.lab.name,
+          orderId: orderId,
+          labName: labName,
           amount: widget.totalPrice,
-          paymentMethod: _selectedPayment == 'MINILAB_WALLET'
-              ? 'Ví MiniLab Pay (Nội bộ)'
-              : (_selectedPayment == 'INTERNAL_QR' ? 'QR Chuyển khoản nội bộ' : 'Tiền mặt tại quầy Lab'),
+          paymentMethod: paymentMethod,
+          transactionId: transactionId,
         ),
       ),
     );
@@ -124,8 +287,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text('SỔ TỔNG KẾT ĐƠN HÀNG', style: AppTypography.labelCaps.copyWith(fontSize: 10)),
-                        Text('DOC_TYPE: ORDER_LEDGER', style: AppTypography.dataMono.copyWith(fontSize: 9, color: AppColors.inkMuted)),
+                        Text('TÓM TẮT ĐƠN HÀNG', style: AppTypography.labelCaps.copyWith(fontSize: 10)),
                       ],
                     ),
                   ),
@@ -142,7 +304,23 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                         const SizedBox(height: 8),
                         _buildLedgerItem('Số lượng cuộn:', '${widget.quantity} cuộn'),
                         const SizedBox(height: 8),
-                        _buildLedgerItem('Xử lý âm bản:', widget.shippingMethod == 'SHIP_HOME' ? 'Gửi bưu điện về nhà' : 'Lưu tại tủ tiệm 15 ngày'),
+                        _buildLedgerItem(
+                          'Giao nhận film:',
+                          widget.shippingMethod == 'AHAMOVE_PICKUP'
+                              ? 'AhaMove lấy tận nơi'
+                              : (widget.shippingMethod == 'SHIP_HOME' ? 'Gửi bưu điện về nhà' : widget.shippingMethod),
+                        ),
+                        if (widget.shippingMethod == 'AHAMOVE_PICKUP' && widget.pickupAddress.isNotEmpty) ...[
+                          const SizedBox(height: 8),
+                          _buildLedgerItem('Địa chỉ lấy film:', widget.pickupAddress),
+                        ],
+                        if (widget.shippingFee > 0) ...[
+                          const SizedBox(height: 8),
+                          _buildLedgerItem(
+                            'Phí ship AhaMove:',
+                            '${widget.shippingFee.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]}.')}đ',
+                          ),
+                        ],
                         const SizedBox(height: 12),
                         const Divider(height: 1, color: AppColors.outline),
                         const SizedBox(height: 12),
@@ -164,27 +342,27 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             ),
             const SizedBox(height: 20),
 
-            // Internal Payment Methods (Strictly No External APIs)
-            Text('PHƯƠNG THỨC THANH TOÁN NỘI BỘ', style: AppTypography.sectionHeading.copyWith(fontSize: 12)),
+            // Payment Methods (VNPAY Sandbox v2.1.0 + Direct Lab Options)
+            Text('PHƯƠNG THỨC THANH TOÁN', style: AppTypography.sectionHeading.copyWith(fontSize: 12)),
             const SizedBox(height: 8),
             _buildPaymentOption(
-              key: 'MINILAB_WALLET',
-              title: 'Ví Số Dư MiniLab Pay (Nội bộ sàn)',
-              subtitle: 'Số dư khả dụng: 450.000đ • Trừ trực tiếp tài khoản',
-              icon: Icons.account_balance_wallet_outlined,
+              key: 'VNPAY',
+              title: 'Thanh toán VNPAY',
+              subtitle: 'Quét QR hoặc thẻ ATM / Visa',
+              icon: Icons.account_balance_outlined,
             ),
             const SizedBox(height: 8),
             _buildPaymentOption(
               key: 'INTERNAL_QR',
-              title: 'Mã QR Thanh Toán Nội Bộ Lab',
-              subtitle: 'Quét mã giao dịch nội bộ ghi nhận tự động vào ca trực của Lab',
+              title: 'Chuyển khoản QR cho tiệm',
+              subtitle: 'Quét mã ngân hàng của tiệm Lab',
               icon: Icons.qr_code_2,
             ),
             const SizedBox(height: 8),
             _buildPaymentOption(
               key: 'CASH_ON_DROP',
-              title: 'Thanh toán tiền mặt tại quầy Lab',
-              subtitle: 'Thanh toán trực tiếp khi mang cuộn phim đến tiệm',
+              title: 'Tiền mặt tại tiệm',
+              subtitle: 'Thanh toán khi gửi phim tại quầy',
               icon: Icons.storefront_outlined,
             ),
             const SizedBox(height: 16),
@@ -203,7 +381,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      'Tôi xác nhận đồng ý với Quy chế xử lý hóa chất, thời gian hoàn trả ảnh scan theo SLA và chính sách bảo quản âm bản của phòng tối.',
+                      'Tôi đồng ý với điều khoản xử lý và bảo quản cuộn phim của tiệm.',
                       style: AppTypography.bodySmall.copyWith(fontSize: 11, color: AppColors.inkMuted, height: 1.3),
                     ),
                   ),

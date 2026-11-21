@@ -40,6 +40,45 @@ class ApiService {
     }
   }
 
+  Future<Map<String, dynamic>> registerCustomer(Map<String, dynamic> body) async {
+    try {
+      final res = await http.post(
+        Uri.parse('${ApiConstants.baseUrl}${ApiConstants.register}'),
+        headers: _headers(),
+        body: jsonEncode(body),
+      );
+      return jsonDecode(res.body);
+    } catch (e) {
+      return {'success': false, 'message': 'Không thể kết nối tới máy chủ: $e'};
+    }
+  }
+
+  Future<Map<String, dynamic>> verifyOtp(String target, String otp) async {
+    try {
+      final res = await http.post(
+        Uri.parse('${ApiConstants.baseUrl}${ApiConstants.verifyOtp}'),
+        headers: _headers(),
+        body: jsonEncode({'target': target, 'otp': otp}),
+      );
+      return jsonDecode(res.body);
+    } catch (e) {
+      return {'success': false, 'message': 'Không thể kết nối tới máy chủ: $e'};
+    }
+  }
+
+  Future<Map<String, dynamic>> registerLab(Map<String, dynamic> body) async {
+    try {
+      final res = await http.post(
+        Uri.parse('${ApiConstants.baseUrl}${ApiConstants.registerLab}'),
+        headers: _headers(),
+        body: jsonEncode(body),
+      );
+      return jsonDecode(res.body);
+    } catch (e) {
+      return {'success': false, 'message': 'Không thể kết nối tới máy chủ: $e'};
+    }
+  }
+
   // Labs
   Future<List<LabModel>> getLabs({String? search, String? city}) async {
     try {
@@ -270,8 +309,9 @@ class ApiService {
   // Community Posts
   Future<List<CommunityPostModel>> getCommunityPosts() async {
     try {
+      final ts = DateTime.now().millisecondsSinceEpoch;
       final res = await http.get(
-        Uri.parse('${ApiConstants.baseUrl}${ApiConstants.posts}'),
+        Uri.parse('${ApiConstants.baseUrl}${ApiConstants.posts}?_t=$ts'),
         headers: _headers(),
       );
       final data = jsonDecode(res.body);
@@ -280,6 +320,21 @@ class ApiService {
       }
     } catch (_) {}
     return [];
+  }
+
+  Future<CommunityPostModel?> getCommunityPostById(String postId) async {
+    try {
+      final ts = DateTime.now().millisecondsSinceEpoch;
+      final res = await http.get(
+        Uri.parse('${ApiConstants.baseUrl}${ApiConstants.posts}/$postId?_t=$ts'),
+        headers: _headers(),
+      );
+      final data = jsonDecode(res.body);
+      if (data['success'] == true && data['data'] is Map<String, dynamic>) {
+        return CommunityPostModel.fromJson(data['data']);
+      }
+    } catch (_) {}
+    return null;
   }
 
   Future<CommunityPostModel?> createCommunityPost(Map<String, dynamic> body) async {
@@ -310,19 +365,21 @@ class ApiService {
     return false;
   }
 
-  Future<bool> likeCommunityPost(String postId) async {
+  Future<Map<String, dynamic>?> likeCommunityPost(String postId) async {
     try {
       final res = await http.post(
         Uri.parse('${ApiConstants.baseUrl}${ApiConstants.posts}/$postId/like'),
         headers: _headers(),
       );
       final data = jsonDecode(res.body);
-      return data['success'] == true;
+      if (data['success'] == true) {
+        return Map<String, dynamic>.from(data);
+      }
     } catch (_) {}
-    return false;
+    return null;
   }
 
-  Future<bool> addCommunityComment(String postId, String content) async {
+  Future<Map<String, dynamic>?> addCommunityComment(String postId, String content) async {
     try {
       final res = await http.post(
         Uri.parse('${ApiConstants.baseUrl}${ApiConstants.posts}/$postId/comments'),
@@ -330,9 +387,11 @@ class ApiService {
         body: jsonEncode({'content': content}),
       );
       final data = jsonDecode(res.body);
-      return data['success'] == true;
+      if (data['success'] == true) {
+        return Map<String, dynamic>.from(data);
+      }
     } catch (_) {}
-    return false;
+    return null;
   }
 
   // Community Events (Workshops & Photowalks)
@@ -392,5 +451,142 @@ class ApiService {
       return data['success'] == true;
     } catch (_) {}
     return false;
+  }
+
+  // VNPAY Payment Gateway v2.1.0
+  Future<Map<String, dynamic>> createVnpayPayment({
+    required String orderId,
+    required double amount,
+    String? orderInfo,
+    String? bankCode,
+  }) async {
+    try {
+      final res = await http.post(
+        Uri.parse('${ApiConstants.baseUrl}${ApiConstants.vnpayCreate}'),
+        headers: _headers(),
+        body: jsonEncode({
+          'order_id': orderId,
+          'amount': amount.round(),
+          if (orderInfo != null && orderInfo.isNotEmpty) 'order_info': orderInfo,
+          if (bankCode != null && bankCode.isNotEmpty) 'bank_code': bankCode,
+        }),
+      );
+      final data = jsonDecode(res.body);
+      if (data is Map<String, dynamic>) return data;
+    } catch (e) {
+      return {'success': false, 'message': 'Lỗi kết nối VNPAY: $e'};
+    }
+    return {'success': false, 'message': 'Không thể khởi tạo giao dịch VNPAY'};
+  }
+
+  Future<Map<String, dynamic>> checkVnpayPaymentStatus(String orderId) async {
+    try {
+      final cleanId = orderId.replaceAll('#', '');
+      final ts = DateTime.now().millisecondsSinceEpoch;
+      final res = await http.get(
+        Uri.parse('${ApiConstants.baseUrl}${ApiConstants.vnpayStatus}/$cleanId?_t=$ts'),
+        headers: _headers(),
+      );
+      final data = jsonDecode(res.body);
+      if (data is Map<String, dynamic>) return data;
+    } catch (_) {}
+    return {'success': false, 'data': {'paid': false}};
+  }
+
+  Future<Map<String, dynamic>> getOrderQrInfo(String orderId) async {
+    try {
+      final cleanId = orderId.replaceAll('#', '');
+      final ts = DateTime.now().millisecondsSinceEpoch;
+      final res = await http.get(
+        Uri.parse('${ApiConstants.baseUrl}${ApiConstants.paymentQrInfo}/$cleanId?_t=$ts'),
+        headers: _headers(),
+      );
+      final data = jsonDecode(res.body);
+      if (data is Map<String, dynamic>) return data;
+    } catch (e) {
+      return {'success': false, 'message': 'Lỗi kết nối lấy thông tin QR: $e'};
+    }
+    return {'success': false, 'message': 'Không lấy được thông tin QR thanh toán'};
+  }
+
+  // AhaMove Sandbox Shipping
+  Future<Map<String, dynamic>> estimateAhamoveFee({
+    required String labId,
+    required String pickupAddress,
+    String? pickupPhone,
+    double itemValue = 100000,
+  }) async {
+    try {
+      final res = await http.post(
+        Uri.parse('${ApiConstants.baseUrl}${ApiConstants.ahamoveEstimate}'),
+        headers: _headers(),
+        body: jsonEncode({
+          'lab_id': labId,
+          'pickup_address': pickupAddress,
+          if (pickupPhone != null && pickupPhone.isNotEmpty) 'pickup_phone': pickupPhone,
+          'item_value': itemValue,
+        }),
+      );
+      final data = jsonDecode(res.body);
+      if (data is Map<String, dynamic>) return data;
+    } catch (e) {
+      return {'success': false, 'message': 'Lỗi kết nối ước tính phí AhaMove: $e'};
+    }
+    return {'success': false, 'message': 'Không ước tính được phí ship AhaMove'};
+  }
+
+  Future<Map<String, dynamic>> bookAhamovePickup(
+    String orderId, {
+    String? pickupAddress,
+    String? pickupPhone,
+    String? remarks,
+  }) async {
+    try {
+      final cleanId = orderId.replaceAll('#', '');
+      final res = await http.post(
+        Uri.parse('${ApiConstants.baseUrl}${ApiConstants.ahamoveOrders}/$cleanId/book'),
+        headers: _headers(),
+        body: jsonEncode({
+          if (pickupAddress != null && pickupAddress.isNotEmpty) 'pickup_address': pickupAddress,
+          if (pickupPhone != null && pickupPhone.isNotEmpty) 'pickup_phone': pickupPhone,
+          if (remarks != null && remarks.isNotEmpty) 'remarks': remarks,
+        }),
+      );
+      final data = jsonDecode(res.body);
+      if (data is Map<String, dynamic>) return data;
+    } catch (e) {
+      return {'success': false, 'message': 'Lỗi đặt tài xế AhaMove: $e'};
+    }
+    return {'success': false, 'message': 'Không đặt được tài xế AhaMove'};
+  }
+
+  Future<Map<String, dynamic>> getAhamoveShipmentStatus(String orderId) async {
+    try {
+      final cleanId = orderId.replaceAll('#', '');
+      final ts = DateTime.now().millisecondsSinceEpoch;
+      final res = await http.get(
+        Uri.parse('${ApiConstants.baseUrl}${ApiConstants.ahamoveOrders}/$cleanId?_t=$ts'),
+        headers: _headers(),
+      );
+      final data = jsonDecode(res.body);
+      if (data is Map<String, dynamic>) return data;
+    } catch (_) {}
+    return {'success': false};
+  }
+
+  Future<Map<String, dynamic>> cancelAhamovePickup(String orderId, {String? comment}) async {
+    try {
+      final cleanId = orderId.replaceAll('#', '');
+      final res = await http.post(
+        Uri.parse('${ApiConstants.baseUrl}${ApiConstants.ahamoveOrders}/$cleanId/cancel'),
+        headers: _headers(),
+        body: jsonEncode({if (comment != null && comment.isNotEmpty) 'comment': comment}),
+      );
+      final data = jsonDecode(res.body);
+      if (data is Map<String, dynamic>) return data;
+    } catch (e) {
+      return {'success': false, 'message': 'Lỗi hủy vận đơn AhaMove: $e'};
+    }
+    return {'success': false, 'message': 'Không hủy được vận đơn AhaMove'};
   }
 }

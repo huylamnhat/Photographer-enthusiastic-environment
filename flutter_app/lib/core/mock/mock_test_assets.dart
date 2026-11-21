@@ -108,7 +108,7 @@ class MockTestAssets {
       }
     } else {
       String resolvedUrl = url;
-      final serverOrigin = ApiConstants.baseUrl.replaceFirst(RegExp(r'/api/v1/?$'), '');
+      final serverOrigin = ApiConstants.baseUrl.replaceFirst(RegExp(r'/api(/v1)?/?$'), '');
       if (resolvedUrl.startsWith('http://localhost:5000')) {
         resolvedUrl = resolvedUrl.replaceFirst('http://localhost:5000', serverOrigin);
       } else if (resolvedUrl.startsWith('/uploads/')) {

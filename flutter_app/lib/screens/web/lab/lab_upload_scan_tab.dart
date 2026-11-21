@@ -57,7 +57,7 @@ class _LabUploadScanTabState extends State<LabUploadScanTab> {
   }
 
   void _syncOrderFieldsForSelectedCustomer() {
-    final availOrders = _currentCustomerOrders;
+    final availOrders = _currentCustomerOrders.where((o) => o['has_drive_link'] != 'true').toList();
     if (availOrders.isNotEmpty) {
       if (!availOrders.any((o) => o['order_id'] == _selectedOrderId)) {
         _selectedOrderId = availOrders.first['order_id']!;
@@ -103,13 +103,16 @@ class _LabUploadScanTabState extends State<LabUploadScanTab> {
                   final oid = (o['order_id'] ?? '').toString();
                   final fn = (o['film_name'] ?? 'Kodak Portra 400').toString();
                   final rc = (o['roll_code'] ?? 'ROLL-135-01').toString();
-                  final lbl = (o['label'] ?? '#$oid • $fn ($rc) [5. QC & Archive]').toString();
+                  final hasLink = o['has_drive_link'] == true;
+                  final lbl = (o['label'] ?? '#$oid • $fn ($rc)').toString();
                   if (oid.isNotEmpty) {
                     ordList.add({
                       'order_id': oid,
                       'film_name': fn,
                       'roll_code': rc,
-                      'step_label': (o['step_label'] ?? '5. QC & Archive').toString(),
+                      'step_label': (o['step_label'] ?? '5. Hoàn tất').toString(),
+                      'has_drive_link': hasLink ? 'true' : 'false',
+                      'drive_link': (o['drive_link'] ?? '').toString(),
                       'label': lbl,
                     });
                   }
@@ -153,6 +156,26 @@ class _LabUploadScanTabState extends State<LabUploadScanTab> {
         _customerOrdersMap.clear();
         _customerInProgressMap.clear();
         _syncOrderFieldsForSelectedCustomer();
+      }
+      if (cfg['sent_links_history'] is List) {
+        _sentLinksHistory.clear();
+        for (final h in (cfg['sent_links_history'] as List)) {
+          if (h is Map) {
+            final link = (h['drive_link'] ?? '').toString().trim();
+            if (link.isEmpty) continue;
+            final cname = (h['customer_name'] ?? 'Khách hàng').toString();
+            final cemail = (h['recipient_email'] ?? '').toString();
+            final oid = (h['order_id'] ?? '').toString();
+            final cnt = (h['photo_count'] ?? 1).toString();
+            _sentLinksHistory.add({
+              'customer': cemail.isNotEmpty
+                  ? '$cname ($cemail) • Đơn #$oid'
+                  : '$cname • Đơn #$oid',
+              'link': link,
+              'count': '$cnt ảnh',
+            });
+          }
+        }
       }
     });
   }
@@ -316,7 +339,7 @@ class _LabUploadScanTabState extends State<LabUploadScanTab> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           backgroundColor: AppColors.danger,
-          content: Text('Khách hàng này chưa có đơn hàng nào ở bước 5. QC & Archive. Vui lòng chuyển đơn sang bước 5. QC & Archive trên Kanban trước!'),
+          content: Text('Khách hàng này chưa có đơn nào sẵn sàng ở bước 5 (Hoàn tất). Vui lòng chuyển đơn sang Hoàn tất trước.'),
         ),
       );
       return;
@@ -376,6 +399,10 @@ class _LabUploadScanTabState extends State<LabUploadScanTab> {
         });
       }
     });
+    if (ok) {
+      await _loadDriveConfig();
+      if (!mounted) return;
+    }
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
@@ -401,9 +428,7 @@ class _LabUploadScanTabState extends State<LabUploadScanTab> {
               const Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('WEB-LAB-04 // TẢI FILE SCAN & GOOGLE DRIVE API', style: AppTypography.labelCaps),
-                  SizedBox(height: 4),
-                  Text('Nạp Ảnh Scan, Chọn Ảnh Gửi Google Drive (1080x720) & Gửi Link Khách Hàng', style: AppTypography.pageTitle),
+                  Text('Gửi ảnh cho khách hàng', style: AppTypography.pageTitle),
                 ],
               ),
               Row(
@@ -416,7 +441,7 @@ class _LabUploadScanTabState extends State<LabUploadScanTab> {
                               _driveConfig['account_email'].toString().isNotEmpty &&
                               _driveConfig['account_email'] != 'Chưa cấu hình email')
                           ? 'Google Drive: ${_driveConfig['account_email']}'
-                          : 'Cấu hình Tài khoản Google Drive API',
+                          : 'Liên kết Google Drive',
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -456,12 +481,12 @@ class _LabUploadScanTabState extends State<LabUploadScanTab> {
                         children: [
                           const Expanded(
                             child: Text(
-                              '1. CHỌN KHÁCH HÀNG & ĐƠN HÀNG ĐÃ ĐẾN BƯỚC 5. QC & ARCHIVE',
+                              '1. CHỌN KHÁCH HÀNG & ĐƠN HÀNG ĐÃ HOÀN TẤT',
                               style: AppTypography.labelCaps,
                             ),
                           ),
                           IconButton(
-                            tooltip: 'Làm mới danh sách đơn ở bước 5. QC & Archive',
+                            tooltip: 'Làm mới danh sách đơn',
                             icon: const Icon(Icons.refresh, size: 18, color: AppColors.primary),
                             onPressed: _loadDriveConfig,
                           ),
@@ -521,20 +546,63 @@ class _LabUploadScanTabState extends State<LabUploadScanTab> {
                         )
                       else if (_currentCustomerOrders.isNotEmpty)
                         DropdownButtonFormField<String>(
-                          value: _currentCustomerOrders.any((o) => o['order_id'] == _selectedOrderId)
+                          key: ValueKey(
+                            'order-dd-$_selectedCustomerUserId-$_selectedOrderId-${_currentCustomerOrders.where((o) => o['has_drive_link'] == 'true').length}',
+                          ),
+                          value: (_selectedOrderId.isNotEmpty &&
+                                  _currentCustomerOrders.any(
+                                    (o) => o['order_id'] == _selectedOrderId && o['has_drive_link'] != 'true',
+                                  ))
                               ? _selectedOrderId
-                              : _currentCustomerOrders.first['order_id'],
+                              : null,
                           isExpanded: true,
+                          hint: Text(
+                            _currentCustomerOrders.any((o) => o['has_drive_link'] != 'true')
+                                ? 'Chọn đơn hàng chưa gửi link...'
+                                : 'Tất cả đơn bước 5 đã gửi link (đã khóa chọn)',
+                            style: TextStyle(color: AppColors.inkMuted, fontSize: 13),
+                          ),
                           decoration: const InputDecoration(
-                            labelText: 'CHỌN ĐƠN HÀNG CỦA KHÁCH (CHỈ HIỆN ĐƠN BƯỚC 5. QC & ARCHIVE)',
+                            labelText: 'CHỌN ĐƠN HÀNG ĐÃ HOÀN TẤT',
                             prefixIcon: Icon(Icons.receipt_long_outlined, color: AppColors.secondary),
                           ),
                           items: _currentCustomerOrders.map((o) {
+                            final isSent = o['has_drive_link'] == 'true';
                             return DropdownMenuItem<String>(
                               value: o['order_id'],
-                              child: Text(
-                                o['label'] ?? '#${o['order_id']} • ${o['film_name']} [5. QC & Archive]',
-                                overflow: TextOverflow.ellipsis,
+                              enabled: !isSent,
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      o['label'] ?? '#${o['order_id']} • ${o['film_name']}',
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        color: isSent
+                                            ? AppColors.inkMuted.withValues(alpha: 0.45)
+                                            : AppColors.ink,
+                                      ),
+                                    ),
+                                  ),
+                                  if (isSent) ...[
+                                    const SizedBox(width: 8),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                      decoration: BoxDecoration(
+                                        color: Colors.grey.shade200,
+                                        borderRadius: BorderRadius.circular(4),
+                                      ),
+                                      child: Text(
+                                        'Đã up link',
+                                        style: TextStyle(
+                                          fontSize: 10,
+                                          color: Colors.grey.shade600,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ],
                               ),
                             );
                           }).toList(),
@@ -544,6 +612,7 @@ class _LabUploadScanTabState extends State<LabUploadScanTab> {
                                 (o) => o['order_id'] == ordVal,
                                 orElse: () => _currentCustomerOrders.first,
                               );
+                              if (matchedOrd['has_drive_link'] == 'true') return;
                               setState(() {
                                 _selectedOrderId = ordVal;
                                 _orderIdController.text = ordVal;
@@ -569,7 +638,7 @@ class _LabUploadScanTabState extends State<LabUploadScanTab> {
                               const SizedBox(width: 10),
                               Expanded(
                                 child: Text(
-                                  'Khách hàng này chưa có đơn nào đến bước 5. QC & Archive. Vui lòng chuyển đơn của khách sang bước 5 trên bảng Kanban trước khi gửi link.',
+                                  'Khách hàng này chưa có đơn nào ở bước 5 (Hoàn tất). Vui lòng chuyển đơn sang Hoàn tất trước khi gửi ảnh.',
                                   style: AppTypography.bodySmall.copyWith(color: AppColors.ink, fontWeight: FontWeight.w500),
                                 ),
                               ),
@@ -600,6 +669,7 @@ class _LabUploadScanTabState extends State<LabUploadScanTab> {
                           Expanded(
                             child: TextField(
                               controller: _orderIdController,
+                              readOnly: true,
                               decoration: const InputDecoration(labelText: 'MÃ ĐƠN HÀNG'),
                             ),
                           ),
@@ -763,12 +833,12 @@ class _LabUploadScanTabState extends State<LabUploadScanTab> {
                       ),
                       const SizedBox(height: 20),
 
-                      const Text('CHECKLIST KIỂM ĐỊNH CHẤT LƯỢNG (QC GATE):', style: AppTypography.labelCaps),
+                      const Text('KIỂM TRA CHẤT LƯỢNG TRƯỚC KHI GỬI:', style: AppTypography.labelCaps),
                       const SizedBox(height: 8),
                       CheckboxListTile(
                         value: _qcColorBalance,
                         onChanged: (v) => setState(() => _qcColorBalance = v!),
-                        title: const Text('Đã cân chỉnh Base màu âm bản & độ tương phản chuẩn profile hãng'),
+                        title: const Text('Màu sắc và ánh sáng đạt chuẩn'),
                         controlAffinity: ListTileControlAffinity.leading,
                         dense: true,
                         activeColor: AppColors.secondary,
@@ -776,7 +846,7 @@ class _LabUploadScanTabState extends State<LabUploadScanTab> {
                       CheckboxListTile(
                         value: _qcDustScratch,
                         onChanged: (v) => setState(() => _qcDustScratch = v!),
-                        title: const Text('Đã chạy Digital ICE khử bụi quang học & xuất chuẩn 1080x720'),
+                        title: const Text('Ảnh sạch, không bụi xước'),
                         controlAffinity: ListTileControlAffinity.leading,
                         dense: true,
                         activeColor: AppColors.secondary,
@@ -798,19 +868,43 @@ class _LabUploadScanTabState extends State<LabUploadScanTab> {
                               label: const Text('Thu hồi & Ghi đè (24h)'),
                             ),
                           const Spacer(),
-                          ElevatedButton.icon(
-                            style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12)),
-                            onPressed: (_isUploading || _currentCustomerOrders.isEmpty) ? null : _submitUpload,
-                            icon: _isUploading
-                                ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                                : const Icon(Icons.cloud_upload, size: 16),
-                            label: Text(
-                              _currentCustomerOrders.isEmpty
-                                  ? 'Chưa có đơn bước 5. QC & Archive'
-                                  : (_isUploading
-                                      ? 'Đang đẩy $_selectedCount ảnh cho Đơn #${_orderIdController.text.trim()}...'
-                                      : 'Đẩy $_selectedCount ảnh chọn lên Drive → Gửi cho ${_currentCustomer['full_name']} (Đơn #${_orderIdController.text.trim()})'),
-                            ),
+                          Builder(
+                            builder: (context) {
+                              final hasPendingOrder = _selectedOrderId.isNotEmpty &&
+                                  _currentCustomerOrders.any(
+                                    (o) => o['order_id'] == _selectedOrderId && o['has_drive_link'] != 'true',
+                                  );
+                              final hasPhotos = _selectedCount >= 1;
+                              final canSubmit = !_isUploading && hasPendingOrder && hasPhotos;
+                              return ElevatedButton.icon(
+                                style: ElevatedButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                                  backgroundColor: canSubmit ? AppColors.primary : Colors.grey.shade400,
+                                  foregroundColor: Colors.white,
+                                  disabledBackgroundColor: Colors.grey.shade300,
+                                  disabledForegroundColor: Colors.grey.shade600,
+                                ),
+                                onPressed: canSubmit ? _submitUpload : null,
+                                icon: _isUploading
+                                    ? const SizedBox(
+                                        width: 16,
+                                        height: 16,
+                                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                                      )
+                                    : const Icon(Icons.cloud_upload, size: 16),
+                                label: Text(
+                                  _currentCustomerOrders.isEmpty
+                                      ? 'Chưa có đơn hoàn tất để gửi ảnh'
+                                      : (!hasPendingOrder
+                                          ? 'Đơn đã gửi link Drive (chọn đơn chưa gửi)'
+                                          : (!hasPhotos
+                                              ? 'Chưa chọn ảnh (chọn từ 1 tấm trở lên)'
+                                              : (_isUploading
+                                                  ? 'Đang đẩy $_selectedCount ảnh cho Đơn #${_orderIdController.text.trim()}...'
+                                                  : 'Đẩy $_selectedCount ảnh chọn lên Drive → Gửi cho ${_currentCustomer['full_name']} (Đơn #${_orderIdController.text.trim()})'))),
+                                ),
+                              );
+                            },
                           ),
                         ],
                       ),

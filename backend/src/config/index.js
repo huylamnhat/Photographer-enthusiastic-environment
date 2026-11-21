@@ -1,4 +1,5 @@
 const path = require('path');
+require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });
 require('dotenv').config();
 
 const rawServer = process.env.DB_SERVER || 'localhost\\SQLEXPRESS';
@@ -28,5 +29,26 @@ module.exports = {
       min: 0,
       idleTimeoutMillis: 30000,
     },
+  },
+  VNPAY: {
+    tmnCode: (process.env.VNP_TMN_CODE || process.env.VNP_TERMINAL_ID || '').trim(),
+    hashSecret: (process.env.VNP_HASH_SECRET || process.env.VNP_SECRET_KEY || '').trim(),
+    url: (process.env.VNP_URL || 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html').trim(),
+    apiUrl: (process.env.VNP_API_URL || 'https://sandbox.vnpayment.vn/merchant_webapi/api/transaction').trim(),
+    returnUrl: (process.env.VNP_RETURN_URL || '').trim(),
+    locale: (process.env.VNP_LOCALE || 'vn').trim(),
+  },
+  PAYMENT_QR: {
+    qrImageUrl: (process.env.PAYMENT_QR_IMAGE_URL || '').trim(),
+    bankName: (process.env.PAYMENT_BANK_NAME || '').trim(),
+    accountNo: (process.env.PAYMENT_ACCOUNT_NO || '').trim(),
+    accountName: (process.env.PAYMENT_ACCOUNT_NAME || '').trim(),
+  },
+  AHAMOVE: {
+    baseUrl: (process.env.AHAMOVE_BASE_URL || 'https://partner-apistg.ahamove.com/v3').trim(),
+    token: (process.env.AHAMOVE_TOKEN || '').trim(),
+    apiKey: (process.env.AHAMOVE_API_KEY || '').trim(),
+    mobile: (process.env.AHAMOVE_MOBILE || '').trim(),
+    allowProduction: process.env.AHAMOVE_ALLOW_PRODUCTION === 'true',
   },
 };

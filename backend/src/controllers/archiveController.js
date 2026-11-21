@@ -1,19 +1,20 @@
 const fs = require('fs');
 const { mockArchivePhotos, mockOrders, mockNotifications, mockUsers } = require('../data/mockStore');
 const { getDriveConfigStatus, updateDriveConfig, uploadFileToGoogleDrive, ensureRealDriveFolder, getValidAccessToken } = require('../services/googleDriveService');
+const { saveOrderDriveLinkRecord, getPersistedSentDriveLinks } = require('../config/db');
 
 function getKanbanStepLabel(kanbanColumn, status) {
   if (kanbanColumn === 'READY' || status === 'READY_FOR_DOWNLOAD' || status === 'COMPLETED') {
-    return '5. QC & Archive';
+    return '5. Hoàn tất';
   }
   switch (kanbanColumn) {
     case 'SCANNING':
-      return '4. Scan số hóa';
+      return '4. Quét ảnh';
     case 'DRYING':
     case 'QC':
       return '3. Sấy khô';
     case 'DEVELOPING':
-      return '2. Vào Tank / Tráng';
+      return '2. Tráng phim';
     case 'QUEUE':
     default:
       return '1. Tiếp nhận';
@@ -28,57 +29,102 @@ function isOrderReadyForQcArchive(o) {
   );
 }
 
+function isValidRealDriveLink(link) {
+  const s = String(link || '').trim();
+  if (!s || !s.startsWith('http')) return false;
+  if (
+    s.includes('1FilmLabArchive') ||
+    s.includes('1MiniLabDigitalArchive') ||
+    s.includes('/file/d/') ||
+    s.includes('/drive/my-drive')
+  ) {
+    return false;
+  }
+  return true;
+}
+
+function getExistingOrderDriveLink(order, userId = '', userEmail = '') {
+  if (!order) return '';
+  const cleanEmail = String(userEmail || '').toLowerCase();
+  const candidates = [
+    userId && order.drive_links_by_user?.[userId],
+    cleanEmail && order.drive_links_by_user?.[cleanEmail],
+    userId && order.drive_link_history_by_user?.[userId]?.[0],
+    cleanEmail && order.drive_link_history_by_user?.[cleanEmail]?.[0],
+    ...(order.drive_links_by_user ? Object.values(order.drive_links_by_user) : []),
+  ];
+  for (const c of candidates) {
+    if (isValidRealDriveLink(c)) return String(c).trim();
+  }
+  const photoMatch = mockArchivePhotos.find(p => {
+    if (String(p.order_id || '').toLowerCase() !== String(order.order_id || '').toLowerCase()) return false;
+    if (!isValidRealDriveLink(p.drive_link)) return false;
+    if (userId && p.user_id === userId) return true;
+    if (cleanEmail && String(p.recipient_email || '').toLowerCase() === cleanEmail) return true;
+    return false;
+  });
+  return photoMatch ? String(photoMatch.drive_link).trim() : '';
+}
+
 function getCustomerRecipientsList(filterLabId = '') {
   const scopedOrders = filterLabId
     ? mockOrders.filter(o => o.lab_id === filterLabId)
     : mockOrders;
 
-  const allOrdersFormatted = scopedOrders.map(o => {
-    const firstItem = (Array.isArray(o.items) && o.items[0]) || {};
-    const filmName = firstItem.film_name || 'Kodak Portra 400';
-    const rollCode = firstItem.roll_code || 'ROLL-135-01';
-    const pkgName = firstItem.name || 'Tráng & Scan Tiêu chuẩn';
-    const kanbanCol = o.kanban_column || 'QUEUE';
-    const stepLabel = getKanbanStepLabel(kanbanCol, o.status);
-    return {
-      order_id: o.order_id,
-      user_id: o.user_id || '',
-      customer_email: o.customer_email || '',
-      customer_name: o.customer_name || '',
-      lab_id: o.lab_id || '',
-      film_name: filmName,
-      roll_code: rollCode,
-      package_name: pkgName,
-      status: o.status || 'RECEIVED',
-      kanban_column: kanbanCol,
-      step_label: stepLabel,
-      lab_name: o.lab_name || 'CropLab Hà Nội',
-      order_date: o.order_date || '',
-      label: `#${o.order_id} • ${filmName} (${rollCode}) [${stepLabel}]`,
-    };
-  });
-
   const customers = mockUsers
     .filter(u => (u.role === 'Customer' || u.role === 'Expert') && u.status !== 'LOCKED')
     .map(u => {
       // Strictly match ONLY orders owned by this customer AT THIS LAB (never share customer records across labs)
-      const ownOrders = allOrdersFormatted.filter(
+      const ownRawOrders = scopedOrders.filter(
         o =>
           (u.user_id && o.user_id === u.user_id) ||
           (u.email && o.customer_email && o.customer_email.toLowerCase() === u.email.toLowerCase())
       );
-      if (filterLabId && ownOrders.length === 0) {
+      if (filterLabId && ownRawOrders.length === 0) {
         return null;
       }
+
+      const ownOrders = ownRawOrders.map(o => {
+        const firstItem = (Array.isArray(o.items) && o.items[0]) || {};
+        const filmName = firstItem.film_name || 'Kodak Portra 400';
+        const rollCode = firstItem.roll_code || 'ROLL-135-01';
+        const pkgName = firstItem.name || 'Tráng & Scan Tiêu chuẩn';
+        const kanbanCol = o.kanban_column || 'QUEUE';
+        const stepLabel = getKanbanStepLabel(kanbanCol, o.status);
+        const existingDriveLink = getExistingOrderDriveLink(o, u.user_id, u.email);
+        const hasDriveLink = Boolean(existingDriveLink);
+        return {
+          order_id: o.order_id,
+          user_id: o.user_id || '',
+          customer_email: o.customer_email || '',
+          customer_name: o.customer_name || '',
+          lab_id: o.lab_id || '',
+          film_name: filmName,
+          roll_code: rollCode,
+          package_name: pkgName,
+          status: o.status || 'RECEIVED',
+          kanban_column: kanbanCol,
+          step_label: stepLabel,
+          lab_name: o.lab_name || 'CropLab Hà Nội',
+          order_date: o.order_date || '',
+          has_drive_link: hasDriveLink,
+          drive_link: existingDriveLink,
+          label: hasDriveLink
+            ? `#${o.order_id} • ${filmName} (${rollCode}) [Đã gửi link]`
+            : `#${o.order_id} • ${filmName} (${rollCode}) [${stepLabel}]`,
+        };
+      });
+
       const readyOrders = ownOrders.filter(isOrderReadyForQcArchive);
       const inProgressOrders = ownOrders.filter(o => !isOrderReadyForQcArchive(o));
+      const firstPendingReady = readyOrders.find(o => !o.has_drive_link);
 
       return {
         user_id: u.user_id,
         full_name: u.full_name,
         email: u.email,
         phone: u.phone || '',
-        order_id: readyOrders[0]?.order_id || '',
+        order_id: firstPendingReady?.order_id || '',
         orders: readyOrders,
         in_progress_orders: inProgressOrders,
         total_orders_count: ownOrders.length,
@@ -190,6 +236,7 @@ exports.getAlbums = (req, res) => {
 };
 
 exports.getGoogleDriveConfig = async (req, res) => {
+  res.set('Cache-Control', 'no-store');
   try {
     const cfg = getDriveConfigStatus();
     if (!cfg.folder_id && cfg.is_live_api_ready) {
@@ -204,6 +251,7 @@ exports.getGoogleDriveConfig = async (req, res) => {
       ...getDriveConfigStatus(),
       lab_id: filterLabId,
       customers: getCustomerRecipientsList(filterLabId),
+      sent_links_history: getPersistedSentDriveLinks(filterLabId),
     }
   });
 };
@@ -261,7 +309,7 @@ exports.uploadScan = async (req, res) => {
   if (!order_id || !String(order_id).trim()) {
     return res.status(400).json({
       success: false,
-      message: 'Vui lòng chọn một đơn hàng đã đến bước 5. QC & Archive của khách hàng để gửi link ảnh!',
+      message: 'Vui lòng chọn một đơn hàng đã hoàn tất của khách hàng để gửi ảnh.',
     });
   }
   const targetOrderId = String(order_id).trim();
@@ -293,6 +341,13 @@ exports.uploadScan = async (req, res) => {
     return res.status(400).json({
       success: false,
       message: `Đơn hàng #${matchingOrder.order_id} hiện đang ở bước ${stepLabel}, chưa đến bước 5. QC & Archive. Vui lòng giữ nguyên hoặc chuyển đơn sang bước 5. QC & Archive trên bảng Kanban trước khi gửi link!`,
+    });
+  }
+
+  if (getExistingOrderDriveLink(matchingOrder, targetUserId, targetUserEmail)) {
+    return res.status(400).json({
+      success: false,
+      message: `Đơn hàng #${matchingOrder.order_id} đã được gửi link ảnh Google Drive rồi, vui lòng chọn đơn hàng khác!`,
     });
   }
 
@@ -404,6 +459,19 @@ exports.uploadScan = async (req, res) => {
       });
     }
   }
+
+  await saveOrderDriveLinkRecord({
+    order_code: newPhoto.order_id,
+    user_code: targetUserId,
+    recipient_email: targetUserEmail,
+    customer_name: targetUserName,
+    lab_id: matchingOrder?.lab_id || currentLabId || '',
+    drive_link: resolvedDriveLink,
+    roll_code: orderRollCode,
+    photo_count: createdPhotos.length,
+    drive_mode: driveResult.mode,
+    created_at: newPhoto.created_at,
+  });
 
   mockNotifications.unshift({
     notification_id: `NTF-ARC-${Date.now()}`,

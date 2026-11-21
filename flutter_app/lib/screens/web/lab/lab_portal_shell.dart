@@ -1,9 +1,11 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/services/web_api_service.dart';
 import '../../../providers/auth_provider.dart';
+import '../portal_notification_bell.dart';
 import '../web_login_screen.dart';
 import 'lab_kanban_tab.dart';
 import 'lab_upload_scan_tab.dart';
@@ -24,11 +26,29 @@ class _LabPortalShellState extends State<LabPortalShell> {
   String _labName = '';
   String _labBranch = '';
   String _labCode = '';
+  List<dynamic> _notifications = [];
+  Timer? _notifTimer;
 
   @override
   void initState() {
     super.initState();
     _loadLabHeader();
+    _loadLabNotifications();
+    _notifTimer = Timer.periodic(const Duration(seconds: 20), (_) => _loadLabNotifications());
+  }
+
+  @override
+  void dispose() {
+    _notifTimer?.cancel();
+    super.dispose();
+  }
+
+  Future<List<dynamic>> _loadLabNotifications() async {
+    final items = await WebApiService().getLabNotifications();
+    if (mounted) {
+      setState(() => _notifications = items);
+    }
+    return items;
   }
 
   Future<void> _loadLabHeader() async {
@@ -53,12 +73,12 @@ class _LabPortalShellState extends State<LabPortalShell> {
   ];
 
   final List<Map<String, String>> _menuItems = [
-    {'title': '1. Tiếp nhận & Phân loại', 'code': 'WEB-LAB-03', 'icon': 'view_kanban'},
-    {'title': '2. Tải file scan & QC', 'code': 'WEB-LAB-04', 'icon': 'cloud_upload'},
-    {'title': '3. Dịch vụ & Bảng tráng', 'code': 'WEB-LAB-05', 'icon': 'price_change'},
-    {'title': '4. Hồ sơ tiệm công khai', 'code': 'WEB-LAB-06', 'icon': 'storefront'},
-    {'title': '5. Xử lý khiếu nại', 'code': 'WEB-LAB-07', 'icon': 'report_problem'},
-    {'title': '6. Lịch sử đơn & SLA', 'code': 'WEB-LAB-08', 'icon': 'history_toggle_off'},
+    {'title': '1. Tiếp nhận & Xử lý', 'icon': 'view_kanban'},
+    {'title': '2. Gửi ảnh cho khách', 'icon': 'cloud_upload'},
+    {'title': '3. Dịch vụ & Bảng giá', 'icon': 'price_change'},
+    {'title': '4. Hồ sơ tiệm', 'icon': 'storefront'},
+    {'title': '5. Khiếu nại', 'icon': 'report_problem'},
+    {'title': '6. Lịch sử & Hiệu suất', 'icon': 'history_toggle_off'},
   ];
 
   @override
@@ -126,7 +146,7 @@ class _LabPortalShellState extends State<LabPortalShell> {
 
                 const Padding(
                   padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
-                  child: Text('QUY TRÌNH PHÒNG TỐI (DARKROOM)', style: AppTypography.labelCaps),
+                  child: Text('QUẢN LÝ TIỆM', style: AppTypography.labelCaps),
                 ),
 
                 // Nav Items
@@ -140,7 +160,10 @@ class _LabPortalShellState extends State<LabPortalShell> {
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 2),
                         child: InkWell(
-                          onTap: () => setState(() => _selectedTabIndex = idx),
+                          onTap: () {
+                            setState(() => _selectedTabIndex = idx);
+                            _loadLabNotifications();
+                          },
                           borderRadius: BorderRadius.circular(8),
                           child: Container(
                             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
@@ -148,26 +171,13 @@ class _LabPortalShellState extends State<LabPortalShell> {
                               color: isSelected ? AppColors.surfaceSunken : Colors.transparent,
                               borderRadius: BorderRadius.circular(8),
                             ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  item['title']!,
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-                                    color: isSelected ? AppColors.primary : AppColors.ink,
-                                  ),
-                                ),
-                                Text(
-                                  item['code']!,
-                                  style: TextStyle(
-                                    fontFamilyFallback: AppTypography.fontMono,
-                                    fontSize: 10,
-                                    color: isSelected ? AppColors.primary : AppColors.outline,
-                                  ),
-                                ),
-                              ],
+                            child: Text(
+                              item['title']!,
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                                color: isSelected ? AppColors.primary : AppColors.ink,
+                              ),
                             ),
                           ),
                         ),
@@ -186,12 +196,12 @@ class _LabPortalShellState extends State<LabPortalShell> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text('LAB-OPS // v4.8.2', style: AppTypography.dataMono),
+                      const Text('MINILAB', style: AppTypography.dataMono),
                       Row(
                         children: [
                           Container(width: 8, height: 8, decoration: const BoxDecoration(color: AppColors.secondary, shape: BoxShape.circle)),
                           const SizedBox(width: 6),
-                          const Text('ONLINE', style: TextStyle(color: AppColors.secondary, fontSize: 11, fontWeight: FontWeight.bold)),
+                          const Text('Đang hoạt động', style: TextStyle(color: AppColors.secondary, fontSize: 11, fontWeight: FontWeight.bold)),
                         ],
                       ),
                     ],
@@ -264,6 +274,17 @@ class _LabPortalShellState extends State<LabPortalShell> {
                             ),
                           ),
                           const SizedBox(width: 16),
+
+                          PortalNotificationBell(
+                            notifications: _notifications,
+                            onRefresh: _loadLabNotifications,
+                            onNavigateTab: (idx) {
+                              setState(() => _selectedTabIndex = idx);
+                              _loadLabNotifications();
+                            },
+                            title: 'Thông báo Tiệm Lab',
+                          ),
+                          const SizedBox(width: 8),
 
                           Row(
                             children: [

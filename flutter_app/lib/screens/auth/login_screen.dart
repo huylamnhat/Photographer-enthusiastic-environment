@@ -113,14 +113,14 @@ class _LoginScreenState extends State<LoginScreen> {
                   const SizedBox(height: 12),
                   Center(
                     child: Text(
-                      'MINILAB ARCHIVE',
-                      style: AppTypography.cardTitle.copyWith(letterSpacing: 1.5, fontSize: 13),
+                      'MINILAB',
+                      style: AppTypography.cardTitle.copyWith(letterSpacing: 1.5, fontSize: 14),
                     ),
                   ),
                   const SizedBox(height: 4),
                   Center(
                     child: Text(
-                      'Hệ sinh thái tráng film & Lưu trữ số vĩnh viễn',
+                      'Tráng phim & nhận ảnh trực tuyến',
                       style: AppTypography.bodySmall.copyWith(color: AppColors.inkMuted),
                     ),
                   ),

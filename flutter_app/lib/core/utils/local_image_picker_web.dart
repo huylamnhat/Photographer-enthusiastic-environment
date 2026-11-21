@@ -57,7 +57,10 @@ Future<String> _resizeTo1080x720Jpeg(String originalDataUrl) async {
   }
 }
 
-Future<List<PickedLocalImage>> pickLocalImagesFromComputer({bool multiple = true}) async {
+Future<List<PickedLocalImage>> pickLocalImagesFromComputer({
+  bool multiple = true,
+  bool preserveOriginal = false,
+}) async {
   final completer = Completer<List<PickedLocalImage>>();
   final input = html.FileUploadInputElement()
     ..accept = 'image/*'
@@ -82,11 +85,11 @@ Future<List<PickedLocalImage>> pickLocalImagesFromComputer({bool multiple = true
       reader.readAsDataUrl(file);
       final rawDataUrl = await fileCompleter.future;
       if (rawDataUrl != null && rawDataUrl.isNotEmpty) {
-        final resizedDataUrl = await _resizeTo1080x720Jpeg(rawDataUrl);
+        final finalDataUrl = preserveOriginal ? rawDataUrl : await _resizeTo1080x720Jpeg(rawDataUrl);
         results.add(
           PickedLocalImage(
             name: file.name,
-            dataUrl: resizedDataUrl,
+            dataUrl: finalDataUrl,
             sizeBytes: file.size,
           ),
         );

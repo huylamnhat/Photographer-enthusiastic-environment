@@ -28,10 +28,6 @@ class _LabDetailScreenState extends State<LabDetailScreen> {
     super.initState();
     _resolvedLab = widget.lab;
     _loadLabDetail();
-    _refreshTimer = Timer.periodic(
-      const Duration(seconds: 5),
-      (_) => _loadLabDetail(silent: true),
-    );
   }
 
   @override
@@ -462,7 +458,7 @@ class _LabDetailScreenState extends State<LabDetailScreen> {
               _buildMetricPill(
                 icon: Icons.schedule_rounded,
                 iconColor: AppColors.secondary,
-                label: 'SLA ${lab.turnaroundHours}h',
+                label: 'Trả ảnh ${lab.turnaroundHours}h',
               ),
               const SizedBox(width: 8),
               if (lab.city.isNotEmpty)
@@ -632,7 +628,7 @@ class _LabDetailScreenState extends State<LabDetailScreen> {
                     ),
                   ),
                   Text(
-                    'SLA ${sla}h',
+                    'Trả ảnh ${sla}h',
                     style: AppTypography.dataMono.copyWith(color: AppColors.secondary, fontWeight: FontWeight.w600),
                   ),
                 ],
@@ -733,7 +729,7 @@ class _LabDetailScreenState extends State<LabDetailScreen> {
                     _buildTag(pkg.filmFormat),
                     _buildTag(pkg.processType),
                     _buildTag(pkg.scanResolution),
-                    _buildTag('SLA ${pkg.estimatedHours}h', isAccent: true),
+                    _buildTag('Trả ảnh ${pkg.estimatedHours}h', isAccent: true),
                   ],
                 ),
                 if (pkg.description.isNotEmpty) ...[

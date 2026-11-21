@@ -33,7 +33,8 @@ class WebApiService {
 
   Future<List<dynamic>> getAdminPendingLabs() async {
     try {
-      final res = await http.get(Uri.parse('${ApiConstants.baseUrl}/admin/pending-labs'), headers: _headers());
+      final ts = DateTime.now().millisecondsSinceEpoch;
+      final res = await http.get(Uri.parse('${ApiConstants.baseUrl}/admin/pending-labs?_t=$ts'), headers: _headers());
       final data = jsonDecode(res.body);
       if (data['success'] == true && data['data'] is List) return data['data'];
     } catch (_) {}
@@ -56,7 +57,8 @@ class WebApiService {
 
   Future<List<dynamic>> getAdminExpertApplications() async {
     try {
-      final res = await http.get(Uri.parse('${ApiConstants.baseUrl}/admin/expert-applications'), headers: _headers());
+      final ts = DateTime.now().millisecondsSinceEpoch;
+      final res = await http.get(Uri.parse('${ApiConstants.baseUrl}/admin/expert-applications?_t=$ts'), headers: _headers());
       final data = jsonDecode(res.body);
       if (data['success'] == true && data['data'] is List) return data['data'];
     } catch (_) {}
@@ -132,7 +134,8 @@ class WebApiService {
 
   Future<List<dynamic>> getAdminReportedPosts() async {
     try {
-      final res = await http.get(Uri.parse('${ApiConstants.baseUrl}/admin/community/reports'), headers: _headers());
+      final ts = DateTime.now().millisecondsSinceEpoch;
+      final res = await http.get(Uri.parse('${ApiConstants.baseUrl}/admin/community/reports?_t=$ts'), headers: _headers());
       final data = jsonDecode(res.body);
       if (data['success'] == true && data['data'] is List) return data['data'];
     } catch (_) {}
@@ -195,17 +198,124 @@ class WebApiService {
     return {'standards': [], 'packages': []};
   }
 
+  Future<List<dynamic>> getAdminNotifications() async {
+    try {
+      final ts = DateTime.now().millisecondsSinceEpoch;
+      final res = await http.get(
+        Uri.parse('${ApiConstants.baseUrl}/admin/notifications?_t=$ts'),
+        headers: _headers(),
+      );
+      final data = jsonDecode(res.body);
+      if (data['success'] == true && data['data'] is List) return data['data'];
+    } catch (_) {}
+    return [];
+  }
+
   // ================= LAB MANAGEMENT PORTAL APIS =================
+  Future<List<dynamic>> getLabNotifications() async {
+    try {
+      final ts = DateTime.now().millisecondsSinceEpoch;
+      final res = await http.get(
+        Uri.parse('${ApiConstants.baseUrl}/lab-portal/notifications?_t=$ts'),
+        headers: _headers(),
+      );
+      final data = jsonDecode(res.body);
+      if (data['success'] == true && data['data'] is List) return data['data'];
+    } catch (_) {}
+    return [];
+  }
   Future<Map<String, dynamic>> getLabKanban() async {
     try {
-      final res = await http.get(Uri.parse('${ApiConstants.baseUrl}/lab-portal/kanban'), headers: _headers());
+      final ts = DateTime.now().millisecondsSinceEpoch;
+      final res = await http.get(
+        Uri.parse('${ApiConstants.baseUrl}/lab-portal/kanban?_t=$ts'),
+        headers: _headers(),
+      );
       final data = jsonDecode(res.body);
       if (data['success'] == true && data['data'] is Map<String, dynamic>) return data['data'];
     } catch (_) {}
     return {};
   }
 
-  Future<bool> updateKanbanStep(String orderId, String column, {String? note}) async {
+  Future<Map<String, dynamic>> cancelLabPendingOrder(String orderId, {String? reason}) async {
+    try {
+      final res = await http.post(
+        Uri.parse('${ApiConstants.baseUrl}/lab-portal/orders/$orderId/cancel'),
+        headers: _headers(),
+        body: jsonEncode({if (reason != null && reason.isNotEmpty) 'reason': reason}),
+      );
+      final data = jsonDecode(res.body);
+      if (data is Map<String, dynamic>) return data;
+    } catch (e) {
+      return {'success': false, 'message': 'Lỗi kết nối: $e'};
+    }
+    return {'success': false, 'message': 'Không thể hủy đơn hàng'};
+  }
+
+  Future<Map<String, dynamic>> confirmLabPendingOrderPayment(String orderId, {String? note}) async {
+    try {
+      final res = await http.post(
+        Uri.parse('${ApiConstants.baseUrl}/lab-portal/orders/$orderId/confirm-payment'),
+        headers: _headers(),
+        body: jsonEncode({if (note != null && note.isNotEmpty) 'note': note}),
+      );
+      final data = jsonDecode(res.body);
+      if (data is Map<String, dynamic>) return data;
+    } catch (e) {
+      return {'success': false, 'message': 'Lỗi kết nối: $e'};
+    }
+    return {'success': false, 'message': 'Không thể xác nhận thanh toán'};
+  }
+
+  Future<Map<String, dynamic>> bookLabAhamovePickup(String orderId) async {
+    try {
+      final cleanId = orderId.replaceAll('#', '');
+      final res = await http.post(
+        Uri.parse('${ApiConstants.baseUrl}/shipping/ahamove/orders/$cleanId/book'),
+        headers: _headers(),
+        body: jsonEncode({}),
+      );
+      final data = jsonDecode(res.body);
+      if (data is Map<String, dynamic>) return data;
+    } catch (e) {
+      return {'success': false, 'message': 'Lỗi gọi AhaMove: $e'};
+    }
+    return {'success': false, 'message': 'Không thể đặt tài xế AhaMove'};
+  }
+
+  Future<Map<String, dynamic>> cancelLabAhamovePickup(String orderId) async {
+    try {
+      final cleanId = orderId.replaceAll('#', '');
+      final res = await http.post(
+        Uri.parse('${ApiConstants.baseUrl}/shipping/ahamove/orders/$cleanId/cancel'),
+        headers: _headers(),
+        body: jsonEncode({'comment': 'Tiệm Lab hủy đơn lấy hàng'}),
+      );
+      final data = jsonDecode(res.body);
+      if (data is Map<String, dynamic>) return data;
+    } catch (e) {
+      return {'success': false, 'message': 'Lỗi hủy AhaMove: $e'};
+    }
+    return {'success': false, 'message': 'Không thể hủy vận đơn AhaMove'};
+  }
+
+  Future<Map<String, dynamic>> syncLabAhamoveStatus(String orderId) async {
+    try {
+      final cleanId = orderId.replaceAll('#', '');
+      final ts = DateTime.now().millisecondsSinceEpoch;
+      final res = await http.get(
+        Uri.parse('${ApiConstants.baseUrl}/shipping/ahamove/orders/$cleanId?_t=$ts'),
+        headers: _headers(),
+      );
+      final data = jsonDecode(res.body);
+      if (data is Map<String, dynamic>) return data;
+    } catch (e) {
+      return {'success': false, 'message': 'Lỗi đồng bộ AhaMove: $e'};
+    }
+    return {'success': false, 'message': 'Không thể đồng bộ trạng thái vận đơn'};
+  }
+
+  Future<Map<String, dynamic>> updateKanbanStepWithResult(String orderId, String column, {String? note}) async {
     try {
       final res = await http.post(
         Uri.parse('${ApiConstants.baseUrl}/lab-portal/orders/$orderId/kanban-step'),
@@ -213,10 +323,16 @@ class WebApiService {
         body: jsonEncode({'column': column, 'note': note}),
       );
       final data = jsonDecode(res.body);
-      return data['success'] == true;
-    } catch (_) {
-      return false;
+      if (data is Map<String, dynamic>) return data;
+    } catch (e) {
+      return {'success': false, 'message': 'Lỗi cập nhật trạng thái: $e'};
     }
+    return {'success': false, 'message': 'Không thể chuyển bước xử lý'};
+  }
+
+  Future<bool> updateKanbanStep(String orderId, String column, {String? note}) async {
+    final res = await updateKanbanStepWithResult(orderId, column, note: note);
+    return res['success'] == true;
   }
 
   Future<Map<String, dynamic>> getLabSlaReport() async {
@@ -378,8 +494,9 @@ class WebApiService {
 
   Future<Map<String, dynamic>> getGoogleDriveConfig() async {
     try {
+      final ts = DateTime.now().millisecondsSinceEpoch;
       final res = await http.get(
-        Uri.parse('${ApiConstants.baseUrl}/archive/google-drive/config'),
+        Uri.parse('${ApiConstants.baseUrl}/archive/google-drive/config?_t=$ts'),
         headers: _headers(),
       );
       final data = jsonDecode(res.body);

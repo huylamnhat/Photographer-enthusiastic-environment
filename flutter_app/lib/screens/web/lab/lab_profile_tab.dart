@@ -1,8 +1,12 @@
+import 'dart:convert';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../core/constants/api_constants.dart';
 import '../../../core/mock/mock_test_assets.dart';
 import '../../../core/services/web_api_service.dart';
+import '../../../core/utils/local_image_picker.dart';
 
 class LabProfileTab extends StatefulWidget {
   const LabProfileTab({super.key});
@@ -19,6 +23,11 @@ class _LabProfileTabState extends State<LabProfileTab> {
   final _negativeDaysCtrl = TextEditingController(text: '30');
   final _scanDaysCtrl = TextEditingController(text: '60');
   final _hoursCtrl = TextEditingController(text: '08:30 - 20:00 (Hàng ngày)');
+  final _qrUrlCtrl = TextEditingController();
+  final _bankNameCtrl = TextEditingController();
+  final _accountNoCtrl = TextEditingController();
+  final _accountNameCtrl = TextEditingController();
+  String? _pendingQrBase64;
   double _rating = 4.9;
 
   @override
@@ -35,8 +44,76 @@ class _LabProfileTabState extends State<LabProfileTab> {
       _phoneCtrl.text = (p['phone'] ?? '').toString();
       _emailCtrl.text = (p['email'] ?? '').toString();
       _addressCtrl.text = (p['address'] ?? '').toString();
+      _qrUrlCtrl.text = (p['qr_image_url'] ?? '').toString();
+      _bankNameCtrl.text = (p['bank_name'] ?? '').toString();
+      _accountNoCtrl.text = (p['account_no'] ?? '').toString();
+      _accountNameCtrl.text = (p['account_name'] ?? '').toString();
+      _pendingQrBase64 = null;
       _rating = (p['rating'] as num?)?.toDouble() ?? 4.9;
     });
+  }
+
+  Future<void> _pickQrImage() async {
+    final picked = await pickLocalImagesFromComputer(multiple: false, preserveOriginal: true);
+    if (!mounted || picked.isEmpty) return;
+    setState(() {
+      _pendingQrBase64 = picked.first.dataUrl;
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Đã chọn ảnh QR: ${picked.first.name}. Hãy bấm "Lưu thay đổi hồ sơ" để lưu lên hệ thống.')),
+    );
+  }
+
+  String _resolvePreviewQrUrl(String raw) {
+    final trimmed = raw.trim();
+    if (trimmed.isEmpty) return '';
+    if (trimmed.startsWith('/')) {
+      final origin = ApiConstants.baseUrl.replaceFirst(RegExp(r'/api/?$'), '');
+      return '$origin$trimmed';
+    }
+    return trimmed;
+  }
+
+  Widget _buildQrPreviewBox() {
+    final base64Src = _pendingQrBase64;
+    if (base64Src != null && base64Src.contains(',')) {
+      try {
+        final bytes = Uint8List.fromList(base64Decode(base64Src.split(',').last));
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: Image.memory(bytes, width: 150, height: 150, fit: BoxFit.contain),
+        );
+      } catch (_) {}
+    }
+
+    final resolvedUrl = _resolvePreviewQrUrl(_qrUrlCtrl.text);
+    if (resolvedUrl.isNotEmpty) {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(8),
+        child: Image.network(
+          resolvedUrl,
+          width: 150,
+          height: 150,
+          fit: BoxFit.contain,
+          errorBuilder: (_, __, ___) => const Icon(Icons.broken_image_outlined, size: 42, color: AppColors.inkMuted),
+        ),
+      );
+    }
+
+    return Container(
+      width: 150,
+      height: 150,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: AppColors.surfaceSunken,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: AppColors.outline),
+      ),
+      child: Text(
+        'Chưa có ảnh QR',
+        style: AppTypography.caption.copyWith(color: AppColors.inkMuted),
+      ),
+    );
   }
 
   @override
@@ -52,9 +129,7 @@ class _LabProfileTabState extends State<LabProfileTab> {
               const Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('WEB-LAB-06 // HỒ SƠ TIỆM LAB CÔNG KHAI (SQL SERVER)', style: AppTypography.labelCaps),
-                  SizedBox(height: 4),
-                  Text('Cấu hình Thông Tin Tiệm & Chính Sách Lưu Bản Âm', style: AppTypography.pageTitle),
+                  Text('Thông tin tiệm Lab', style: AppTypography.pageTitle),
                 ],
               ),
               ElevatedButton.icon(
@@ -64,11 +139,16 @@ class _LabProfileTabState extends State<LabProfileTab> {
                     'phone': _phoneCtrl.text,
                     'email': _emailCtrl.text,
                     'address': _addressCtrl.text,
+                    'qr_image_url': _qrUrlCtrl.text.trim(),
+                    if (_pendingQrBase64 != null) 'qr_image_base64': _pendingQrBase64,
+                    'bank_name': _bankNameCtrl.text.trim(),
+                    'account_no': _accountNoCtrl.text.trim(),
+                    'account_name': _accountNameCtrl.text.trim(),
                   });
+                  await _loadProfile();
                   if (!context.mounted) return;
-                  setState(() {});
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Đã cập nhật hồ sơ công khai của tiệm lên cơ sở dữ liệu!')),
+                    const SnackBar(content: Text('Đã cập nhật hồ sơ & mã QR thanh toán của tiệm lên cơ sở dữ liệu!')),
                   );
                 },
                 icon: const Icon(Icons.save, size: 16),
@@ -131,6 +211,88 @@ class _LabProfileTabState extends State<LabProfileTab> {
                                 labelText: 'LƯU FILE CLOUD (NGÀY)',
                                 helperText: 'Thời hạn file scan gốc lưu trữ trên Cloud',
                               ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 24),
+                      const Divider(color: AppColors.outline),
+                      const SizedBox(height: 16),
+                      const Text(
+                        'MÃ QR NHẬN CHUYỂN KHOẢN TRỰC TIẾP (NV TỰ KIỂM TRA TIỀN VÀO, KHÔNG QUA VÍ LAB):',
+                        style: AppTypography.labelCaps,
+                      ),
+                      const SizedBox(height: 12),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildQrPreviewBox(),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Wrap(
+                                  spacing: 8,
+                                  runSpacing: 8,
+                                  children: [
+                                    ElevatedButton.icon(
+                                      onPressed: _pickQrImage,
+                                      icon: const Icon(Icons.upload_file, size: 16),
+                                      label: const Text('Tải ảnh QR của bạn lên'),
+                                    ),
+                                    if (_pendingQrBase64 != null || _qrUrlCtrl.text.isNotEmpty)
+                                      OutlinedButton.icon(
+                                        onPressed: () {
+                                          setState(() {
+                                            _pendingQrBase64 = null;
+                                            _qrUrlCtrl.clear();
+                                          });
+                                        },
+                                        icon: const Icon(Icons.delete_outline, size: 16, color: AppColors.danger),
+                                        label: const Text('Xóa ảnh QR', style: TextStyle(color: AppColors.danger)),
+                                      ),
+                                  ],
+                                ),
+                                const SizedBox(height: 10),
+                                TextField(
+                                  controller: _qrUrlCtrl,
+                                  onChanged: (_) => setState(() {}),
+                                  decoration: const InputDecoration(
+                                    labelText: 'HOẶC DÁN LINK ẢNH QR',
+                                    hintText: 'https://... hoặc để trống nếu tải ảnh từ máy',
+                                  ),
+                                ),
+                                const SizedBox(height: 10),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: TextField(
+                                        controller: _bankNameCtrl,
+                                        decoration: const InputDecoration(
+                                          labelText: 'NGÂN HÀNG (VD: VCB, MB, TCB)',
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 10),
+                                    Expanded(
+                                      child: TextField(
+                                        controller: _accountNoCtrl,
+                                        decoration: const InputDecoration(
+                                          labelText: 'SỐ TÀI KHOẢN',
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 10),
+                                TextField(
+                                  controller: _accountNameCtrl,
+                                  decoration: const InputDecoration(
+                                    labelText: 'TÊN CHỦ TÀI KHOẢN',
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ],

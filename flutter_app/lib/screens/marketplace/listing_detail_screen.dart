@@ -98,7 +98,7 @@ class ListingDetailScreen extends StatelessWidget {
                   const SizedBox(height: 16),
 
                   // Mechanical Inspection Checklist (Stitch APP-CUS-17)
-                  Text('BIÊN BẢN TIỀN KIỂM CƠ HỌC (MINILAB AUDIT)', style: AppTypography.sectionHeading.copyWith(fontSize: 12)),
+                  Text('KIỂM TRA TÌNH TRẠNG MÁY', style: AppTypography.sectionHeading.copyWith(fontSize: 12)),
                   const SizedBox(height: 8),
                   Container(
                     padding: const EdgeInsets.all(12),

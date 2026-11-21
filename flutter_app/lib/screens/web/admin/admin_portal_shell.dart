@@ -1,6 +1,9 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../core/services/web_api_service.dart';
+import '../portal_notification_bell.dart';
 import '../web_login_screen.dart';
 import 'admin_overview_tab.dart';
 import 'admin_users_tab.dart';
@@ -20,9 +23,35 @@ class AdminPortalShell extends StatefulWidget {
 
 class _AdminPortalShellState extends State<AdminPortalShell> {
   int _selectedTabIndex = 0;
+  List<dynamic> _notifications = [];
+  Timer? _notifTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadNotifications();
+    _notifTimer = Timer.periodic(const Duration(seconds: 20), (_) => _loadNotifications());
+  }
+
+  @override
+  void dispose() {
+    _notifTimer?.cancel();
+    super.dispose();
+  }
+
+  Future<List<dynamic>> _loadNotifications() async {
+    final items = await WebApiService().getAdminNotifications();
+    if (mounted) {
+      setState(() => _notifications = items);
+    }
+    return items;
+  }
 
   late final List<Widget> _tabs = [
-    AdminOverviewTab(onNavigateTab: (idx) => setState(() => _selectedTabIndex = idx)),
+    AdminOverviewTab(onNavigateTab: (idx) {
+      setState(() => _selectedTabIndex = idx);
+      _loadNotifications();
+    }),
     const AdminUsersTab(),
     const AdminLabApprovalTab(),
     const AdminMarketplaceTab(),
@@ -33,14 +62,14 @@ class _AdminPortalShellState extends State<AdminPortalShell> {
   ];
 
   final List<Map<String, String>> _menuItems = [
-    {'title': '1. Tổng quan vận hành', 'code': 'ADM-02'},
-    {'title': '2. Tài khoản & Phân quyền', 'code': 'ADM-03'},
-    {'title': '3. Thẩm định đối tác', 'code': 'ADM-04'},
-    {'title': '4. Kiểm duyệt sàn mua bán', 'code': 'ADM-05'},
-    {'title': '5. Hậu kiểm cộng đồng', 'code': 'ADM-06'},
-    {'title': '6. Danh mục kỹ thuật & Lab', 'code': 'ADM-07'},
-    {'title': '7. Khiếu nại & Hoàn tiền', 'code': 'ADM-08'},
-    {'title': '8. Nhật ký kiểm toán', 'code': 'ADM-09'},
+    {'title': '1. Tổng quan vận hành'},
+    {'title': '2. Tài khoản & Phân quyền'},
+    {'title': '3. Phê duyệt đối tác'},
+    {'title': '4. Kiểm duyệt sàn mua bán'},
+    {'title': '5. Kiểm duyệt cộng đồng'},
+    {'title': '6. Dịch vụ & Quy chuẩn'},
+    {'title': '7. Khiếu nại & Hoàn tiền'},
+    {'title': '8. Nhật ký hệ thống'},
   ];
 
   @override
@@ -73,7 +102,7 @@ class _AdminPortalShellState extends State<AdminPortalShell> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           const Text(
-                            'MINILAB ARCHIVE',
+                            'MINILAB',
                             style: TextStyle(
                               fontFamilyFallback: AppTypography.fontSans,
                               fontWeight: FontWeight.bold,
@@ -89,7 +118,7 @@ class _AdminPortalShellState extends State<AdminPortalShell> {
                               borderRadius: BorderRadius.circular(4),
                             ),
                             child: const Text(
-                              'SYS.ADM',
+                              'ADMIN',
                               style: TextStyle(
                                 fontFamilyFallback: AppTypography.fontMono,
                                 color: Colors.white,
@@ -102,7 +131,7 @@ class _AdminPortalShellState extends State<AdminPortalShell> {
                       ),
                       const SizedBox(height: 4),
                       const Text(
-                        'HỆ THỐNG VẬN HÀNH',
+                        'QUẢN TRỊ HỆ THỐNG',
                         style: TextStyle(
                           fontFamilyFallback: AppTypography.fontMono,
                           fontSize: 10,
@@ -118,7 +147,7 @@ class _AdminPortalShellState extends State<AdminPortalShell> {
                 const Padding(
                   padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
                   child: Text(
-                    'SỔ QUẢN TRỊ & ĐIỀU HÀNH',
+                    'DANH MỤC QUẢN LÝ',
                     style: TextStyle(
                       fontFamilyFallback: AppTypography.fontMono,
                       fontSize: 10,
@@ -140,7 +169,10 @@ class _AdminPortalShellState extends State<AdminPortalShell> {
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 2),
                         child: InkWell(
-                          onTap: () => setState(() => _selectedTabIndex = idx),
+                          onTap: () {
+                            setState(() => _selectedTabIndex = idx);
+                            _loadNotifications();
+                          },
                           borderRadius: BorderRadius.circular(8),
                           child: Container(
                             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
@@ -148,27 +180,13 @@ class _AdminPortalShellState extends State<AdminPortalShell> {
                               color: isSelected ? AppColors.surfaceSunken : Colors.transparent,
                               borderRadius: BorderRadius.circular(8),
                             ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  item['title']!,
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-                                    color: isSelected ? AppColors.primary : AppColors.ink,
-                                  ),
-                                ),
-                                Text(
-                                  item['code']!,
-                                  style: TextStyle(
-                                    fontFamilyFallback: AppTypography.fontMono,
-                                    fontSize: 11,
-                                    color: isSelected ? AppColors.primary : AppColors.outline,
-                                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                                  ),
-                                ),
-                              ],
+                            child: Text(
+                              item['title']!,
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                                color: isSelected ? AppColors.primary : AppColors.ink,
+                              ),
                             ),
                           ),
                         ),
@@ -265,23 +283,14 @@ class _AdminPortalShellState extends State<AdminPortalShell> {
                           ),
                           const SizedBox(width: 16),
 
-                          // Notification bell with badge 7
-                          Stack(
-                            children: [
-                              IconButton(
-                                icon: const Icon(Icons.notifications_outlined, size: 20),
-                                onPressed: () {},
-                              ),
-                              Positioned(
-                                right: 6,
-                                top: 6,
-                                child: Container(
-                                  padding: const EdgeInsets.all(3),
-                                  decoration: const BoxDecoration(color: AppColors.primary, shape: BoxShape.circle),
-                                  child: const Text('7', style: TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold)),
-                                ),
-                              ),
-                            ],
+                          PortalNotificationBell(
+                            notifications: _notifications,
+                            onRefresh: _loadNotifications,
+                            onNavigateTab: (idx) {
+                              setState(() => _selectedTabIndex = idx);
+                              _loadNotifications();
+                            },
+                            title: 'Thông báo Quản trị viên',
                           ),
                           const SizedBox(width: 8),
 

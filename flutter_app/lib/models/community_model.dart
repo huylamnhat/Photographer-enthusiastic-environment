@@ -9,6 +9,7 @@ class CommunityPostModel {
   final String category;
   final String imageUrl;
   int likesCount;
+  bool isLiked;
   int commentsCount;
   final String createdAt;
   final List<CommentModel> comments;
@@ -24,6 +25,7 @@ class CommunityPostModel {
     required this.category,
     required this.imageUrl,
     required this.likesCount,
+    this.isLiked = false,
     required this.commentsCount,
     required this.createdAt,
     this.comments = const [],
@@ -41,6 +43,7 @@ class CommunityPostModel {
       category: json['category'] ?? 'Thảo luận',
       imageUrl: json['image_url'] ?? '',
       likesCount: json['likes_count'] ?? 0,
+      isLiked: json['is_liked'] == true,
       commentsCount: json['comments_count'] ?? 0,
       createdAt: json['created_at'] ?? '',
       comments: (json['comments'] as List<dynamic>?)

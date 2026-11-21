@@ -75,9 +75,7 @@ class _AdminModerationTabState extends State<AdminModerationTab> {
               const Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('WEB-ADM-06 // HẬU KIỂM CỘNG ĐỒNG (SQL SERVER)', style: AppTypography.labelCaps),
-                  SizedBox(height: 4),
-                  Text('Hậu kiểm Bài viết & Xử lý Báo cáo Vi phạm', style: AppTypography.pageTitle),
+                  Text('Kiểm duyệt bài viết & Báo cáo', style: AppTypography.pageTitle),
                 ],
               ),
               OutlinedButton.icon(
@@ -85,7 +83,7 @@ class _AdminModerationTabState extends State<AdminModerationTab> {
                 icon: _loading
                     ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2))
                     : const Icon(Icons.refresh, size: 16),
-                label: const Text('Đồng bộ Hậu kiểm'),
+                label: const Text('Làm mới'),
               ),
             ],
           ),

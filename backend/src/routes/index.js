@@ -12,6 +12,7 @@ const reviewRoutes = require('./reviewRoutes');
 const userRoutes = require('./userRoutes');
 const adminRoutes = require('./adminRoutes');
 const labManagementRoutes = require('./labManagementRoutes');
+const shippingRoutes = require('./shippingRoutes');
 
 router.use('/auth', authRoutes);
 router.use('/labs', labRoutes);
@@ -25,6 +26,7 @@ router.use('/users', userRoutes);
 router.use('/admin', adminRoutes);
 router.use('/lab-portal', labManagementRoutes);
 router.use('/lab', labManagementRoutes);
+router.use('/shipping', shippingRoutes);
 
 const { getDbStatus } = require('../config/db');
 

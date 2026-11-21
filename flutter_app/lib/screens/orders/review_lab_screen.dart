@@ -25,9 +25,9 @@ class _ReviewLabScreenState extends State<ReviewLabScreen> {
   bool _submitted = false;
 
   final List<String> _tags = [
-    'Màu sắc chuẩn analog',
-    'Đúng hẹn SLA',
-    'Scan sạch không bụi',
+    'Màu sắc chuẩn film',
+    'Trả ảnh đúng hẹn',
+    'Ảnh sạch không bụi',
     'Bao bọc cẩn thận',
     'Tư vấn nhiệt tình',
   ];

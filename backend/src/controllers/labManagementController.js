@@ -1,4 +1,6 @@
 const fs = require('fs');
+const path = require('path');
+const config = require('../config');
 const { 
   mockUsers,
   mockOrders, 
@@ -10,7 +12,7 @@ const {
   mockAuditLogs,
   mockNotifications
 } = require('../data/mockStore');
-const { runQuery } = require('../config/db');
+const { runQuery, saveOrderDriveLinkRecord, saveLabPaymentQrRecord } = require('../config/db');
 const { uploadFileToGoogleDrive } = require('../services/googleDriveService');
 
 function resolveCurrentLabId(req) {
@@ -18,12 +20,22 @@ function resolveCurrentLabId(req) {
 }
 
 exports.getLabKanban = (req, res) => {
+  res.set('Cache-Control', 'no-store');
   const labId = resolveCurrentLabId(req);
   const lab = mockLabs.find(l => l.lab_id === labId) || mockLabs[0] || {};
-  // Filter orders strictly by the logged-in Film Lab so each Lab only manages its own orders & customers
-  const orders = mockOrders.filter(o => o.lab_id === labId);
+  const labOrders = mockOrders.filter(o => o.lab_id === labId && o.status !== 'CANCELLED' && o.payment_status !== 'CANCELLED');
+
+  const pendingPaymentOrders = labOrders
+    .filter(o => o.payment_status === 'PENDING' || o.status === 'PENDING_PAYMENT')
+    .sort((a, b) => new Date(a.order_date) - new Date(b.order_date));
+
+  // Filter active paid orders for Kanban processing columns
+  const orders = labOrders.filter(
+    o => o.payment_status !== 'PENDING' && o.status !== 'PENDING_PAYMENT'
+  );
 
   const columns = {
+    PENDING_PAYMENT: pendingPaymentOrders,
     QUEUE: orders.filter(o => o.kanban_column === 'QUEUE' || (!o.kanban_column && (o.status === 'RECEIVED' || o.status === 'PENDING_FILM'))),
     DEVELOPING: orders.filter(o => o.kanban_column === 'DEVELOPING' || (!o.kanban_column && o.status === 'PROCESSING')),
     DRYING: orders.filter(o => o.kanban_column === 'DRYING' || o.kanban_column === 'QC' || (!o.kanban_column && o.status === 'QC_CHECK')),
@@ -45,6 +57,204 @@ exports.getLabKanban = (req, res) => {
   });
 };
 
+exports.cancelPendingOrder = async (req, res) => {
+  const { orderId } = req.params;
+  const currentLabId = resolveCurrentLabId(req);
+  const order = mockOrders.find(o => o.order_id.toLowerCase() === String(orderId || '').toLowerCase());
+
+  if (!order) {
+    return res.status(404).json({ success: false, message: 'Không tìm thấy đơn hàng' });
+  }
+  if (order.lab_id && order.lab_id !== currentLabId) {
+    return res.status(403).json({
+      success: false,
+      message: `Đơn hàng #${order.order_id} không thuộc tiệm Lab đang đăng nhập`,
+    });
+  }
+  if (order.status === 'CANCELLED' || order.payment_status === 'CANCELLED') {
+    return res.status(400).json({ success: false, message: `Đơn hàng #${order.order_id} đã được hủy trước đó` });
+  }
+  if (order.payment_status === 'PAID' && order.status !== 'PENDING_PAYMENT') {
+    return res.status(400).json({
+      success: false,
+      message: `Đơn hàng #${order.order_id} đã thanh toán thành công, không thể hủy theo diện chưa thanh toán`,
+    });
+  }
+
+  const now = new Date();
+  const formattedTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')} ${now.getDate().toString().padStart(2, '0')}/${(now.getMonth() + 1).toString().padStart(2, '0')}/${now.getFullYear()}`;
+  const reason = String(req.body?.reason || '').trim() || 'Khách hàng thanh toán VNPAY quá hạn (Tiệm Lab hủy đơn)';
+
+  order.status = 'CANCELLED';
+  order.payment_status = 'CANCELLED';
+  order.cancel_reason = reason;
+  order.cancelled_at = now.toISOString();
+
+  if (Array.isArray(order.timeline) && order.timeline.length > 0) {
+    order.timeline[0].status = 'COMPLETED';
+    order.timeline[0].time = formattedTime;
+    order.timeline[0].note = `Đơn hàng đã bị Lab hủy: ${reason}`;
+  }
+
+  const matchedLabUser = mockUsers.find(u => u.user_id === req.user?.user_id || u.lab_id === currentLabId);
+  const dbCancelUserId = Number(req.user?.db_user_id || matchedLabUser?.db_user_id || 0);
+  const safeUserCode = String(req.user?.user_id || matchedLabUser?.user_id || '').replace(/'/g, "''");
+  const safeOrderCode = String(order.order_id || '').replace(/'/g, "''");
+  const safeReason = reason.replace(/'/g, "''");
+
+  await runQuery(`
+    DECLARE @cancelBy INT = ${dbCancelUserId > 0 ? dbCancelUserId : `(SELECT TOP 1 user_id FROM Users WHERE user_code = '${safeUserCode}')`};
+    IF @cancelBy IS NULL SET @cancelBy = (SELECT TOP 1 user_id FROM Users ORDER BY user_id);
+    UPDATE Orders
+    SET status = 'CANCELLED',
+        payment_status = 'CANCELLED',
+        cancel_reason = N'${safeReason}',
+        cancelled_by = @cancelBy,
+        updated_at = SYSUTCDATETIME()
+    WHERE order_code = '${safeOrderCode}';
+    UPDATE Payment
+    SET status = 'CANCELLED'
+    WHERE order_id = (SELECT TOP 1 order_id FROM Orders WHERE order_code = '${safeOrderCode}')
+      AND status = 'PENDING';
+  `).catch((err) => {
+    console.error('[cancelPendingOrder SQL Error]:', err.message);
+  });
+
+  mockNotifications.unshift({
+    notification_id: `NTF-CXL-${Date.now()}`,
+    type: 'ORDER_CANCELLED',
+    order_id: order.order_id,
+    customer_id: order.user_id,
+    recipient_email: order.customer_email || '',
+    title: `❌ Đơn #${order.order_id} đã bị hủy do quá hạn thanh toán`,
+    message: `${order.lab_name || 'Film Lab'} đã hủy đơn #${order.order_id}. Lý do: ${reason}`,
+    created_at: now.toISOString(),
+    is_read: false,
+  });
+
+  mockAuditLogs.unshift({
+    id: `LOG-${Date.now().toString().slice(-5)}`,
+    timestamp: now.toISOString().replace('T', ' ').slice(0, 19),
+    actor: `${req.user?.full_name || 'Lab Owner'} (LAB_OWNER)`,
+    action: 'CANCEL_UNPAID_ORDER',
+    entity: `Orders #${order.order_id}`,
+    entity_name: 'Orders',
+    entity_id: order.order_id,
+    ip: req.ip || '127.0.0.1',
+    oldVal: '{"status":"PENDING_PAYMENT"}',
+    newVal: JSON.stringify({ status: 'CANCELLED', reason }),
+  });
+
+  return res.json({
+    success: true,
+    message: `Đã hủy đơn chờ thanh toán #${order.order_id}`,
+    data: order,
+  });
+};
+
+exports.confirmPendingOrderPayment = async (req, res) => {
+  const { orderId } = req.params;
+  const currentLabId = resolveCurrentLabId(req);
+  const order = mockOrders.find(o => o.order_id.toLowerCase() === String(orderId || '').toLowerCase());
+
+  if (!order) {
+    return res.status(404).json({ success: false, message: 'Không tìm thấy đơn hàng' });
+  }
+  if (order.lab_id && order.lab_id !== currentLabId) {
+    return res.status(403).json({
+      success: false,
+      message: `Đơn hàng #${order.order_id} không thuộc tiệm Lab đang đăng nhập`,
+    });
+  }
+  if (order.status === 'CANCELLED' || order.payment_status === 'CANCELLED') {
+    return res.status(400).json({ success: false, message: `Đơn hàng #${order.order_id} đã bị hủy trước đó` });
+  }
+  if (order.payment_status === 'PAID' && order.status !== 'PENDING_PAYMENT') {
+    return res.json({
+      success: true,
+      message: `Đơn hàng #${order.order_id} đã được xác nhận thanh toán trước đó`,
+      data: order,
+    });
+  }
+
+  const now = new Date();
+  const formattedTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')} ${now.getDate().toString().padStart(2, '0')}/${(now.getMonth() + 1).toString().padStart(2, '0')}/${now.getFullYear()}`;
+  const verifiedBy = req.user?.full_name || 'Nhân viên Lab';
+  const note = String(req.body?.note || '').trim();
+
+  order.payment_status = 'PAID';
+  order.status = 'RECEIVED';
+  order.kanban_column = 'QUEUE';
+  order.payment_verified_by = verifiedBy;
+  order.payment_verified_at = now.toISOString();
+  order.vnp_trans_no = order.vnp_trans_no || `QR-${Date.now().toString().slice(-8)}`;
+
+  if (Array.isArray(order.timeline) && order.timeline.length > 0) {
+    order.timeline[0].status = 'IN_PROGRESS';
+    order.timeline[0].time = formattedTime;
+    order.timeline[0].note = note
+      ? `${verifiedBy} xác nhận đã nhận tiền chuyển khoản QR (${note}) • Đã vào hàng chờ Lab`
+      : `${verifiedBy} đã kiểm tra & xác nhận nhận tiền chuyển khoản QR • Đã vào hàng chờ Lab`;
+  }
+
+  const safeOrderCode = String(order.order_id || '').replace(/'/g, "''");
+  const safeTxnRef = `${safeOrderCode}-QR-${Date.now()}`;
+  const numAmount = Number(order.total_amount || 0) || 1;
+  await runQuery(`
+    UPDATE Orders
+    SET payment_status = 'PAID',
+        status = 'RECEIVED',
+        kanban_column = 'QUEUE',
+        updated_at = SYSUTCDATETIME()
+    WHERE order_code = '${safeOrderCode}';
+
+    DECLARE @ordId BIGINT = (SELECT TOP 1 order_id FROM Orders WHERE order_code = '${safeOrderCode}');
+    IF @ordId IS NOT NULL
+    BEGIN
+      INSERT INTO Payment (order_id, gateway, txn_ref, gateway_txn_no, amount, currency, status, response_code, paid_at)
+      VALUES (@ordId, 'BANK_TRANSFER', '${safeTxnRef}', '${safeTxnRef}', ${numAmount}, 'VND', 'PAID', '00', SYSUTCDATETIME());
+    END
+  `).catch((err) => {
+    console.error('[confirmPendingOrderPayment SQL Error]:', err.message);
+  });
+
+  mockNotifications.unshift({
+    notification_id: `NTF-QR-OK-${Date.now()}`,
+    type: 'PAYMENT_QR_CONFIRMED',
+    order_id: order.order_id,
+    customer_id: order.user_id,
+    recipient_email: order.customer_email || '',
+    title: `✅ Đơn #${order.order_id} đã được Lab xác nhận nhận tiền`,
+    message: `${order.lab_name || 'Film Lab'} (${verifiedBy}) đã xác nhận nhận chuyển khoản ${numAmount.toLocaleString('vi-VN')}đ và đưa đơn vào hàng chờ xử lý.`,
+    created_at: now.toISOString(),
+    is_read: false,
+  });
+
+  mockAuditLogs.unshift({
+    id: `LOG-${Date.now().toString().slice(-5)}`,
+    timestamp: now.toISOString().replace('T', ' ').slice(0, 19),
+    actor: `${verifiedBy} (LAB_STAFF)`,
+    action: 'CONFIRM_QR_PAYMENT',
+    entity: `Orders #${order.order_id}`,
+    entity_name: 'Orders',
+    entity_id: order.order_id,
+    ip: req.ip || '127.0.0.1',
+    oldVal: '{"payment_status":"PENDING"}',
+    newVal: JSON.stringify({ payment_status: 'PAID', verifiedBy, note }),
+  });
+
+  return res.json({
+    success: true,
+    message: `Đã xác nhận tiền vào tài khoản cho đơn #${order.order_id} và chuyển vào 1. Tiếp nhận`,
+    data: order,
+  });
+};
+
+function requiresShipperDelivery(order) {
+  const method = String(order?.shipping_method || '').toUpperCase();
+  return method === 'AHAMOVE_PICKUP' || Boolean(order?.shipment);
+}
+
 exports.updateKanbanStep = (req, res) => {
   const { orderId } = req.params;
   const { column, note } = req.body; // QUEUE (1. Tiếp nhận), DEVELOPING (2. Vào Tank / Tráng), DRYING (3. Sấy khô), SCANNING (4. Scan số hóa), READY (5. QC & Archive)
@@ -56,6 +266,20 @@ exports.updateKanbanStep = (req, res) => {
 
   const oldCol = order.kanban_column || 'QUEUE';
   const normalizedCol = column === 'QC' ? 'DRYING' : column;
+
+  if ((oldCol === 'QUEUE' || normalizedCol === 'DEVELOPING') && normalizedCol !== 'QUEUE' && requiresShipperDelivery(order)) {
+    const shipStatus = String(order.shipment?.status || '').toUpperCase();
+    const ahaStatus = String(order.shipment?.ahamove_status || '').toUpperCase();
+    const isDelivered = shipStatus === 'DELIVERED' || ahaStatus === 'COMPLETED';
+    if (!isDelivered) {
+      return res.status(400).json({
+        success: false,
+        code: 'SHIPMENT_NOT_DELIVERED',
+        message: 'Chỉ được chuyển sang Vào Tank khi đơn giao hàng đã tới Lab thành công (DELIVERED).',
+      });
+    }
+  }
+
   order.kanban_column = normalizedCol;
 
   const now = new Date();
@@ -264,6 +488,23 @@ exports.uploadScanFiles = async (req, res) => {
     });
   }
 
+  const existingOrderLink =
+    (targetUserId && order.drive_links_by_user?.[targetUserId]) ||
+    (targetUserEmail && order.drive_links_by_user?.[targetUserEmail.toLowerCase()]) ||
+    '';
+  if (
+    existingOrderLink &&
+    !existingOrderLink.includes('1FilmLabArchive') &&
+    !existingOrderLink.includes('1MiniLabDigitalArchive') &&
+    !existingOrderLink.includes('/file/d/') &&
+    !existingOrderLink.includes('/drive/my-drive')
+  ) {
+    return res.status(400).json({
+      success: false,
+      message: `Đơn hàng #${order.order_id} đã được gửi link ảnh Google Drive rồi, vui lòng chọn đơn hàng khác!`
+    });
+  }
+
   let fileBuffer = null;
   if (file && file.path && fs.existsSync(file.path)) {
     try {
@@ -379,6 +620,19 @@ exports.uploadScanFiles = async (req, res) => {
     drive_link: resolvedDriveLink,
     created_at: now.toISOString(),
     is_read: false,
+  });
+
+  await saveOrderDriveLinkRecord({
+    order_code: order.order_id,
+    user_code: targetUserId,
+    recipient_email: targetUserEmail,
+    customer_name: targetUserName,
+    lab_id: order.lab_id || currentLabId || '',
+    drive_link: resolvedDriveLink,
+    roll_code: newScan.roll_code,
+    photo_count: createdScans.length,
+    drive_mode: driveResult.mode,
+    created_at: now.toISOString(),
   });
 
   // Persist READY status and new Scan Photo directly into SQL Server (FilmLabPlatform)
@@ -591,7 +845,7 @@ exports.getLabProfile = (req, res) => {
   });
 };
 
-exports.updateLabProfile = (req, res) => {
+exports.updateLabProfile = async (req, res) => {
   const labId = resolveCurrentLabId(req);
   const lab = mockLabs.find(l => l.lab_id === labId) || mockLabs[0];
 
@@ -599,7 +853,22 @@ exports.updateLabProfile = (req, res) => {
     return res.status(404).json({ success: false, message: 'Không tìm thấy lab' });
   }
 
-  const { name, tagline, address, phone, email, description, scanner_models, supported_processes, process_table } = req.body;
+  const {
+    name,
+    tagline,
+    address,
+    phone,
+    email,
+    description,
+    scanner_models,
+    supported_processes,
+    process_table,
+    qr_image_url,
+    qr_image_base64,
+    bank_name,
+    account_no,
+    account_name,
+  } = req.body;
   if (name) lab.name = name;
   if (tagline) lab.tagline = tagline;
   if (address) lab.address = address;
@@ -610,12 +879,36 @@ exports.updateLabProfile = (req, res) => {
   if (supported_processes) lab.supported_processes = supported_processes;
   if (Array.isArray(process_table)) lab.process_table = process_table;
 
+  if (qr_image_base64 && String(qr_image_base64).includes(',')) {
+    try {
+      const raw = String(qr_image_base64);
+      const mimeMatch = raw.match(/^data:image\/([a-zA-Z0-9+.-]+);base64,/);
+      const extRaw = mimeMatch ? mimeMatch[1].toLowerCase() : 'png';
+      const ext = extRaw === 'jpeg' ? 'jpg' : (['png', 'jpg', 'webp'].includes(extRaw) ? extRaw : 'png');
+      const b64Body = raw.split(',')[1];
+      if (!fs.existsSync(config.UPLOAD_DIR)) {
+        fs.mkdirSync(config.UPLOAD_DIR, { recursive: true });
+      }
+      const safeLabSlug = String(lab.lab_id || 'lab').replace(/[^a-zA-Z0-9_-]/g, '');
+      const fileName = `qr-${safeLabSlug}-${Date.now()}.${ext}`;
+      fs.writeFileSync(path.join(config.UPLOAD_DIR, fileName), Buffer.from(b64Body, 'base64'));
+      lab.qr_image_url = `/uploads/${fileName}`;
+    } catch (err) {
+      console.error('[QR Upload Save Error]:', err.message);
+    }
+  } else if (qr_image_url !== undefined) {
+    lab.qr_image_url = String(qr_image_url || '').trim();
+  }
+  if (bank_name !== undefined) lab.bank_name = String(bank_name || '').trim();
+  if (account_no !== undefined) lab.account_no = String(account_no || '').trim();
+  if (account_name !== undefined) lab.account_name = String(account_name || '').trim();
+
   const safeCode = String(lab.lab_id || '').replace(/'/g, "''");
   const safeName = String(lab.name || '').replace(/'/g, "''");
   const safeAddr = String(lab.address || '').replace(/'/g, "''");
   const safePhone = String(lab.phone || '').replace(/'/g, "''");
   const safeEmail = String(lab.email || '').replace(/'/g, "''");
-  runQuery(`
+  await runQuery(`
     UPDATE Lab_Profile
     SET lab_name = N'${safeName}',
         street_address = N'${safeAddr}',
@@ -625,9 +918,25 @@ exports.updateLabProfile = (req, res) => {
     WHERE lab_code = '${safeCode}';
   `).catch(() => {});
 
+  if (
+    qr_image_base64 !== undefined ||
+    qr_image_url !== undefined ||
+    bank_name !== undefined ||
+    account_no !== undefined ||
+    account_name !== undefined
+  ) {
+    await saveLabPaymentQrRecord({
+      lab_code: lab.lab_id,
+      qr_image_url: lab.qr_image_url || '',
+      bank_name: lab.bank_name || '',
+      account_no: lab.account_no || '',
+      account_name: lab.account_name || '',
+    });
+  }
+
   return res.json({
     success: true,
-    message: 'Cập nhật hồ sơ tiệm Film Lab thành công',
+    message: 'Cập nhật hồ sơ & QR thanh toán của tiệm thành công',
     data: lab
   });
 };
@@ -777,6 +1086,94 @@ exports.getSlaPerformance = (req, res) => {
       qc_pass_rate: '99.2%',
       orders: enrichedOrders
     }
+  });
+};
+
+exports.getLabNotifications = (req, res) => {
+  res.set('Cache-Control', 'no-store');
+  const labId = resolveCurrentLabId(req);
+  const activeOrders = mockOrders.filter(
+    o => o.lab_id === labId && o.status !== 'CANCELLED' && o.payment_status !== 'CANCELLED'
+  );
+  const notifications = [];
+
+  const pendingPayOrders = activeOrders.filter(
+    o => o.payment_status === 'PENDING' || o.status === 'PENDING_PAYMENT'
+  );
+  for (const o of pendingPayOrders) {
+    const isQr = String(o.payment_method || '').toUpperCase() === 'INTERNAL_QR';
+    notifications.push({
+      id: `ntf-pay-${o.order_id}`,
+      type: 'ORDER_QUEUE',
+      title: isQr
+        ? `Đơn QR chờ NV kiểm tra tiền vào: #${o.order_id}`
+        : `Đơn chờ thanh toán VNPAY: #${o.order_id}`,
+      subtitle: `${o.customer_name || 'Khách hàng'} • ${isQr ? 'Kiểm tra tiền vào tài khoản để xác nhận hoặc hủy đơn' : 'Có thể theo dõi hoặc hủy nếu quá hạn'}`,
+      tab_index: 0,
+      severity: 'warning',
+    });
+  }
+
+  const paidOrders = activeOrders.filter(
+    o => o.payment_status !== 'PENDING' && o.status !== 'PENDING_PAYMENT'
+  );
+  const queuedOrders = paidOrders.filter(
+    o => o.kanban_column === 'QUEUE' || (!o.kanban_column && (o.status === 'RECEIVED' || o.status === 'PENDING_FILM'))
+  );
+  for (const o of queuedOrders) {
+    notifications.push({
+      id: `ntf-q-${o.order_id}`,
+      type: 'ORDER_QUEUE',
+      title: `Đơn mới chờ tiếp nhận: #${o.order_id}`,
+      subtitle: `${o.customer_name || 'Khách hàng'} • Nhấn để tới Quy trình Kanban`,
+      tab_index: 0,
+      severity: 'info',
+    });
+  }
+
+  const readyMissingDrive = paidOrders.filter(o => {
+    const isReady =
+      o.kanban_column === 'READY' ||
+      o.status === 'READY_FOR_DOWNLOAD' ||
+      o.status === 'COMPLETED';
+    const hasDriveLink =
+      Boolean(o.drive_link) ||
+      (o.drive_links_by_user && Object.keys(o.drive_links_by_user).length > 0);
+    return isReady && !hasDriveLink;
+  });
+  for (const o of readyMissingDrive) {
+    notifications.push({
+      id: `ntf-drv-${o.order_id}`,
+      type: 'NEEDS_DRIVE_LINK',
+      title: `Đơn #${o.order_id} đã xong QC — chưa gửi link Drive`,
+      subtitle: `${o.customer_name || 'Khách hàng'} • Nhấn để tới Trả ảnh Scan / Drive`,
+      tab_index: 1,
+      severity: 'warning',
+    });
+  }
+
+  const activeDisputes = mockDisputes.filter(
+    d =>
+      d.lab_id === labId &&
+      d.status !== 'RESOLVED' &&
+      d.status !== 'REFUNDED' &&
+      d.status !== 'COMPENSATED' &&
+      d.status !== 'CLOSED'
+  );
+  for (const d of activeDisputes) {
+    notifications.push({
+      id: `ntf-ldsp-${d.dispute_id}`,
+      type: 'LAB_DISPUTE',
+      title: `Khiếu nại đơn #${d.order_id || d.dispute_id} cần phản hồi`,
+      subtitle: `${d.customer_name || 'Khách hàng'} • ${d.reason || d.status || 'Nhấn để tới Khiếu nại & Đền bù'}`,
+      tab_index: 4,
+      severity: 'danger',
+    });
+  }
+
+  return res.json({
+    success: true,
+    data: notifications,
   });
 };
 

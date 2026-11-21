@@ -9,6 +9,7 @@ class PaymentReceiptScreen extends StatelessWidget {
   final String labName;
   final double amount;
   final String paymentMethod;
+  final String? transactionId;
 
   const PaymentReceiptScreen({
     super.key,
@@ -16,6 +17,7 @@ class PaymentReceiptScreen extends StatelessWidget {
     required this.labName,
     required this.amount,
     required this.paymentMethod,
+    this.transactionId,
   });
 
   @override
@@ -40,7 +42,9 @@ class PaymentReceiptScreen extends StatelessWidget {
                         const Icon(Icons.check_circle, size: 14, color: AppColors.secondary),
                         const SizedBox(width: 6),
                         Text(
-                          'GIAO DỊCH XÁC THỰC NỘI BỘ // OK',
+                          paymentMethod.toUpperCase().contains('VNPAY')
+                              ? 'ĐÃ XÁC THỰC VNPAY'
+                              : 'GIAO DỊCH THÀNH CÔNG',
                           style: AppTypography.labelCaps.copyWith(
                             color: AppColors.secondary,
                             letterSpacing: 1.2,
@@ -98,13 +102,17 @@ class PaymentReceiptScreen extends StatelessWidget {
                             children: [
                               _buildRow('MÃ ĐƠN HÀNG', orderId, isHighlight: true),
                               const SizedBox(height: 10),
+                              if ((transactionId ?? '').isNotEmpty) ...[
+                                _buildRow('MÃ GIAO DỊCH VNPAY', transactionId!),
+                                const SizedBox(height: 10),
+                              ],
                               _buildRow('TIỆM LAB TIẾP NHẬN', labName),
                               const SizedBox(height: 10),
                               _buildRow('PHƯƠNG THỨC', paymentMethod),
                               const SizedBox(height: 10),
                               _buildRow('THỜI GIAN', 'Hôm nay, ${TimeOfDay.now().format(context)}'),
                               const SizedBox(height: 10),
-                              _buildRow('TRẠNG THÁI CA TRỰC', 'Đã tiếp nhận (Bước 1/5)'),
+                              _buildRow('TRẠNG THÁI', 'Đã tiếp nhận (1/5)'),
                               const SizedBox(height: 14),
                               const Divider(height: 1, color: AppColors.outline),
                               const SizedBox(height: 14),
@@ -134,7 +142,7 @@ class PaymentReceiptScreen extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text('HÓA ĐƠN ĐIỆN TỬ', style: AppTypography.labelCaps.copyWith(fontSize: 9)),
-                              Text('MINILAB-ARCHIVE-V4.8', style: AppTypography.dataMono.copyWith(fontSize: 9, color: AppColors.inkMuted)),
+                              Text('MINILAB', style: AppTypography.dataMono.copyWith(fontSize: 9, color: AppColors.inkMuted)),
                             ],
                           ),
                         ),

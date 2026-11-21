@@ -110,13 +110,17 @@ exports.updateUserStatus = (req, res) => {
 };
 
 exports.getPendingLabs = (req, res) => {
+  res.set('Cache-Control', 'no-store');
+  const pending = mockPendingLabs.filter(
+    l => l.status === 'PENDING' || l.status === 'PENDING_REVIEW'
+  );
   return res.json({
     success: true,
-    data: mockPendingLabs
+    data: pending
   });
 };
 
-exports.reviewLabApplication = (req, res) => {
+exports.reviewLabApplication = async (req, res) => {
   const { id } = req.params;
   const { action, note } = req.body; // action: 'APPROVE' or 'REJECT'
   const appIndex = mockPendingLabs.findIndex(l => l.application_id === id);
@@ -126,11 +130,12 @@ exports.reviewLabApplication = (req, res) => {
   }
 
   const app = mockPendingLabs[appIndex];
+  const pkgCode = `pkg-${Date.now().toString().slice(-4)}`;
   if (action === 'APPROVE') {
     app.status = 'APPROVED';
     const newLab = {
       lab_id: app.application_id,
-      owner_id: `usr-lab-${Date.now().toString().slice(-4)}`,
+      owner_id: app.owner_id || `usr-lab-${Date.now().toString().slice(-4)}`,
       name: app.name,
       tagline: 'Tiệm Film Lab mới được Admin chứng nhận',
       address: app.address,
@@ -138,7 +143,7 @@ exports.reviewLabApplication = (req, res) => {
       phone: app.phone,
       email: app.email,
       rating: 5.0,
-      review_count: 1,
+      review_count: 0,
       turnaround_hours: 12,
       scanner_models: app.scanner_models,
       supported_formats: ['135', '120'],
@@ -151,9 +156,11 @@ exports.reviewLabApplication = (req, res) => {
       description: 'Tiệm lab đã qua thẩm định điều kiện cơ sở vật chất phòng tối và quy trình xử lý an toàn môi trường.',
       created_at: new Date().toISOString()
     };
-    mockLabs.unshift(newLab);
+    if (!mockLabs.some(l => l.lab_id === newLab.lab_id)) {
+      mockLabs.unshift(newLab);
+    }
     mockServicePackages.push({
-      package_id: `pkg-${Date.now().toString().slice(-4)}`,
+      package_id: pkgCode,
       lab_id: newLab.lab_id,
       lab_name: newLab.name,
       name: 'Tráng & Scan 135 Color (C-41) - Chuẩn M',
@@ -172,14 +179,25 @@ exports.reviewLabApplication = (req, res) => {
 
   const safeLabCode = String(app.application_id || '').replace(/'/g, "''");
   const safeRejNote = String(note || 'Chưa đạt yêu cầu thẩm định').replace(/'/g, "''");
-  runQuery(`
+  await runQuery(`
     UPDATE Lab_Profile
     SET approval_status = '${app.status}',
         reviewed_by = 1,
         reviewed_at = SYSUTCDATETIME(),
         reject_reason = ${app.status === 'REJECTED' ? `N'${safeRejNote}'` : 'NULL'}
     WHERE lab_code = '${safeLabCode}';
-  `).catch(() => {});
+  `).catch((err) => { console.error('[reviewLabApplication SQL Error]:', err.message); });
+
+  if (app.status === 'APPROVED') {
+    await runQuery(`
+      DECLARE @targetLabId INT = (SELECT TOP 1 lab_id FROM Lab_Profile WHERE lab_code = '${safeLabCode}');
+      IF @targetLabId IS NOT NULL AND NOT EXISTS (SELECT 1 FROM Service_Package WHERE lab_id = @targetLabId)
+      BEGIN
+        INSERT INTO Service_Package (package_code, lab_id, service_type, name, description, format_id, process_type_id, scan_quality, scan_resolution, output_format, price, estimated_hours, is_active)
+        VALUES ('${pkgCode}', @targetLabId, 'DEVELOP_SCAN', N'Tráng & Scan 135 Color (C-41) - Chuẩn M', N'Gói tiêu chuẩn của tiệm Lab mới phê duyệt', 1, 1, 'STANDARD', N'M (3000x2000px)', 'JPEG', 65000, 12, 1);
+      END
+    `).catch((err) => { console.error('[reviewLabApplication Pkg SQL Error]:', err.message); });
+  }
 
   mockAuditLogs.unshift({
     id: `LOG-${Date.now().toString().slice(-5)}`,
@@ -202,13 +220,17 @@ exports.reviewLabApplication = (req, res) => {
 };
 
 exports.getExpertApplications = (req, res) => {
+  res.set('Cache-Control', 'no-store');
+  const pending = mockExpertApplications.filter(
+    e => e.status === 'PENDING' || e.status === 'PENDING_REVIEW'
+  );
   return res.json({
     success: true,
-    data: mockExpertApplications
+    data: pending
   });
 };
 
-exports.reviewExpertApplication = (req, res) => {
+exports.reviewExpertApplication = async (req, res) => {
   const { id } = req.params;
   const { action } = req.body; // 'APPROVE' or 'REJECT'
   const exp = mockExpertApplications.find(e => e.id === id);
@@ -216,6 +238,29 @@ exports.reviewExpertApplication = (req, res) => {
     return res.status(404).json({ success: false, message: 'Không tìm thấy hồ sơ chuyên gia' });
   }
   exp.status = action === 'APPROVE' ? 'VERIFIED' : 'REJECTED';
+
+  const safeExpId = String(exp.id || '').replace(/'/g, "''");
+  const dbExpUserId = Number(exp.db_user_id) || 0;
+  await runQuery(`
+    UPDATE Expert_Profile
+    SET verification_status = '${exp.status}',
+        verified_by = 1
+    WHERE ${dbExpUserId > 0 ? `user_id = ${dbExpUserId}` : `user_id = (SELECT TOP 1 user_id FROM Users WHERE user_code = '${safeExpId}')`};
+  `).catch(() => {});
+
+  mockAuditLogs.unshift({
+    id: `LOG-${Date.now().toString().slice(-5)}`,
+    timestamp: new Date().toISOString().replace('T', ' ').slice(0, 19),
+    actor: 'Admin Tuấn (ADMIN)',
+    action: action === 'APPROVE' ? 'APPROVE_EXPERT' : 'REJECT_EXPERT',
+    entity: `Expert_Profile #${exp.id}`,
+    entity_name: 'Expert_Profile',
+    entity_id: exp.id,
+    ip: req.ip || '127.0.0.1',
+    oldVal: '{"verification_status":"PENDING"}',
+    newVal: JSON.stringify({ verification_status: exp.status, name: exp.name })
+  });
+
   return res.json({
     success: true,
     message: action === 'APPROVE' ? 'Đã cấp huy hiệu Chuyên gia (Expert)' : 'Đã từ chối hồ sơ chuyên gia',
@@ -225,26 +270,26 @@ exports.reviewExpertApplication = (req, res) => {
 
 exports.getPendingMarketplace = (req, res) => {
   res.set('Cache-Control', 'no-store');
-  const isCompletedItem = (l) =>
-    l.status === 'ACTIVE' ||
-    l.status === 'APPROVED' ||
-    l.status === 'REJECTED' ||
-    l.moderation_status === 'APPROVED' ||
-    l.moderation_status === 'REJECTED';
-
-  const list = [...mockListings].sort((a, b) => {
-    const aDone = isCompletedItem(a) ? 1 : 0;
-    const bDone = isCompletedItem(b) ? 1 : 0;
-    if (aDone !== bDone) return aDone - bDone;
-    return String(b.created_at || '').localeCompare(String(a.created_at || ''));
-  });
+  const pending = mockListings
+    .filter(
+      l =>
+        (l.status === 'PENDING_REVIEW' ||
+          l.status === 'PENDING_APPROVAL' ||
+          l.moderation_status === 'PENDING') &&
+        l.status !== 'ACTIVE' &&
+        l.status !== 'APPROVED' &&
+        l.status !== 'REJECTED' &&
+        l.moderation_status !== 'APPROVED' &&
+        l.moderation_status !== 'REJECTED'
+    )
+    .sort((a, b) => String(b.created_at || '').localeCompare(String(a.created_at || '')));
   return res.json({
     success: true,
-    data: list
+    data: pending
   });
 };
 
-exports.moderateMarketplace = (req, res) => {
+exports.moderateMarketplace = async (req, res) => {
   const { id } = req.params;
   const { action, reason } = req.body; // action: 'APPROVE' or 'REJECT'
   const item = mockListings.find(l => l.listing_id === id);
@@ -264,7 +309,7 @@ exports.moderateMarketplace = (req, res) => {
 
   const safeListingCode = String(item.listing_id || '').replace(/'/g, "''");
   const safeListingReason = String(item.rejection_reason || 'Vi phạm chính sách').replace(/'/g, "''");
-  runQuery(`
+  await runQuery(`
     UPDATE Equipment_Listing
     SET status = '${item.status}',
         reviewed_by = 1,
@@ -294,14 +339,15 @@ exports.moderateMarketplace = (req, res) => {
 };
 
 exports.getReportedContent = (req, res) => {
+  res.set('Cache-Control', 'no-store');
   // Hậu kiểm cộng đồng (Post-moderation audit):
   // Trả về danh sách bài viết cần Admin xử lý bao gồm:
   // 1. Bài viết bị người dùng báo cáo vi phạm (status === 'REPORTED' hoặc report_count > 0)
-  // 2. Bài viết mới người dùng đăng lên cần hậu kiểm (needs_audit === true hoặc chưa có moderated_at)
+  // 2. Bài viết mới người dùng đăng lên cần hậu kiểm (needs_audit === true hoặc chưa có moderated_by/moderated_at)
   const items = mockCommunityPosts.filter(p => {
     if (p.status === 'HIDDEN') return false;
     const isReported = p.status === 'REPORTED' || Number(p.report_count || 0) > 0;
-    const isPendingAudit = Boolean(p.needs_audit) || (!p.moderated_at && p.post_id !== 'post-001');
+    const isPendingAudit = Boolean(p.needs_audit) || (!p.moderated_by && !p.moderated_at && p.post_id !== 'post-001');
     return isReported || isPendingAudit;
   });
 
@@ -328,7 +374,7 @@ exports.getReportedContent = (req, res) => {
   });
 };
 
-exports.moderateCommunityPost = (req, res) => {
+exports.moderateCommunityPost = async (req, res) => {
   const { id } = req.params;
   const { action, reason } = req.body; // 'HIDE', 'DISMISS', or 'APPROVE'
   const post = mockCommunityPosts.find(p => p.post_id === id);
@@ -353,12 +399,14 @@ exports.moderateCommunityPost = (req, res) => {
   }
 
   const safePostCode = String(post.post_id || '').replace(/'/g, "''");
-  runQuery(`
+  const safeModNote = String(reason || (action === 'HIDE' ? 'Gỡ bài viết vi phạm' : 'Đã hậu kiểm đạt chuẩn')).replace(/'/g, "''");
+  await runQuery(`
     UPDATE Post_Article
     SET status = '${post.status}',
         report_count = ${Number(post.report_count) || 0},
         moderated_by = 1,
-        moderated_at = SYSUTCDATETIME()
+        moderation_note = N'${safeModNote}',
+        updated_at = SYSUTCDATETIME()
     WHERE post_code = '${safePostCode}';
   `).catch(() => {});
 
@@ -404,7 +452,7 @@ exports.resolveDispute = (req, res) => {
     dispute.status = 'REFUNDED';
     dispute.refund_amount = refund_amount || dispute.amount_requested;
     dispute.resolved_at = new Date().toISOString();
-    dispute.compensation_note = `Admin Tổng Sàn đã phê duyệt hoàn tiền ${dispute.refund_amount}đ vào ví MiniLab Pay của khách hàng.`;
+    dispute.compensation_note = `Admin Tổng Sàn đã phê duyệt hoàn tiền ${dispute.refund_amount}đ cho khách hàng.`;
     dispute.messages.push({
       sender: 'Admin Tổng Sàn',
       text: `Phán quyết: Chấp thuận hoàn tiền ${dispute.refund_amount}đ vào ví khách hàng.`,
@@ -486,5 +534,102 @@ exports.getAdminServices = (req, res) => {
       standards: mockProcessStandards,
       packages: mockServicePackages
     }
+  });
+};
+
+exports.getAdminNotifications = (req, res) => {
+  res.set('Cache-Control', 'no-store');
+  const notifications = [];
+
+  const pendingLabs = mockPendingLabs.filter(
+    l => !l.status || l.status === 'PENDING' || l.status === 'PENDING_REVIEW'
+  );
+  for (const l of pendingLabs) {
+    notifications.push({
+      id: `ntf-lab-${l.application_id || l.lab_id}`,
+      type: 'LAB_APPROVAL',
+      title: `Hồ sơ Lab mới chờ duyệt: ${l.name || l.lab_name || l.application_id}`,
+      subtitle: `${[l.city, l.address].filter(Boolean).join(' - ') || 'Đối tác Film Lab'} • Nhấn để tới Duyệt đối tác`,
+      tab_index: 2,
+      severity: 'warning',
+    });
+  }
+
+  const pendingExperts = mockExpertApplications.filter(
+    e => e.status === 'PENDING' || e.status === 'PENDING_REVIEW'
+  );
+  for (const e of pendingExperts) {
+    notifications.push({
+      id: `ntf-exp-${e.id}`,
+      type: 'EXPERT_APPROVAL',
+      title: `Hồ sơ Chuyên gia chờ duyệt: ${e.name || e.full_name || e.id}`,
+      subtitle: `${e.specialty || 'Nhiếp ảnh gia'} • Nhấn để tới Duyệt đối tác`,
+      tab_index: 2,
+      severity: 'warning',
+    });
+  }
+
+  const pendingListings = mockListings.filter(
+    l =>
+      (l.status === 'PENDING_REVIEW' ||
+        l.status === 'PENDING_APPROVAL' ||
+        l.moderation_status === 'PENDING') &&
+      l.status !== 'ACTIVE' &&
+      l.status !== 'APPROVED' &&
+      l.status !== 'REJECTED' &&
+      l.moderation_status !== 'APPROVED' &&
+      l.moderation_status !== 'REJECTED'
+  );
+  for (const l of pendingListings) {
+    notifications.push({
+      id: `ntf-mkt-${l.listing_id}`,
+      type: 'MARKETPLACE_APPROVAL',
+      title: `Tin bán thiết bị chờ duyệt: ${l.title || l.listing_id}`,
+      subtitle: `${l.seller_name || 'Thành viên'} • Nhấn để tới Duyệt bài đăng`,
+      tab_index: 3,
+      severity: 'info',
+    });
+  }
+
+  const auditPosts = mockCommunityPosts.filter(p => {
+    if (p.status === 'HIDDEN') return false;
+    const isReported = p.status === 'REPORTED' || Number(p.report_count || 0) > 0;
+    const isPendingAudit = Boolean(p.needs_audit) || (!p.moderated_by && !p.moderated_at && p.post_id !== 'post-001');
+    return isReported || isPendingAudit;
+  });
+  for (const p of auditPosts) {
+    const isReported = p.status === 'REPORTED' || Number(p.report_count || 0) > 0;
+    notifications.push({
+      id: `ntf-post-${p.post_id}`,
+      type: isReported ? 'COMMUNITY_REPORT' : 'COMMUNITY_AUDIT',
+      title: isReported
+        ? `Bài viết bị báo cáo vi phạm (${p.report_count || 1}): ${p.title || p.post_id}`
+        : `Bài viết cộng đồng cần hậu kiểm: ${p.title || p.post_id}`,
+      subtitle: 'Nhấn để mở tab Kiểm duyệt cộng đồng',
+      tab_index: 4,
+      severity: isReported ? 'danger' : 'info',
+    });
+  }
+
+  const activeDisputes = mockDisputes.filter(
+    d => d.status === 'OPEN' || d.status === 'NEGOTIATING' || d.status === 'ESCALATED' || d.status === 'PENDING'
+  );
+  for (const d of activeDisputes) {
+    const isEscalated = d.status === 'ESCALATED';
+    notifications.push({
+      id: `ntf-dsp-${d.dispute_id}`,
+      type: 'DISPUTE',
+      title: isEscalated
+        ? `Khiếu nại leo thang cần Admin phân xử (#${d.order_id || d.dispute_id})`
+        : `Khiếu nại đang mở (#${d.order_id || d.dispute_id})`,
+      subtitle: `${d.lab_name || 'Film Lab'} • ${d.reason || 'Nhấn để xử lý khiếu nại'}`,
+      tab_index: 6,
+      severity: isEscalated ? 'danger' : 'warning',
+    });
+  }
+
+  return res.json({
+    success: true,
+    data: notifications,
   });
 };

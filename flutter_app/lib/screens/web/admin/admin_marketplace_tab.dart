@@ -24,7 +24,15 @@ class _AdminMarketplaceTabState extends State<AdminMarketplaceTab> {
   Future<void> _loadPendingMarketplace() async {
     final pending = await WebApiService().getAdminPendingMarketplace();
     if (!mounted) return;
-    final mapped = pending.map<Map<String, dynamic>>((m) {
+    final mapped = pending
+        .where((m) {
+          final rawStatus = (m['status'] ?? 'PENDING_REVIEW').toString().toUpperCase();
+          final modStatus = (m['moderation_status'] ?? '').toString().toUpperCase();
+          final isApproved = rawStatus == 'ACTIVE' || rawStatus == 'APPROVED' || modStatus == 'APPROVED';
+          final isRejected = rawStatus == 'REJECTED' || modStatus == 'REJECTED';
+          return !isApproved && !isRejected;
+        })
+        .map<Map<String, dynamic>>((m) {
       final rawStatus = (m['status'] ?? 'PENDING_REVIEW').toString().toUpperCase();
       final modStatus = (m['moderation_status'] ?? '').toString().toUpperCase();
       final isApproved = rawStatus == 'ACTIVE' || rawStatus == 'APPROVED' || modStatus == 'APPROVED';
@@ -92,15 +100,13 @@ class _AdminMarketplaceTabState extends State<AdminMarketplaceTab> {
               const Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('WEB-ADM-05 // TIỀN KIỂM SÀN MUA BÁN (SQL SERVER)', style: AppTypography.labelCaps),
-                  SizedBox(height: 4),
-                  Text('Hàng chờ Kiểm định Tin rao bán Thiết bị', style: AppTypography.pageTitle),
+                  Text('Kiểm duyệt tin rao bán', style: AppTypography.pageTitle),
                 ],
               ),
               OutlinedButton.icon(
                 onPressed: _loadPendingMarketplace,
                 icon: const Icon(Icons.refresh, size: 16),
-                label: const Text('Đồng bộ Hàng chờ'),
+                label: const Text('Làm mới'),
               ),
             ],
           ),

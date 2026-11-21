@@ -77,15 +77,13 @@ class _LabSlaReportTabState extends State<LabSlaReportTab> {
               const Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('WEB-LAB-08 // LỊCH SỬ ĐƠN & BÁO CÁO HIỆU SUẤT SLA (SQL SERVER)', style: AppTypography.labelCaps),
-                  SizedBox(height: 4),
-                  Text('Chỉ Số Vận Hành & Lịch Sử Tráng Scan', style: AppTypography.pageTitle),
+                  Text('Lịch sử đơn & Hiệu suất', style: AppTypography.pageTitle),
                 ],
               ),
               OutlinedButton.icon(
                 onPressed: _loadSlaReport,
                 icon: const Icon(Icons.refresh, size: 16),
-                label: const Text('Tải lại báo cáo'),
+                label: const Text('Làm mới'),
               ),
             ],
           ),
@@ -93,11 +91,11 @@ class _LabSlaReportTabState extends State<LabSlaReportTab> {
 
           Row(
             children: [
-              _buildSummaryCard('TỶ LỆ TRẢ FILE ĐÚNG SLA', '${_slaData['on_time_delivery_rate'] ?? '98.7%'}', 'Mục tiêu cam kết: ${_slaData['sla_target_hours'] ?? 12}h', AppColors.secondary),
+              _buildSummaryCard('TRẢ ẢNH ĐÚNG HẸN', '${_slaData['on_time_delivery_rate'] ?? '98.7%'}', 'Mục tiêu: ${_slaData['sla_target_hours'] ?? 12}h', AppColors.secondary),
               const SizedBox(width: 16),
-              _buildSummaryCard('TỔNG ĐƠN TRONG CSDL', '${_orderHistory.length} đơn', 'Công suất: ${_slaData['daily_capacity'] ?? '80 cuộn / ngày'}', AppColors.primary),
+              _buildSummaryCard('TỔNG ĐƠN HÀNG', '${_orderHistory.length} đơn', 'Công suất: ${_slaData['daily_capacity'] ?? '80 cuộn / ngày'}', AppColors.primary),
               const SizedBox(width: 16),
-              _buildSummaryCard('TỶ LỆ QC ĐẠT CHUẨN', '${_slaData['qc_pass_rate'] ?? '99.2%'}', 'Thời gian TB: ${_slaData['average_turnaround_hours'] ?? 9.4}h', AppColors.ink),
+              _buildSummaryCard('CHẤT LƯỢNG ĐẠT CHUẨN', '${_slaData['qc_pass_rate'] ?? '99.2%'}', 'Trung bình: ${_slaData['average_turnaround_hours'] ?? 9.4}h', AppColors.ink),
             ],
           ),
           const SizedBox(height: 24),
@@ -130,7 +128,7 @@ class _LabSlaReportTabState extends State<LabSlaReportTab> {
                     _th('GÓI DỊCH VỤ'),
                     _th('SỐ CUỘN'),
                     _th('DOANH THU'),
-                    _th('THỜI GIAN SLA'),
+                    _th('THỜI GIAN'),
                     _th('ĐÁNH GIÁ KHÁCH HÀNG'),
                   ],
                 ),

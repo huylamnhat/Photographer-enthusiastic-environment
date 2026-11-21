@@ -61,14 +61,12 @@ class _AdminServicesTabState extends State<AdminServicesTab> {
           const Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('WEB-ADM-07 // QUY CHUẨN KỸ THUẬT & DỊCH VỤ LAB (SQL SERVER)', style: AppTypography.labelCaps),
-              SizedBox(height: 4),
-              Text('Quản lý Danh mục Kỹ thuật Toàn Sàn', style: AppTypography.pageTitle),
+              Text('Dịch vụ & Quy chuẩn kỹ thuật', style: AppTypography.pageTitle),
             ],
           ),
           const SizedBox(height: 24),
 
-          const Text('1. QUY CHUẨN HOÁ CHẤT & NHIỆT ĐỘ HỆ THỐNG (BẢNG PROCESS_TYPE)', style: AppTypography.labelCaps),
+          const Text('1. QUY TRÌNH TRÁNG CHUẨN', style: AppTypography.labelCaps),
           const SizedBox(height: 8),
           Container(
             decoration: BoxDecoration(
@@ -90,10 +88,10 @@ class _AdminServicesTabState extends State<AdminServicesTab> {
                     borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
                   ),
                   children: [
-                    _th('MÃ QUY CHUẨN'),
-                    _th('TÊN QUY TRÌNH HÓA CHẤT'),
-                    _th('NHIỆT ĐỘ BỂ CHUẨN'),
-                    _th('KHỔ PHIM HỖ TRỢ'),
+                    _th('MÃ QUY TRÌNH'),
+                    _th('TÊN QUY TRÌNH'),
+                    _th('NHIỆT ĐỘ CHUẨN'),
+                    _th('KHỔ PHIM'),
                   ],
                 ),
                 ..._standards.map((s) => TableRow(
@@ -110,7 +108,7 @@ class _AdminServicesTabState extends State<AdminServicesTab> {
           ),
           const SizedBox(height: 28),
 
-          const Text('2. BẢNG DỊCH VỤ ĐỐI TÁC LAB (BẢNG SERVICE_PACKAGE)', style: AppTypography.labelCaps),
+          const Text('2. DỊCH VỤ CỦA CÁC TIỆM LAB', style: AppTypography.labelCaps),
           const SizedBox(height: 8),
           Container(
             decoration: BoxDecoration(
@@ -136,8 +134,8 @@ class _AdminServicesTabState extends State<AdminServicesTab> {
                     _th('TIỆM LAB'),
                     _th('GÓI DỊCH VỤ'),
                     _th('GIÁ NIÊM YẾT'),
-                    _th('CAM KẾT SLA'),
-                    _th('TRẠNG THÁI / ẨN'),
+                    _th('TRẢ ẢNH'),
+                    _th('TRẠNG THÁI'),
                   ],
                 ),
                 ..._labServices.map((ls) => TableRow(

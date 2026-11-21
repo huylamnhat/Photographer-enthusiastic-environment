@@ -1,13 +1,38 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../core/mock/mock_test_assets.dart';
+import '../../core/services/api_service.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_typography.dart';
-import '../../core/mock/mock_test_assets.dart';
+import '../../models/order_model.dart';
 import '../../providers/auth_provider.dart';
 import '../auth/login_screen.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
+
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  List<OrderModel> _orders = [];
+  bool _loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserStats();
+  }
+
+  Future<void> _loadUserStats() async {
+    final orders = await ApiService().getOrders();
+    if (!mounted) return;
+    setState(() {
+      _orders = orders;
+      _loading = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -17,19 +42,32 @@ class ProfileScreen extends StatelessWidget {
         : 'Khách hàng MiniLab';
     final email = (currentUser?.email != null && currentUser!.email.isNotEmpty)
         ? currentUser.email
-        : 'khachhang@minilab.vn';
+        : '';
     final phone = (currentUser?.phone != null && currentUser!.phone.isNotEmpty)
-        ? ' • ${currentUser.phone}'
+        ? (email.isNotEmpty ? ' • ${currentUser.phone}' : currentUser.phone)
         : '';
     final userIdCode = (currentUser?.userId != null && currentUser!.userId.isNotEmpty)
         ? '#${currentUser.userId.toUpperCase()}'
-        : '#VN-882';
+        : '#MEMBER';
     final String avatarUrl = (currentUser?.avatarUrl != null && currentUser!.avatarUrl!.isNotEmpty)
         ? currentUser.avatarUrl!
         : MockTestAssets.avatarCustomer;
     final roleBadge = currentUser?.role == 'Expert'
         ? 'CHUYÊN GIA NHIẾP ẢNH (EXPERT)'
         : 'CỘNG ĐỒNG NHIẾP ẢNH GIA';
+
+    final totalOrders = _orders.length;
+    final totalRolls = _orders.fold<int>(
+      0,
+      (sum, o) => sum + o.items.fold<int>(0, (s, i) => s + i.quantity),
+    );
+    final driveCount = _orders
+        .where((o) => (o.driveLink ?? '').trim().isNotEmpty || o.driveLinkHistory.isNotEmpty)
+        .length;
+    final orderedLabs = <String>{};
+    for (final o in _orders) {
+      if (o.labName.trim().isNotEmpty) orderedLabs.add(o.labName.trim());
+    }
 
     return Scaffold(
       backgroundColor: AppColors.surface,
@@ -46,13 +84,19 @@ class ProfileScreen extends StatelessWidget {
           'HỒ SƠ CÁ NHÂN & CÀI ĐẶT',
           style: AppTypography.cardTitle.copyWith(fontSize: 13),
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh, size: 18, color: AppColors.primary),
+            onPressed: _loadUserStats,
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Membership Dossier Card (Stitch APP-CUS-26)
+            // Membership Dossier Card
             Container(
               decoration: BoxDecoration(
                 color: AppColors.surfaceRaised,
@@ -117,29 +161,25 @@ class ProfileScreen extends StatelessWidget {
                   const Divider(height: 1, color: AppColors.outline),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: _buildMetricItem('14', 'Cuộn đã tráng'),
-                        ),
-                        Container(width: 1, height: 28, color: AppColors.outline),
-                        Expanded(
-                          child: _buildMetricItem('420', 'Frames Archive'),
-                        ),
-                        Container(width: 1, height: 28, color: AppColors.outline),
-                        Expanded(
-                          child: _buildMetricItem('450k', 'Ví MiniLab Pay'),
-                        ),
-                      ],
-                    ),
+                    child: _loading
+                        ? const Center(child: SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2)))
+                        : Row(
+                            children: [
+                              Expanded(child: _buildMetricItem('$totalOrders', 'Đơn đã đặt')),
+                              Container(width: 1, height: 28, color: AppColors.outline),
+                              Expanded(child: _buildMetricItem('$totalRolls', 'Cuộn đã gửi')),
+                              Container(width: 1, height: 28, color: AppColors.outline),
+                              Expanded(child: _buildMetricItem('$driveCount', 'Link Drive')),
+                            ],
+                          ),
                   ),
                 ],
               ),
             ),
             const SizedBox(height: 20),
 
-            // Lab Preferences
-            Text('TIỆM LAB YÊU THÍCH', style: AppTypography.sectionHeading.copyWith(fontSize: 12)),
+            // Ordered Film Labs of THIS user only
+            Text('TIỆM LAB ĐÃ ĐẶT', style: AppTypography.sectionHeading.copyWith(fontSize: 12)),
             const SizedBox(height: 8),
             Container(
               padding: const EdgeInsets.all(12),
@@ -148,13 +188,23 @@ class ProfileScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(color: AppColors.outline),
               ),
-              child: Column(
-                children: [
-                  _buildPrefRow('LLab Sài Gòn (Q.1)', 'Noritsu HS-1800 • Tone ấm', true),
-                  const Divider(height: 14, color: AppColors.outline),
-                  _buildPrefRow('Croplab Retro (Bình Thạnh)', 'Fuji Frontier SP-3000 • Xanh pastel', true),
-                ],
-              ),
+              child: orderedLabs.isEmpty
+                  ? Text(
+                      'Bạn chưa đặt đơn ở tiệm Film Lab nào.',
+                      style: AppTypography.bodySmall.copyWith(color: AppColors.inkMuted),
+                    )
+                  : Column(
+                      children: orderedLabs.toList().asMap().entries.map((entry) {
+                        final idx = entry.key;
+                        final labName = entry.value;
+                        return Column(
+                          children: [
+                            if (idx > 0) const Divider(height: 14, color: AppColors.outline),
+                            _buildPrefRow(labName, 'Đã từng sử dụng dịch vụ tráng & scan'),
+                          ],
+                        );
+                      }).toList(),
+                    ),
             ),
             const SizedBox(height: 20),
 
@@ -170,11 +220,11 @@ class ProfileScreen extends StatelessWidget {
               ),
               child: Column(
                 children: [
-                  _buildSettingRow(Icons.security, 'Xác thực hai yếu tố (2FA / Passkey)', 'Đã bật qua thiết bị xác thực'),
+                  _buildSettingRow(Icons.security, 'Bảo mật tài khoản', 'Đang đăng nhập phiên cá nhân'),
                   const Divider(height: 14, color: AppColors.outline),
                   _buildSettingRow(Icons.notifications_outlined, 'Thông báo tiến độ ca trực Lab', 'Nhận thông báo khi ảnh đã scan xong'),
                   const Divider(height: 14, color: AppColors.outline),
-                  _buildSettingRow(Icons.lock_outline, 'Quyền riêng tư kho ảnh số', 'Chỉ người có link bảo mật mới xem được'),
+                  _buildSettingRow(Icons.lock_outline, 'Quyền riêng tư kho link Drive', 'Chỉ hiển thị link từ đơn hàng của bạn'),
                 ],
               ),
             ),
@@ -225,17 +275,19 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildPrefRow(String name, String sub, bool isFav) {
+  Widget _buildPrefRow(String name, String sub) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(name, style: AppTypography.cardTitle.copyWith(fontSize: 12)),
-            const SizedBox(height: 2),
-            Text(sub, style: AppTypography.bodySmall.copyWith(fontSize: 10, color: AppColors.inkMuted)),
-          ],
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(name, style: AppTypography.cardTitle.copyWith(fontSize: 12)),
+              const SizedBox(height: 2),
+              Text(sub, style: AppTypography.bodySmall.copyWith(fontSize: 10, color: AppColors.inkMuted)),
+            ],
+          ),
         ),
         const Icon(Icons.favorite, size: 16, color: AppColors.primary),
       ],

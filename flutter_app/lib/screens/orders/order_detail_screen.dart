@@ -4,10 +4,14 @@ import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_typography.dart';
 import '../../core/mock/mock_test_assets.dart';
 import '../../core/services/api_service.dart';
+import '../../core/utils/external_url_helper.dart';
 import '../../core/utils/local_image_picker.dart';
 import '../../models/order_model.dart';
 import 'review_lab_screen.dart';
 import '../archive/archive_gallery_screen.dart';
+import '../home/payment_receipt_screen.dart';
+import '../home/qr_transfer_dialog.dart';
+import '../home/vnpay_payment_dialog.dart';
 
 class OrderDetailScreen extends StatefulWidget {
   final OrderModel? order;
@@ -22,6 +26,7 @@ class OrderDetailScreen extends StatefulWidget {
 class _OrderDetailScreenState extends State<OrderDetailScreen> {
   OrderModel? _liveOrder;
   bool _loading = false;
+  bool _ahamoveBusy = false;
 
   @override
   void initState() {
@@ -57,15 +62,15 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
   String _stepBadgeText(int activeIdx) {
     switch (activeIdx) {
       case 0:
-        return 'BƯỚC 1/5: 1. TIẾP NHẬN';
+        return '1/5 • TIẾP NHẬN';
       case 1:
-        return 'BƯỚC 2/5: 2. VÀO TANK / TRÁNG';
+        return '2/5 • ĐANG TRÁNG';
       case 2:
-        return 'BƯỚC 3/5: 3. SẤY KHÔ';
+        return '3/5 • ĐANG SẤY';
       case 3:
-        return 'BƯỚC 4/5: 4. SCAN SỐ HÓA';
+        return '4/5 • ĐANG QUÉT ẢNH';
       default:
-        return 'BƯỚC 5/5: 5. QC & ARCHIVE';
+        return '5/5 • HOÀN TẤT';
     }
   }
 
@@ -158,6 +163,262 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
     );
   }
 
+  String _formatPaymentLabel(String? method) {
+    switch ((method ?? '').toUpperCase()) {
+      case 'VNPAY':
+        return 'VNPAY';
+      case 'INTERNAL_QR':
+        return 'QR CHUYỂN KHOẢN';
+      case 'CASH_ON_DROP':
+        return 'TIỀN MẶT TẠI LAB';
+      default:
+        return (method == null || method.isEmpty) ? 'VNPAY' : method;
+    }
+  }
+
+  Future<void> _payPendingVnpay(OrderModel order) async {
+    final res = await ApiService().createVnpayPayment(
+      orderId: order.orderId,
+      amount: order.totalAmount,
+      orderInfo: 'Thanh toan don ${order.orderId}',
+    );
+    if (!mounted) return;
+    if (res['already_paid'] == true || (res['data'] is Map && res['data']['paid'] == true)) {
+      await _fetchOrder();
+      return;
+    }
+    final data = res['data'] as Map?;
+    final paymentUrl = data?['paymentUrl']?.toString() ?? '';
+    if (res['success'] != true || paymentUrl.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(res['message']?.toString() ?? 'Không thể khởi tạo thanh toán VNPAY')),
+      );
+      return;
+    }
+    final result = await showVnpayPaymentFlowDialog(
+      context: context,
+      orderId: order.orderId,
+      labName: order.labName,
+      amount: order.totalAmount,
+      paymentUrl: paymentUrl,
+      txnRef: data?['txn_ref']?.toString(),
+    );
+    if (!mounted) return;
+    await _fetchOrder();
+    if (!mounted) return;
+    if (result != null && result['paid'] == true) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => PaymentReceiptScreen(
+            orderId: order.orderId,
+            labName: order.labName,
+            amount: order.totalAmount,
+            paymentMethod: 'VNPAY',
+            transactionId: result['trans_id']?.toString(),
+          ),
+        ),
+      );
+    }
+  }
+
+  Future<void> _openPendingQrTransfer(OrderModel order) async {
+    final result = await showQrTransferDialog(
+      context: context,
+      orderId: order.orderId,
+      labName: order.labName,
+      amount: order.totalAmount,
+    );
+    if (!mounted) return;
+    await _fetchOrder();
+    if (!mounted) return;
+    if (result != null && result['paid'] == true) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => PaymentReceiptScreen(
+            orderId: order.orderId,
+            labName: order.labName,
+            amount: order.totalAmount,
+            paymentMethod: 'QR Chuyển khoản trực tiếp',
+          ),
+        ),
+      );
+    }
+  }
+
+  Future<void> _bookAhamove(OrderModel order) async {
+    setState(() => _ahamoveBusy = true);
+    final res = await ApiService().bookAhamovePickup(
+      order.orderId,
+      pickupAddress: order.pickupAddress,
+      pickupPhone: order.pickupPhone,
+    );
+    if (!mounted) return;
+    setState(() => _ahamoveBusy = false);
+    await _fetchOrder();
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        backgroundColor: res['success'] == true ? AppColors.secondary : AppColors.danger,
+        content: Text(res['message']?.toString() ?? 'Đã gửi yêu cầu gọi tài xế'),
+      ),
+    );
+  }
+
+  Future<void> _refreshAhamove(OrderModel order) async {
+    setState(() => _ahamoveBusy = true);
+    await ApiService().getAhamoveShipmentStatus(order.orderId);
+    await _fetchOrder();
+    if (mounted) setState(() => _ahamoveBusy = false);
+  }
+
+  Future<void> _cancelAhamove(OrderModel order) async {
+    setState(() => _ahamoveBusy = true);
+    final res = await ApiService().cancelAhamovePickup(order.orderId);
+    if (!mounted) return;
+    setState(() => _ahamoveBusy = false);
+    await _fetchOrder();
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        backgroundColor: res['success'] == true ? AppColors.secondary : AppColors.danger,
+        content: Text(res['message']?.toString() ?? 'Đã hủy vận đơn AhaMove'),
+      ),
+    );
+  }
+
+  Widget _buildAhamoveCard(OrderModel o) {
+    final ship = o.shipment;
+    final stateKey = o.normalizedShipmentState;
+    final statusStr = (ship?['status'] ?? '').toString().toUpperCase();
+    final extId = (ship?['external_order_id'] ?? '').toString();
+    final sharedLink = (ship?['shared_link'] ?? '').toString();
+    final driverName = (ship?['driver_name'] ?? '').toString();
+    final driverPhone = (ship?['driver_phone'] ?? '').toString();
+    final canBook = (ship == null || statusStr == 'CANCELLED') &&
+        o.paymentStatus.toUpperCase() == 'PAID' &&
+        o.status.toUpperCase() != 'CANCELLED';
+
+    Color accentColor = const Color(0xFFEA580C);
+    IconData statusIcon = Icons.delivery_dining;
+    if (stateKey == 'DELIVERED') {
+      accentColor = AppColors.secondary;
+      statusIcon = Icons.check_circle_outline;
+    } else if (stateKey == 'ASSIGNED' || stateKey == 'PICKED_UP' || stateKey == 'IN_TRANSIT') {
+      accentColor = AppColors.primary;
+      statusIcon = Icons.directions_bike_outlined;
+    } else if (stateKey == 'CANCELLED' || stateKey == 'FAILED') {
+      accentColor = AppColors.danger;
+      statusIcon = Icons.cancel_outlined;
+    }
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceRaised,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: accentColor.withValues(alpha: 0.45)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(statusIcon, size: 18, color: accentColor),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'GIAO NHẬN AHAMOVE • LẤY FILM TẬN NƠI',
+                  style: AppTypography.labelCaps.copyWith(color: accentColor, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: accentColor.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(6),
+              border: Border.all(color: accentColor.withValues(alpha: 0.25)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  o.shipmentHeadlineVi,
+                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: accentColor),
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  o.shipmentHintVi,
+                  style: AppTypography.bodySmall.copyWith(fontSize: 12, color: AppColors.ink),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 8),
+          if (o.pickupAddress.isNotEmpty)
+            Text('Địa chỉ lấy hàng: ${o.pickupAddress}', style: AppTypography.bodySmall),
+          if (ship != null) ...[
+            const SizedBox(height: 4),
+            Text(
+              'Mã vận đơn AhaMove: ${extId.isNotEmpty ? '#$extId' : 'N/A'}',
+              style: AppTypography.dataMono.copyWith(fontSize: 11, color: AppColors.inkMuted),
+            ),
+            if (driverName.isNotEmpty || driverPhone.isNotEmpty) ...[
+              const SizedBox(height: 4),
+              Text(
+                'Thông tin tài xế: ${[driverName, driverPhone].where((s) => s.isNotEmpty).join(' • ')}',
+                style: AppTypography.bodySmall.copyWith(color: AppColors.secondary, fontWeight: FontWeight.w600),
+              ),
+            ],
+          ],
+          const SizedBox(height: 10),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              if (canBook)
+                ElevatedButton.icon(
+                  onPressed: _ahamoveBusy ? null : () => _bookAhamove(o),
+                  icon: const Icon(Icons.local_shipping_outlined, size: 15),
+                  label: Text(_ahamoveBusy ? 'Đang gọi tài xế...' : 'Gọi tài xế lấy film'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFEA580C),
+                    foregroundColor: Colors.white,
+                    elevation: 0,
+                  ),
+                ),
+              if (ship != null && extId.isNotEmpty) ...[
+                OutlinedButton.icon(
+                  onPressed: _ahamoveBusy ? null : () => _refreshAhamove(o),
+                  icon: const Icon(Icons.refresh, size: 15),
+                  label: const Text('Cập nhật trạng thái'),
+                ),
+                if (sharedLink.isNotEmpty)
+                  OutlinedButton.icon(
+                    onPressed: () => openExternalPaymentUrl(sharedLink),
+                    icon: const Icon(Icons.map_outlined, size: 15),
+                    label: const Text('Xem hành trình'),
+                  ),
+                if (statusStr != 'CANCELLED' && statusStr != 'DELIVERED')
+                  OutlinedButton.icon(
+                    onPressed: _ahamoveBusy ? null : () => _cancelAhamove(o),
+                    icon: const Icon(Icons.cancel_outlined, size: 15, color: AppColors.danger),
+                    label: const Text('Hủy Shipper', style: TextStyle(color: AppColors.danger)),
+                  ),
+              ],
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final o = _liveOrder;
@@ -233,7 +494,13 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
-                          _stepBadgeText(activeIdx),
+                          (o?.status.toUpperCase() == 'CANCELLED' || o?.paymentStatus.toUpperCase() == 'CANCELLED')
+                              ? 'ĐÃ HỦY ĐƠN'
+                              : (o?.paymentStatus.toUpperCase() == 'PENDING'
+                                  ? (o?.paymentMethod.toUpperCase() == 'INTERNAL_QR'
+                                      ? 'CHỜ NV LAB XÁC NHẬN QR'
+                                      : 'CHỜ THANH TOÁN VNPAY')
+                                  : _stepBadgeText(activeIdx)),
                           style: AppTypography.labelCaps.copyWith(
                             fontSize: 9,
                             fontWeight: FontWeight.bold,
@@ -256,17 +523,81 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text('TỔNG THANH TOÁN (VÍ MINILAB)', style: AppTypography.labelCaps),
+                      Text(
+                        'TỔNG THANH TOÁN (${_formatPaymentLabel(o?.paymentMethod)})',
+                        style: AppTypography.labelCaps,
+                      ),
                       Text(
                         price,
                         style: AppTypography.metric.copyWith(fontSize: 16, color: AppColors.primary),
                       ),
                     ],
                   ),
+                  if (o != null &&
+                      o.status.toUpperCase() == 'CANCELLED') ...[
+                    const SizedBox(height: 12),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: AppColors.dangerBg,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: AppColors.danger.withValues(alpha: 0.4)),
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Icon(Icons.cancel_outlined, size: 16, color: AppColors.danger),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              (o.cancelReason != null && o.cancelReason!.isNotEmpty)
+                                  ? 'Đơn hàng đã bị hủy: ${o.cancelReason}'
+                                  : 'Đơn hàng đã bị hủy do quá hạn thanh toán VNPAY.',
+                              style: AppTypography.bodySmall.copyWith(color: AppColors.danger, fontSize: 12),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ] else if (o != null &&
+                      o.paymentStatus.toUpperCase() == 'PENDING' &&
+                      o.status.toUpperCase() != 'CANCELLED') ...[
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      width: double.infinity,
+                      child: o.paymentMethod.toUpperCase() == 'INTERNAL_QR'
+                          ? ElevatedButton.icon(
+                              onPressed: () => _openPendingQrTransfer(o),
+                              icon: const Icon(Icons.qr_code_2, size: 16),
+                              label: const Text('Xem mã QR chuyển khoản & Chờ Lab xác nhận'),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.primary,
+                                foregroundColor: Colors.white,
+                                elevation: 0,
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                              ),
+                            )
+                          : ElevatedButton.icon(
+                              onPressed: () => _payPendingVnpay(o),
+                              icon: const Icon(Icons.account_balance_outlined, size: 16),
+                              label: const Text('Thanh toán ngay qua VNPAY'),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF005BAA),
+                                foregroundColor: Colors.white,
+                                elevation: 0,
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                              ),
+                            ),
+                    ),
+                  ],
                 ],
               ),
             ),
             const SizedBox(height: 16),
+
+            if (o != null && o.isPickupOrder)
+              _buildAhamoveCard(o),
 
             // Compensation / Dispute Response Card (Hiển thị khi Lab tặng cuộn film đền bù hoặc phản hồi khiếu nại)
             if ((o?.compensationNote != null && o!.compensationNote!.isNotEmpty) ||
@@ -500,8 +831,8 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
               ),
             ],
 
-            // Live Timeline SLA Stepper
-            Text('TIẾN ĐỘ TRÁNG SCAN & NHẬT KÝ CA TRỰC (LIVE KANBAN)', style: AppTypography.sectionHeading.copyWith(fontSize: 12)),
+            // Live Timeline Stepper
+            Text('TIẾN ĐỘ ĐƠN HÀNG', style: AppTypography.sectionHeading.copyWith(fontSize: 12)),
             const SizedBox(height: 10),
             Container(
               padding: const EdgeInsets.all(16),
@@ -515,15 +846,21 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                   _buildTimelineStep(
                     stepNumber: '1',
                     title: '1. Tiếp nhận',
-                    subtitle: 'Tiếp nhận cuộn phim tại Lab, phân loại hộp chống ẩm & gán mã QR quản lý.',
-                    time: activeIdx == 0 ? 'Đang ở bước này' : 'Hoàn tất',
+                    subtitle: (activeIdx == 0 && o != null && o.isPickupOrder && o.normalizedShipmentState != 'DELIVERED')
+                        ? '${o.shipmentHeadlineVi} — ${o.shipmentHintVi}'
+                        : 'Tiệm đã nhận cuộn phim và xếp hàng xử lý.',
+                    time: activeIdx == 0
+                        ? ((o != null && o.isPickupOrder && o.normalizedShipmentState != 'DELIVERED')
+                            ? o.shipmentHeadlineVi
+                            : 'Đang ở bước này')
+                        : 'Hoàn tất',
                     isDone: activeIdx > 0,
                     isActive: activeIdx == 0,
                   ),
                   _buildTimelineStep(
                     stepNumber: '2',
-                    title: '2. Vào Tank / Tráng',
-                    subtitle: 'Vào Tank hóa chất Jobo ATL-2 tráng tự động kiểm soát nhiệt độ chuẩn 37.8°C.',
+                    title: '2. Tráng phim',
+                    subtitle: 'Đang tiến hành tráng cuộn phim của bạn.',
                     time: activeIdx == 1 ? 'Đang thực hiện' : (activeIdx > 1 ? 'Hoàn tất' : 'Chờ xử lý'),
                     isDone: activeIdx > 1,
                     isActive: activeIdx == 1,
@@ -531,23 +868,23 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                   _buildTimelineStep(
                     stepNumber: '3',
                     title: '3. Sấy khô',
-                    subtitle: 'Tủ sấy khí sạch kiểm soát độ ẩm 42%, cân bằng phẳng giữ màng phim không bụi.',
+                    subtitle: 'Làm khô tự nhiên trong phòng sạch.',
                     time: activeIdx == 2 ? 'Đang thực hiện' : (activeIdx > 2 ? 'Hoàn tất' : 'Chờ xử lý'),
                     isDone: activeIdx > 2,
                     isActive: activeIdx == 2,
                   ),
                   _buildTimelineStep(
                     stepNumber: '4',
-                    title: '4. Scan số hóa',
-                    subtitle: 'Quét quang học độ phân giải cao trên hệ máy Noritsu HS-1800 / Fuji Frontier.',
+                    title: '4. Quét ảnh',
+                    subtitle: 'Số hóa từng khung hình sang ảnh chất lượng cao.',
                     time: activeIdx == 3 ? 'Đang thực hiện' : (activeIdx > 3 ? 'Hoàn tất' : 'Chờ xử lý'),
                     isDone: activeIdx > 3,
                     isActive: activeIdx == 3,
                   ),
                   _buildTimelineStep(
                     stepNumber: '5',
-                    title: '5. QC & Archive',
-                    subtitle: 'Kiểm định chất lượng 36 khung hình & đồng bộ file lên Kho ảnh Digital Archive.',
+                    title: '5. Hoàn tất & Trả ảnh',
+                    subtitle: 'Ảnh đã được gửi lên Kho ảnh của bạn.',
                     time: activeIdx == 4 ? 'Đã sẵn sàng tải!' : 'Chờ hoàn tất',
                     isDone: activeIdx == 4,
                     isActive: false,
@@ -580,7 +917,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                 children: [
                   Icon(Icons.photo_library_outlined, size: 16),
                   SizedBox(width: 8),
-                  Text('Vào Kho Lưu Trữ Digital Archive', style: AppTypography.button),
+                  Text('Mở Kho ảnh của tôi', style: AppTypography.button),
                 ],
               ),
             ),

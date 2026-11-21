@@ -348,6 +348,7 @@ async function initDatabase() {
       dbStatus.mode = 'DISCONNECTED';
       dbStatus.error = err.message;
       console.log(`[SQL Server]: Không thể kết nối (${err.message}) -> Vui lòng kiểm tra SQL Server (${dbStatus.server}) và chắc chắn đã chạy database/init_database.sql`);
+      await hydratePersistedDriveLinks();
       return dbStatus;
     }
   }
@@ -355,6 +356,7 @@ async function initDatabase() {
   dbStatus.connected = false;
   dbStatus.mode = 'DISCONNECTED';
   dbStatus.error = 'Không thể kết nối SQL Server. Hãy chạy database/init_database.sql trong SSMS.';
+  await hydratePersistedDriveLinks();
   return dbStatus;
 }
 
@@ -479,6 +481,7 @@ async function syncStoreFromSqlServer() {
       store.mockExpertApplications.push({
         id: ep.user_code || `APP-EXP-${ep.expert_id}`,
         expert_id: ep.expert_id,
+        db_user_id: ep.user_id,
         user_id: ep.user_code || `usr-${ep.user_id}`,
         name: ep.full_name,
         email: ep.email,
@@ -540,6 +543,7 @@ async function syncStoreFromSqlServer() {
         store.mockPendingLabs.push({
           application_id: l.lab_code || `app-lab-${l.lab_id}`,
           db_lab_id: l.lab_id,
+          owner_id: l.owner_code || `usr-${l.owner_id}`,
           name: l.lab_name,
           owner_name: l.owner_name,
           email: l.email || '',
@@ -555,6 +559,21 @@ async function syncStoreFromSqlServer() {
         });
       }
     });
+
+    // Hydrate custom Lab payment QR settings if configured in SQL
+    await ensureLabPaymentQrTable();
+    try {
+      const qrRes = await runQuery(`SELECT lab_code, qr_image_url, bank_name, account_no, account_name FROM dbo.Lab_Payment_Qr`);
+      (qrRes.recordset || []).forEach(q => {
+        const target = store.mockLabs.find(m => m.lab_id === q.lab_code);
+        if (target) {
+          if (q.qr_image_url) target.qr_image_url = q.qr_image_url;
+          if (q.bank_name) target.bank_name = q.bank_name;
+          if (q.account_no) target.account_no = q.account_no;
+          if (q.account_name) target.account_name = q.account_name;
+        }
+      });
+    } catch (_) {}
 
     // 4. Process Standards & Service Packages
     const procRes = await runQuery(`SELECT * FROM Process_Type ORDER BY process_type_id`);
@@ -637,19 +656,27 @@ async function syncStoreFromSqlServer() {
         status: o.status,
         kanban_column: o.kanban_column || 'QUEUE',
         total_amount: Number(o.total_amount),
-        shipping_method: o.receive_method,
+        shipping_fee: Number(o.shipping_fee || 0),
+        shipping_method: (o.receive_method === 'PICKUP' && Number(o.shipping_fee || 0) > 0)
+          ? 'AHAMOVE_PICKUP'
+          : (o.receive_method || 'DROP_AT_LAB'),
         pickup_address: o.pickup_address || '',
         payment_status: o.payment_status || 'PAID',
-        payment_method: o.payment_method || 'MOMO',
+        payment_method: o.payment_method || 'VNPAY',
+        cancel_reason: o.cancel_reason || '',
         sla_deadline: safeIsoDate(o.sla_deadline),
         items: orderItems,
         timeline: [
           {
             step: 1,
             name: '1. Tiếp nhận',
-            status: o.kanban_column === 'QUEUE' ? 'IN_PROGRESS' : 'COMPLETED',
-            time: '09:30 01/03/2026',
-            note: `Thanh toán ${o.payment_method || 'MOMO'} thành công • Đã tiếp nhận tại ${o.lab_name}`,
+            status: o.status === 'CANCELLED' ? 'COMPLETED' : (o.payment_status === 'PENDING' ? 'PENDING' : (o.kanban_column === 'QUEUE' ? 'IN_PROGRESS' : 'COMPLETED')),
+            time: o.payment_status === 'PENDING' ? '' : '09:30 01/03/2026',
+            note: o.status === 'CANCELLED'
+              ? `Đơn hàng đã bị hủy: ${o.cancel_reason || 'Quá hạn thanh toán VNPAY'}`
+              : (o.payment_status === 'PENDING'
+                ? `Đang chờ khách hàng thanh toán qua cổng ${o.payment_method || 'VNPAY'}`
+                : `Thanh toán ${o.payment_method || 'VNPAY'} thành công • Đã tiếp nhận tại ${o.lab_name}`),
           },
           {
             step: 2,
@@ -684,6 +711,44 @@ async function syncStoreFromSqlServer() {
         ]
       });
     });
+
+    // Hydrate Shipment (AhaMove / delivery) records onto mockOrders
+    try {
+      const shipRes = await runQuery(`
+        SELECT s.*, o.order_code
+        FROM Shipment s
+        JOIN Orders o ON o.order_id = s.order_id
+        ORDER BY s.created_at DESC
+      `);
+      (shipRes.recordset || []).forEach(s => {
+        const ord = store.mockOrders.find(m => m.order_id === s.order_code);
+        if (ord && !ord.shipment) {
+          ord.shipment = {
+            provider: s.provider || 'AHAMOVE',
+            direction: s.direction || 'PICKUP_TO_LAB',
+            external_order_id: s.external_order_id || '',
+            tracking_code: s.tracking_code || s.external_order_id || '',
+            shared_link: (s.tracking_code && String(s.tracking_code).startsWith('http')) ? s.tracking_code : '',
+            sender_name: s.sender_name || '',
+            sender_phone: s.sender_phone || '',
+            sender_address: s.sender_address || '',
+            receiver_name: s.receiver_name || '',
+            receiver_phone: s.receiver_phone || '',
+            receiver_address: s.receiver_address || '',
+            shipping_fee: Number(s.shipping_fee || 0),
+            status: s.status || 'PENDING',
+            sandbox: true,
+            created_at: safeIsoDate(s.created_at),
+          };
+          if ((s.provider || 'AHAMOVE') === 'AHAMOVE') {
+            ord.shipping_method = 'AHAMOVE_PICKUP';
+          }
+          if (!ord.pickup_phone && s.sender_phone) {
+            ord.pickup_phone = s.sender_phone;
+          }
+        }
+      });
+    } catch (_) {}
 
     // 6. Archive Photos & Metadata
     const photosRes = await runQuery(`
@@ -765,7 +830,19 @@ async function syncStoreFromSqlServer() {
       });
     });
 
-    // 8. Community Posts
+    // 8. Community Posts, Comments & Likes
+    await runQuery(`
+      IF OBJECT_ID('dbo.Post_Like', 'U') IS NULL
+      BEGIN
+        CREATE TABLE dbo.Post_Like (
+          post_code VARCHAR(40) NOT NULL,
+          user_code VARCHAR(40) NOT NULL,
+          created_at DATETIME2(0) NOT NULL DEFAULT SYSUTCDATETIME(),
+          CONSTRAINT PK_Post_Like PRIMARY KEY (post_code, user_code)
+        );
+      END
+    `).catch(() => {});
+
     const postsRes = await runQuery(`
       SELECT p.*, u.user_code, u.full_name AS author_name, u.avatar_url AS author_avatar, u.status AS author_status, pc.name AS category_name
       FROM Post_Article p
@@ -773,12 +850,40 @@ async function syncStoreFromSqlServer() {
       LEFT JOIN Post_Category pc ON pc.post_category_id = p.post_category_id
       ORDER BY p.created_at DESC
     `);
+    const postCommentsRes = await runQuery(`
+      SELECT pc.*, p.post_code, u.user_code, u.full_name AS user_name, u.avatar_url
+      FROM Post_Comment pc
+      JOIN Post_Article p ON p.post_id = pc.post_id
+      JOIN Users u ON u.user_id = pc.user_id
+      WHERE pc.status = 'VISIBLE'
+      ORDER BY pc.created_at ASC, pc.comment_id ASC
+    `).catch(() => ({ recordset: [] }));
+    const postLikesRes = await runQuery(`
+      SELECT post_code, user_code FROM dbo.Post_Like
+    `).catch(() => ({ recordset: [] }));
+
     store.mockCommunityPosts.length = 0;
     postsRes.recordset.forEach(p => {
-      const isAudited = Boolean(p.moderated_at || p.post_code === 'post-001');
+      const postCode = p.post_code || `post-${p.post_id}`;
+      const isAudited = Boolean(p.moderated_by || p.post_code === 'post-001');
       const isLocked = p.author_status === 'LOCKED';
+      const commentsForPost = (postCommentsRes.recordset || [])
+        .filter(c => Number(c.post_id) === Number(p.post_id) || c.post_code === postCode)
+        .map(c => ({
+          comment_id: c.comment_code || `cmt-${c.comment_id}`,
+          user_id: c.user_code || `usr-${c.user_id}`,
+          user_name: c.user_name || 'Thành viên MiniLab',
+          avatar_url: c.avatar_url || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150',
+          content: c.content || '',
+          created_at: safeIsoDate(c.created_at),
+        }));
+      const likedUserIds = (postLikesRes.recordset || [])
+        .filter(l => l.post_code === postCode)
+        .map(l => String(l.user_code));
+      const sqlLikes = Number(p.likes_count || 0);
       store.mockCommunityPosts.push({
-        post_id: p.post_code || `post-${p.post_id}`,
+        post_id: postCode,
+        db_post_id: Number(p.post_id),
         author_id: p.user_code || `usr-${p.author_id}`,
         author_name: isLocked ? 'Người dùng vi phạm' : p.author_name,
         author_avatar: isLocked ? 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150' : (p.author_avatar || 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=150'),
@@ -789,16 +894,17 @@ async function syncStoreFromSqlServer() {
         content: p.content,
         category: p.category_name || 'Kỹ thuật chụp',
         image_url: p.cover_image_url || 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=800',
-        likes_count: Number(p.likes_count || 0),
-        comments_count: Number(p.comments_count || 0),
+        likes_count: Math.max(sqlLikes, likedUserIds.length),
+        liked_user_ids: likedUserIds,
+        comments_count: commentsForPost.length,
         status: p.status === 'PUBLISHED' ? 'ACTIVE' : p.status,
         report_count: Number(p.report_count || 0),
         report_reason: p.report_reason || undefined,
         moderated_by: p.moderated_by || null,
-        moderated_at: p.moderated_at ? safeIsoDate(p.moderated_at) : null,
+        moderated_at: p.moderated_by ? safeIsoDate(p.updated_at || p.created_at) : null,
         needs_audit: !isAudited && (p.status === 'ACTIVE' || p.status === 'REPORTED'),
         created_at: safeIsoDate(p.created_at),
-        comments: [],
+        comments: commentsForPost,
       });
     });
 
@@ -950,11 +1056,337 @@ async function syncStoreFromSqlServer() {
       });
     });
 
+    await hydratePersistedDriveLinks();
     dbStatus.lastSync = new Date().toISOString();
     console.log(`[SQL Server Sync]: Đã tải ${store.mockUsers.length} users, ${store.mockLabs.length + store.mockPendingLabs.length} labs, ${store.mockOrders.length} orders từ CSDL.`);
     return true;
   } catch (err) {
     console.error('[SQL Server Sync Error]:', err.message);
+    await hydratePersistedDriveLinks();
+    return false;
+  }
+}
+
+const DRIVE_LINKS_BACKUP_PATH = path.resolve(__dirname, '../../uploads/sent_drive_links.json');
+let persistedDriveLinksCache = [];
+
+function isValidPersistedDriveLink(link) {
+  const s = String(link || '').trim();
+  if (!s || !s.startsWith('http')) return false;
+  if (
+    s.includes('1FilmLabArchive') ||
+    s.includes('1MiniLabDigitalArchive') ||
+    s.includes('/file/d/') ||
+    s.includes('/drive/my-drive')
+  ) {
+    return false;
+  }
+  return true;
+}
+
+function readBackupDriveLinksFile() {
+  try {
+    if (!fs.existsSync(DRIVE_LINKS_BACKUP_PATH)) return [];
+    const raw = fs.readFileSync(DRIVE_LINKS_BACKUP_PATH, 'utf8');
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed.filter(r => r && isValidPersistedDriveLink(r.drive_link)) : [];
+  } catch (_) {
+    return [];
+  }
+}
+
+function writeBackupDriveLinksFile(records) {
+  try {
+    const dir = path.dirname(DRIVE_LINKS_BACKUP_PATH);
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(DRIVE_LINKS_BACKUP_PATH, JSON.stringify(records, null, 2), 'utf8');
+  } catch (_) {}
+}
+
+async function ensureOrderDriveLinkTable() {
+  if (!dbStatus.connected) return false;
+  try {
+    await runQuery(`
+      IF OBJECT_ID('dbo.Order_Drive_Link', 'U') IS NULL
+      BEGIN
+        CREATE TABLE dbo.Order_Drive_Link (
+          link_id         BIGINT IDENTITY(1,1) NOT NULL PRIMARY KEY,
+          order_code      VARCHAR(40)    NOT NULL,
+          user_code       VARCHAR(40)    NULL,
+          recipient_email VARCHAR(150)   NULL,
+          customer_name   NVARCHAR(150)  NULL,
+          lab_id          VARCHAR(40)    NULL,
+          drive_link      NVARCHAR(1000) NOT NULL,
+          roll_code       VARCHAR(60)    NULL,
+          photo_count     INT            NOT NULL DEFAULT 1,
+          drive_mode      VARCHAR(40)    NULL,
+          created_at      DATETIME2(0)   NOT NULL DEFAULT SYSUTCDATETIME()
+        );
+      END
+    `);
+    return true;
+  } catch (_) {
+    return false;
+  }
+}
+
+function applyDriveLinksToStoreOrders(records) {
+  records.forEach(rec => {
+    const orderCode = String(rec.order_code || '').trim();
+    const driveLink = String(rec.drive_link || '').trim();
+    if (!orderCode || !isValidPersistedDriveLink(driveLink)) return;
+
+    const order = store.mockOrders.find(
+      o => String(o.order_id || '').toLowerCase() === orderCode.toLowerCase()
+    );
+    if (!order) return;
+
+    const uid = String(rec.user_code || order.user_id || '').trim();
+    const emailLower = String(rec.recipient_email || order.customer_email || '').trim().toLowerCase();
+
+    if (!order.drive_links_by_user) order.drive_links_by_user = {};
+    if (!order.drive_link_history_by_user) order.drive_link_history_by_user = {};
+
+    if (uid) {
+      if (!order.drive_links_by_user[uid]) {
+        order.drive_links_by_user[uid] = driveLink;
+      }
+      const prev = order.drive_link_history_by_user[uid] || [];
+      if (!prev.includes(driveLink)) {
+        order.drive_link_history_by_user[uid] = [...prev, driveLink];
+      }
+    }
+    if (emailLower) {
+      if (!order.drive_links_by_user[emailLower]) {
+        order.drive_links_by_user[emailLower] = driveLink;
+      }
+      const prevE = order.drive_link_history_by_user[emailLower] || [];
+      if (!prevE.includes(driveLink)) {
+        order.drive_link_history_by_user[emailLower] = [...prevE, driveLink];
+      }
+    }
+
+    order.kanban_column = 'READY';
+    if (order.status !== 'COMPLETED') {
+      order.status = 'READY_FOR_DOWNLOAD';
+    }
+    if (Array.isArray(order.timeline)) {
+      order.timeline.forEach(step => {
+        step.status = 'COMPLETED';
+      });
+    }
+  });
+}
+
+async function hydratePersistedDriveLinks() {
+  const merged = [];
+  const seen = new Set();
+
+  const pushUnique = (item) => {
+    if (!item || !item.order_code || !isValidPersistedDriveLink(item.drive_link)) return;
+    const key = `${String(item.order_code).toLowerCase()}|${String(item.drive_link).trim()}`;
+    if (seen.has(key)) return;
+    seen.add(key);
+    merged.push({
+      order_code: String(item.order_code).trim(),
+      user_code: String(item.user_code || '').trim(),
+      recipient_email: String(item.recipient_email || '').trim(),
+      customer_name: String(item.customer_name || '').trim(),
+      lab_id: String(item.lab_id || '').trim(),
+      drive_link: String(item.drive_link).trim(),
+      roll_code: String(item.roll_code || '').trim(),
+      photo_count: Number(item.photo_count || 1),
+      drive_mode: String(item.drive_mode || 'DRIVE_FOLDER_LINK'),
+      created_at: item.created_at ? safeIsoDate(item.created_at) : new Date().toISOString(),
+    });
+  };
+
+  if (dbStatus.connected) {
+    try {
+      await ensureOrderDriveLinkTable();
+      const res = await runQuery(`
+        SELECT order_code, user_code, recipient_email, customer_name, lab_id, drive_link, roll_code, photo_count, drive_mode, created_at
+        FROM dbo.Order_Drive_Link
+        ORDER BY created_at DESC, link_id DESC
+      `);
+      (res.recordset || []).forEach(pushUnique);
+    } catch (err) {
+      console.error('[Order_Drive_Link Load Warning]:', err.message);
+    }
+  }
+
+  readBackupDriveLinksFile().forEach(pushUnique);
+
+  merged.sort((a, b) => String(b.created_at || '').localeCompare(String(a.created_at || '')));
+  persistedDriveLinksCache = merged;
+  writeBackupDriveLinksFile(merged);
+  applyDriveLinksToStoreOrders(merged);
+  return merged;
+}
+
+async function saveOrderDriveLinkRecord(entry = {}) {
+  const orderCode = String(entry.order_code || entry.order_id || '').trim();
+  const driveLink = String(entry.drive_link || '').trim();
+  if (!orderCode || !isValidPersistedDriveLink(driveLink)) return false;
+
+  const cleanRecord = {
+    order_code: orderCode,
+    user_code: String(entry.user_code || '').trim(),
+    recipient_email: String(entry.recipient_email || '').trim(),
+    customer_name: String(entry.customer_name || '').trim(),
+    lab_id: String(entry.lab_id || '').trim(),
+    drive_link: driveLink,
+    roll_code: String(entry.roll_code || '').trim(),
+    photo_count: Number(entry.photo_count || 1),
+    drive_mode: String(entry.drive_mode || 'DRIVE_FOLDER_LINK'),
+    created_at: entry.created_at || new Date().toISOString(),
+  };
+
+  persistedDriveLinksCache = [
+    cleanRecord,
+    ...persistedDriveLinksCache.filter(
+      r => !(String(r.order_code).toLowerCase() === orderCode.toLowerCase() && r.drive_link === driveLink)
+    ),
+  ];
+  writeBackupDriveLinksFile(persistedDriveLinksCache);
+
+  if (dbStatus.connected) {
+    try {
+      await ensureOrderDriveLinkTable();
+      const esc = (v) => String(v || '').replace(/'/g, "''");
+      await runQuery(`
+        INSERT INTO dbo.Order_Drive_Link (order_code, user_code, recipient_email, customer_name, lab_id, drive_link, roll_code, photo_count, drive_mode)
+        VALUES ('${esc(cleanRecord.order_code)}', '${esc(cleanRecord.user_code)}', '${esc(cleanRecord.recipient_email)}', N'${esc(cleanRecord.customer_name)}', '${esc(cleanRecord.lab_id)}', N'${esc(cleanRecord.drive_link)}', '${esc(cleanRecord.roll_code)}', ${cleanRecord.photo_count}, '${esc(cleanRecord.drive_mode)}');
+      `);
+    } catch (err) {
+      console.error('[Order_Drive_Link Save Warning]:', err.message);
+    }
+  }
+  return true;
+}
+
+function getPersistedSentDriveLinks(filterLabId = '') {
+  return persistedDriveLinksCache
+    .filter(rec => {
+      if (!filterLabId) return true;
+      if (rec.lab_id && rec.lab_id === filterLabId) return true;
+      const ord = store.mockOrders.find(
+        o => String(o.order_id || '').toLowerCase() === String(rec.order_code || '').toLowerCase()
+      );
+      return Boolean(ord && ord.lab_id === filterLabId);
+    })
+    .map(rec => ({
+      order_id: rec.order_code,
+      user_id: rec.user_code,
+      recipient_email: rec.recipient_email,
+      customer_name: rec.customer_name || 'Khách hàng',
+      lab_id: rec.lab_id,
+      drive_link: rec.drive_link,
+      roll_code: rec.roll_code,
+      photo_count: rec.photo_count,
+      drive_mode: rec.drive_mode,
+      created_at: rec.created_at,
+    }));
+}
+
+async function ensureLabPaymentQrTable() {
+  if (!dbStatus.connected) return;
+  try {
+    await runQuery(`
+      IF OBJECT_ID('dbo.Lab_Payment_Qr', 'U') IS NULL
+      BEGIN
+        CREATE TABLE dbo.Lab_Payment_Qr (
+          lab_code     VARCHAR(30)   NOT NULL PRIMARY KEY,
+          qr_image_url NVARCHAR(MAX) NULL,
+          bank_name    NVARCHAR(100) NULL,
+          account_no   VARCHAR(50)   NULL,
+          account_name NVARCHAR(150) NULL,
+          updated_at   DATETIME2(0)  NOT NULL CONSTRAINT DF_LPQ_Updated DEFAULT SYSUTCDATETIME()
+        );
+      END
+    `);
+  } catch (err) {
+    console.error('[Lab_Payment_Qr Ensure Warning]:', err.message);
+  }
+}
+
+async function saveLabPaymentQrRecord({ lab_code, qr_image_url, bank_name, account_no, account_name }) {
+  if (!dbStatus.connected || !lab_code) return false;
+  try {
+    await ensureLabPaymentQrTable();
+    const esc = (v) => String(v || '').replace(/'/g, "''");
+    await runQuery(`
+      IF EXISTS (SELECT 1 FROM dbo.Lab_Payment_Qr WHERE lab_code = '${esc(lab_code)}')
+      BEGIN
+        UPDATE dbo.Lab_Payment_Qr
+        SET qr_image_url = N'${esc(qr_image_url)}',
+            bank_name = N'${esc(bank_name)}',
+            account_no = '${esc(account_no)}',
+            account_name = N'${esc(account_name)}',
+            updated_at = SYSUTCDATETIME()
+        WHERE lab_code = '${esc(lab_code)}';
+      END
+      ELSE
+      BEGIN
+        INSERT INTO dbo.Lab_Payment_Qr (lab_code, qr_image_url, bank_name, account_no, account_name)
+        VALUES ('${esc(lab_code)}', N'${esc(qr_image_url)}', N'${esc(bank_name)}', '${esc(account_no)}', N'${esc(account_name)}');
+      END
+    `);
+    return true;
+  } catch (err) {
+    console.error('[Lab_Payment_Qr Save Warning]:', err.message);
+    return false;
+  }
+}
+
+async function upsertShipmentRecord(shipment) {
+  if (!dbStatus.connected || !shipment || !shipment.order_code) return false;
+  try {
+    const esc = (v) => String(v || '').replace(/'/g, "''");
+    const ordCode = esc(shipment.order_code);
+    const direction = esc(shipment.direction || 'PICKUP_TO_LAB');
+    const provider = esc(shipment.provider || 'AHAMOVE');
+    const extId = esc(shipment.external_order_id || '');
+    const trackCode = esc(shipment.shared_link || shipment.tracking_code || extId);
+    const sName = esc(shipment.sender_name || 'Khách hàng');
+    const sPhone = esc(shipment.sender_phone || '0901234567');
+    const sAddr = esc(shipment.sender_address || 'Hà Nội');
+    const rName = esc(shipment.receiver_name || 'Film Lab');
+    const rPhone = esc(shipment.receiver_phone || '0904567890');
+    const rAddr = esc(shipment.receiver_address || 'Film Lab');
+    const fee = Math.max(0, Number(shipment.shipping_fee) || 0);
+    const status = esc(shipment.status || 'PENDING');
+
+    await runQuery(`
+      DECLARE @ordId BIGINT = (SELECT TOP 1 order_id FROM Orders WHERE order_code = '${ordCode}');
+      IF @ordId IS NOT NULL
+      BEGIN
+        IF EXISTS (SELECT 1 FROM Shipment WHERE order_id = @ordId AND direction = '${direction}')
+        BEGIN
+          UPDATE Shipment
+          SET provider = '${provider}',
+              external_order_id = '${extId}',
+              tracking_code = '${trackCode}',
+              sender_name = N'${sName}',
+              sender_phone = '${sPhone}',
+              sender_address = N'${sAddr}',
+              receiver_name = N'${rName}',
+              receiver_phone = '${rPhone}',
+              receiver_address = N'${rAddr}',
+              shipping_fee = ${fee},
+              status = '${status}'
+          WHERE order_id = @ordId AND direction = '${direction}';
+        END
+        ELSE
+        BEGIN
+          INSERT INTO Shipment (order_id, direction, provider, external_order_id, tracking_code, sender_name, sender_phone, sender_address, receiver_name, receiver_phone, receiver_address, shipping_fee, status)
+          VALUES (@ordId, '${direction}', '${provider}', '${extId}', '${trackCode}', N'${sName}', '${sPhone}', N'${sAddr}', N'${rName}', '${rPhone}', N'${rAddr}', ${fee}, '${status}');
+        END
+      END
+    `);
+    return true;
+  } catch (err) {
+    console.error('[Shipment Upsert Warning]:', err.message);
     return false;
   }
 }
@@ -973,4 +1405,9 @@ module.exports = {
   runQuery,
   getDbStatus,
   getPool,
+  saveOrderDriveLinkRecord,
+  getPersistedSentDriveLinks,
+  hydratePersistedDriveLinks,
+  saveLabPaymentQrRecord,
+  upsertShipmentRecord,
 };

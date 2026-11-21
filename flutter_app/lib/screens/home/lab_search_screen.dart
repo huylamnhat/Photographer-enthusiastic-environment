@@ -44,10 +44,6 @@ class _LabSearchScreenState extends State<LabSearchScreen> {
   void initState() {
     super.initState();
     _loadLabs();
-    _refreshTimer = Timer.periodic(
-      const Duration(seconds: 5),
-      (_) => _loadLabs(silent: true),
-    );
   }
 
   @override
@@ -214,8 +210,8 @@ class _LabSearchScreenState extends State<LabSearchScreen> {
               const SizedBox(height: 8),
 
               _buildCompareRow('Giá C-41 (135/36)', labA['price'], labB['price'], isHighlight: true),
-              _buildCompareRow('Thời gian SLA', labA['sla'], labB['sla']),
-              _buildCompareRow('Hệ Máy Scan', labA['machine'], labB['machine']),
+              _buildCompareRow('Thời gian trả ảnh', labA['sla'], labB['sla']),
+              _buildCompareRow('Máy quét ảnh', labA['machine'], labB['machine']),
               _buildCompareRow('Tone màu', labA['machineDesc'], labB['machineDesc']),
               _buildCompareRow('Gửi Roll', labA['drop'], labB['drop']),
 
@@ -668,7 +664,7 @@ class _LabSearchScreenState extends State<LabSearchScreen> {
                                   children: [
                                     const Icon(Icons.schedule, size: 12, color: AppColors.secondary),
                                     const SizedBox(width: 4),
-                                    Text('SLA: ', style: AppTypography.labelCaps.copyWith(fontSize: 10)),
+                                    Text('Trả ảnh: ', style: AppTypography.labelCaps.copyWith(fontSize: 10)),
                                     Text(
                                       lab['sla'],
                                       style: AppTypography.dataMono.copyWith(fontSize: 10, fontWeight: FontWeight.bold),
