@@ -4,9 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       api_base_url:
-        description: 'Backend API URL (VD: https://xxxx.trycloudflare.com/api)'
+        description: 'Backend API URL (VD: https://alexhuy.tail2e0dc9.ts.net/api)'
         required: true
-        default: 'https://golden-equally-monetary-class.trycloudflare.com/api'
+        default: 'https://alexhuy.tail2e0dc9.ts.net/api'
   push:
     branches:
       - main
@@ -40,7 +40,7 @@ jobs:
         run: |
           URL="${{ github.event.inputs.api_base_url }}"
           if [ -z "$URL" ]; then
-            URL="https://golden-equally-monetary-class.trycloudflare.com/api"
+            URL="https://alexhuy.tail2e0dc9.ts.net/api"
           fi
           echo "url=$URL" >> "$GITHUB_OUTPUT"
 
