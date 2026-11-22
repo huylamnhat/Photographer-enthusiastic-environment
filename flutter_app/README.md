@@ -30,9 +30,10 @@ flutter run -d chrome
 flutter run
 ```
 
-### 3. Cấu hình địa chỉ Backend
+### 3. Cấu hình địa chỉ Backend & Triển khai
 File cấu hình tại `lib/core/constants/api_constants.dart`:
-- Chạy Web / iOS: `http://localhost:5000/api`
-- Chạy Android Emulator: `http://10.0.2.2:5000/api`
-*(Ứng dụng có sẵn bộ dữ liệu offline fallback, nếu chưa bật backend vẫn hiển thị giao diện mượt mà)*
+- Mặc định khi chạy local: `http://localhost:5000/api` (Web) hoặc `http://<LAN_IP>:5000/api` (Mobile).
+- Khi triển khai **Netlify** & build **Android APK** trỏ về Backend Local qua Tailscale Funnel:
+  - **Build Web (Netlify):** `flutter build web --release --dart-define=API_BASE_URL=https://<tailscale-funnel-url>/api`
+  - **Build APK (CI/CD):** Tự động build qua GitHub Actions (`.github/workflows/build-apk.yml`).
 

@@ -3,9 +3,12 @@
 Backend REST API phục vụ nền tảng MiniLab kết nối cộng đồng nhiếp ảnh phim và các Film Lab.
 
 ## Đặc điểm nổi bật
-- **Công nghệ:** Node.js (Express), JWT Authentication, Multer File Storage, CORS.
-- **Tuân thủ yêu cầu:** Chưa gọi các API bên ngoài (VNPay/MoMo gateway thật, Ahamove/Lalamove thật, FCM, SMTP thật). Mọi giao dịch thanh toán, sinh mã vận đơn, tạo mã OTP (mặc định `8888`) và quy trình xử lý đều được thực hiện mô phỏng nội bộ tự động (Self-contained Internal Simulation).
-- **Hỗ trợ CSDL:** Sẵn sàng 44 bảng chuẩn 3NF từ thiết kế Week 2 (SQL Server DDL), tích hợp sẵn In-Memory Datastore phong phú để chạy demo ngay lập tức không cần cài đặt SQL Server.
+- **Công nghệ:** Node.js (Express), JWT Authentication, Multer, CORS.
+- **Tích hợp thực tế:**
+  - **Kho ảnh (Archive):** **Google Drive API v3 (OAuth2)** tự tạo thư mục theo từng đơn hàng và trả link chia sẻ.
+  - **Thanh toán:** **VNPAY Sandbox v2.1.0** và **QR chuyển khoản** riêng của từng Film Lab (`Lab_Payment_Qr`).
+  - **Vận chuyển:** **AhaMove Open API v3 (Staging)** ước tính phí, đặt tài xế lấy film và đồng bộ trạng thái.
+- **CSDL & Triển khai Local Server:** Kết nối trực tiếp **SQL Server Local** (`localhost\SQLEXPRESS` -> `FilmLabPlatform`), chạy trên máy cá nhân và mở endpoint HTTPS cố định qua **Tailscale Funnel** để phục vụ Frontend trên **Netlify** và **Android APK**.
 
 ## Hướng dẫn cài đặt & khởi động
 

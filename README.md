@@ -87,7 +87,7 @@ Nền tảng hoạt động như một hệ sinh thái cho nhiếp ảnh analog:
 
 **3. Quản lý vòng đời xử lý film.** Lab quản lý từng công đoạn: nhận film, tráng, rửa, sấy, scan, chuẩn bị ảnh và kiểm tra chất lượng cuối. Mỗi bước được ghi nhận và đồng bộ lên ứng dụng của khách để theo dõi real-time.
 
-**4. Giao file số & quản lý Archive.** Khi hoàn tất, lab upload file scan vào hệ thống lưu trữ tệp (File Storage trên máy chủ qua Multer). Hệ thống ghi nhận đường dẫn tương đối (storage key) vào CSDL SQL Server và tự động nạp vào Digital Film Archive. Khách nhận thông báo, xem ảnh dạng lưới (Gallery View), tải file gốc về và quản lý cùng đầy đủ thông số metadata.
+**4. Giao file số & quản lý Kho ảnh.** Khi hoàn tất, lab chọn ảnh scan và tải thẳng lên **Google Drive API v3** (tạo thư mục riêng cho từng đơn hàng). Hệ thống lưu link Google Drive vào CSDL SQL Server (`Order_Drive_Link`) để đồng bộ ngay sang **Kho ảnh** của khách hàng trên Mobile App và Web, cho phép mở xem hoặc tải file ảnh gốc trực tiếp.
 
 **5. Marketplace & trao đổi thiết bị.** Thành viên đăng bài mua, bán, trao đổi máy ảnh analog, film, ống kính, phụ kiện. Có quản lý tin đăng, tìm kiếm nâng cao, đánh giá người bán, theo dõi giao dịch và liên hệ trực tiếp qua số điện thoại/Zalo giữa người mua và người bán.
 
@@ -105,21 +105,21 @@ Hệ thống được tách module rõ ràng giữa App, Web, Backend và Storag
 
 | Thành phần | Công nghệ |
 |---|---|
-| Mobile App | Flutter (Android & iOS) |
+| Mobile App | Flutter (Android APK) |
 | Web Portal & Admin | Flutter Web |
-| Backend | Node.js (Express) |
-| Database | SQL Server |
-| File Storage | Local File Storage (Multer & Express Static) / Hỗ trợ Cloud Storage |
+| Backend | Node.js (Express) — Local Server trên máy cá nhân (HTTPS qua Tailscale Funnel) |
+| Database | Microsoft SQL Server (`SQLEXPRESS` Local) |
+| Kho ảnh / Lưu trữ (Archive) | Google Drive API v3 (OAuth2) & Local Uploads (Multer) |
 | Authentication | JWT |
-| Search Engine | Elasticsearch |
-| Triển khai | Netlify and Render |
-| CI/CD | GitHub Actions |
+| Thanh toán & Giao nhận | VNPAY Sandbox, QR Chuyển khoản Lab & AhaMove API v3 (Staging) |
+| Triển khai | Web trên **Netlify** · App **APK** (GitHub Actions) · **Backend & SQL Server Local** (Tailscale Funnel) |
+| CI/CD | GitHub Actions (Build `app-release.apk`) |
 | Quản lý mã nguồn | GitHub |
 
 ## Yêu cầu phi chức năng
 
 - Xác thực bằng **JWT** kết hợp **phân quyền theo vai trò (RBAC)**.
-- **Lưu trữ tệp số an toàn (File Storage):** Lưu trữ file scan gốc (.JPG, .TIFF) an toàn trong thư mục máy chủ qua Multer kết hợp kiểm tra phân quyền JWT, CSDL SQL Server chỉ lưu đường dẫn tương đối (`storage_key`), sẵn sàng cấu hình nâng cấp Cloud Storage khi mở rộng.
+- **Lưu trữ tệp số trên Google Drive (Archive):** Ảnh scan của từng đơn hàng được đẩy trực tiếp qua **Google Drive API v3** vào thư mục chia sẻ riêng theo từng đơn và lưu đường dẫn chia sẻ (`Order_Drive_Link`) trong SQL Server cục bộ.
 - **Kiến trúc module** tách App, Web, Backend, Storage.
 - **RESTful API** hỗ trợ tích hợp cổng thanh toán, đối tác logistics và các dịch vụ nhiếp ảnh trong tương lai.
 - **Sẵn sàng cao, mở rộng tốt, nhất quán dữ liệu** cho nền tảng multi-tenant phục vụ nhiều Film Lab cùng lúc.

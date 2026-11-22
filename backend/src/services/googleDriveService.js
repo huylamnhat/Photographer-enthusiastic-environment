@@ -64,6 +64,7 @@ const driveConfig = {
 
 let cachedAccessToken = '';
 let cachedTokenExpiry = 0;
+let lastTokenError = '';
 
 function extractFolderIdFromUrl(urlOrId) {
   if (!urlOrId || isPlaceholderDriveUrlOrId(urlOrId)) return '';
@@ -109,7 +110,7 @@ function getDriveConfigStatus() {
   const hasOAuth = Boolean(driveConfig.clientId && driveConfig.clientSecret && driveConfig.refreshToken);
   const hasAccessToken = Boolean(driveConfig.accessToken);
   const hasServiceAccount = Boolean(driveConfig.serviceAccountEmail && driveConfig.privateKey);
-  const isLiveApiReady = hasOAuth || hasAccessToken || hasServiceAccount;
+  const isLiveApiReady = !lastTokenError && (hasOAuth || hasAccessToken || hasServiceAccount);
   const folderId = driveConfig.folderId || extractFolderIdFromUrl(driveConfig.folderUrl) || '';
   const folderUrl = folderId
     ? `https://drive.google.com/drive/folders/${folderId}?usp=sharing`
@@ -123,6 +124,7 @@ function getDriveConfigStatus() {
     has_access_token: hasAccessToken,
     has_service_account: hasServiceAccount,
     is_live_api_ready: isLiveApiReady,
+    token_error: lastTokenError,
     client_id: driveConfig.clientId ? `${driveConfig.clientId.slice(0, 12)}...` : '',
   };
 }
@@ -140,9 +142,12 @@ function updateDriveConfig(newConfig = {}) {
   if (newConfig.refresh_token !== undefined && String(newConfig.refresh_token).trim()) {
     driveConfig.refreshToken = String(newConfig.refresh_token).trim();
     cachedAccessToken = '';
+    cachedTokenExpiry = 0;
+    lastTokenError = '';
   }
   if (newConfig.access_token !== undefined && String(newConfig.access_token).trim()) {
     driveConfig.accessToken = String(newConfig.access_token).trim();
+    lastTokenError = '';
   }
   if (newConfig.folder_url !== undefined) {
     const cleanUrl = String(newConfig.folder_url).trim();
@@ -200,9 +205,14 @@ async function getValidAccessToken(forceRefresh = false) {
         if (data && data.access_token) {
           cachedAccessToken = data.access_token;
           cachedTokenExpiry = now + ((data.expires_in || 3500) - 120) * 1000;
+          lastTokenError = '';
           driveConfig.accessToken = data.access_token;
           persistDriveConfigToEnv();
           return data.access_token;
+        }
+        if (data && data.error) {
+          lastTokenError = `${data.error}: ${data.error_description || 'Refresh token đã hết hạn hoặc bị thu hồi'}`;
+          console.log('[Google Drive OAuth Direct Refresh Error]:', lastTokenError);
         }
       } catch (err) {
         console.log('[Google Drive OAuth Direct Refresh Warning]:', err.message);
@@ -223,12 +233,23 @@ async function getValidAccessToken(forceRefresh = false) {
       if (pgData && pgData.access_token) {
         cachedAccessToken = pgData.access_token;
         cachedTokenExpiry = now + ((pgData.expires_in || 3500) - 120) * 1000;
+        lastTokenError = '';
         driveConfig.accessToken = pgData.access_token;
         persistDriveConfigToEnv();
         return pgData.access_token;
       }
+      if (pgData && pgData.error && !lastTokenError) {
+        lastTokenError = String(pgData.error);
+      }
     } catch (pgErr) {
       console.log('[Google Drive OAuth Playground Refresh Warning]:', pgErr.message);
+    }
+
+    if (lastTokenError.includes('invalid_grant')) {
+      cachedAccessToken = '';
+      cachedTokenExpiry = 0;
+      driveConfig.accessToken = '';
+      return null;
     }
   }
 
